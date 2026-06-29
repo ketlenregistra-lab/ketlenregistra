@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ketlen Cristina · Links</title>
+<meta name="description" content="Videomaker & Designer para marcas que levam o visual a sério.">
+<meta property="og:title" content="Ketlen Cristina">
+<meta property="og:description" content="Videomaker & Designer para marcas que levam o visual a sério.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --espresso:   #2E1A0E;
+    --espresso2:  #3D2410;
+    --espresso3:  #4a2d15;
+    --terracota:  #B5622E;
+    --argila:     #C9935A;
+    --areia:      #D4A96A;
+    --creme:      #F2EDE4;
+    --cinza:      #9E8E84;
+    --borda:      rgba(255,255,255,0.07);
+    --borda-hover:rgba(181,98,46,0.6);
+  }
+
+  html, body {
+    min-height: 100%;
+    background: var(--espresso);
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 52px 20px 72px;
+  }
+
+  .page {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Avatar ── */
+  .avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: var(--espresso3);
+    border: 2.5px solid var(--terracota);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 38px;
+    font-style: italic;
+    font-weight: 300;
+    color: var(--areia);
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .avatar::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 1px solid rgba(181,98,46,0.25);
+  }
+
+  /* ── Header ── */
+  .handle {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cinza);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 34px;
+    font-weight: 400;
+    color: var(--creme);
+    text-align: center;
+    line-height: 1.15;
+    margin-bottom: 14px;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--areia);
+  }
+
+  .divider {
+    width: 32px;
+    height: 1.5px;
+    background: var(--terracota);
+    border-radius: 2px;
+    opacity: 0.5;
+    margin-bottom: 14px;
+  }
+
+  .bio {
+    font-size: 13px;
+    color: var(--cinza);
+    text-align: center;
+    line-height: 1.72;
+    margin-bottom: 40px;
+    max-width: 290px;
+  }
+
+  /* ── Botões principais ── */
+  .links {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+
+  .btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 15px 18px;
+    border-radius: 12px;
+    border: 1px solid var(--borda);
+    background: var(--espresso2);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.18s, border-color 0.2s, transform 0.12s;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .btn:hover {
+    background: var(--espresso3);
+    border-color: var(--borda-hover);
+    transform: translateY(-2px);
+  }
+
+  .btn:active { transform: translateY(0); }
+
+  .btn-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.05);
+  }
+
+  .btn-icon svg { width: 22px; height: 22px; }
+
+  .btn-text { flex: 1; text-align: left; }
+
+  .btn-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--creme);
+    margin-bottom: 2px;
+  }
+
+  .btn-desc {
+    display: block;
+    font-size: 11.5px;
+    color: var(--cinza);
+  }
+
+  .btn-arrow {
+    color: var(--terracota);
+    flex-shrink: 0;
+    opacity: 0.7;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+
+  .btn:hover .btn-arrow { transform: translateX(3px); opacity: 1; }
+
+  /* ── Overlay ── */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,5,2,0.7);
+    z-index: 100;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .overlay.active { display: flex; }
+
+  /* ── Bottom Sheet ── */
+  .sheet {
+    width: 100%;
+    max-width: 480px;
+    background: #3a2010;
+    border-radius: 20px 20px 0 0;
+    padding: 24px 24px 44px;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.32,0.72,0,1);
+    max-height: 93vh;
+    overflow-y: auto;
+  }
+
+  .overlay.active .sheet { transform: translateY(0); }
+
+  .sheet-handle {
+    width: 40px;
+    height: 4px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 4px;
+    margin: 0 auto 22px;
+  }
+
+  .sheet-tag {
+    font-size: 10.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--terracota);
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+
+  .sheet h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 27px;
+    font-weight: 400;
+    color: var(--creme);
+    margin-bottom: 7px;
+    line-height: 1.2;
+  }
+
+  .sheet h2 em { font-style: italic; color: var(--areia); }
+
+  .sheet-desc {
+    font-size: 13px;
+    color: var(--cinza);
+    line-height: 1.65;
+    margin-bottom: 24px;
+  }
+
+  /* ── Campos ── */
+  .form-group { margin-bottom: 14px; }
+
+  label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--creme);
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+    opacity: 0.85;
+  }
+
+  input[type="text"],
+  input[type="tel"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.05);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: var(--creme);
+    outline: none;
+    transition: border-color 0.15s, background 0.15s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  input::placeholder, textarea::placeholder { color: rgba(158,142,132,0.6); }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--terracota);
+    background: rgba(255,255,255,0.08);
+  }
+
+  textarea { resize: none; min-height: 88px; line-height: 1.6; }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%239E8E84' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+
+  select option { background: #3a2010; color: var(--creme); }
+
+  /* ── Botão enviar ── */
+  .btn-submit {
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    border: none;
+    background: var(--terracota);
+    color: var(--creme);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.18s, transform 0.12s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .btn-submit:hover { background: #c96e38; }
+  .btn-submit:active { transform: scale(0.98); }
+  .btn-submit svg { width: 18px; height: 18px; }
+
+  .btn-fechar {
+    width: 100%;
+    padding: 13px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: transparent;
+    color: var(--cinza);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.15s;
+  }
+
+  .btn-fechar:hover { background: rgba(255,255,255,0.05); }
+
+  /* ── Rodapé ── */
+  footer {
+    margin-top: 44px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11.5px;
+    color: rgba(158,142,132,0.5);
+    letter-spacing: 0.08em;
+  }
+
+  footer .dot {
+    width: 3px; height: 3px;
+    background: var(--terracota);
+    border-radius: 50%;
+    opacity: 0.4;
+  }
+
+  /* scrollbar discreta */
+  .sheet::-webkit-scrollbar { width: 4px; }
+  .sheet::-webkit-scrollbar-track { background: transparent; }
+  .sheet::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<main class="page">
+
+  <div class="avatar">K</div>
+
+  <p class="handle">@ketlen_crs</p>
+
+  <h1>Ketlen <em>Cristina</em></h1>
+
+  <div class="divider"></div>
+
+  <p class="bio">
+    Videomaker &amp; Designer para marcas que levam o visual a sério.<br>
+    Gravação · Edição · Design
+  </p>
+
+  <div class="links">
+
+    <!-- 1. Designer de Post -->
+    <button class="btn" onclick="abrirSheet('design')">
+      <div class="btn-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#C9935A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+          <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+          <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+          <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+        </svg>
+      </div>
+      <div class="btn-text">
+        <span class="btn-label">Designer de Post</span>
+        <span class="btn-desc">Artes para feed, stories e carrossel</span>
+      </div>
+      <svg class="btn-arrow" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </button>
+
+    <!-- 2. Videomaker, Storymaker & Edição -->
+    <button class="btn" onclick="abrirSheet('video')">
+      <div class="btn-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#D4A96A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 10l5-3v10l-5-3V10z"/>
+          <rect x="2" y="7" width="13" height="10" rx="2"/>
+        </svg>
+      </div>
+      <div class="btn-text">
+        <span class="btn-label">Videomaker · Storymaker &amp; Edição</span>
+        <span class="btn-desc">Reels, vídeos e stories profissionais</span>
+      </div>
+      <svg class="btn-arrow" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </button>
+
+    <!-- 3. Social Media -->
+    <button class="btn" onclick="abrirSheet('social')">
+      <div class="btn-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#B5622E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6zM7 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6zM17 16a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/>
+          <line x1="14.1" y1="4.9" x2="9.9" y2="9.1"/>
+          <line x1="9.9" y1="14.9" x2="14.1" y2="19.1"/>
+        </svg>
+      </div>
+      <div class="btn-text">
+        <span class="btn-label">Social Media</span>
+        <span class="btn-desc">Gestão completa das suas redes sociais</span>
+      </div>
+      <svg class="btn-arrow" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </button>
+
+    <!-- 4. Fale Comigo — link direto WhatsApp -->
+    <a class="btn" href="https://wa.me/5566981012302" target="_blank" rel="noopener">
+      <div class="btn-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/>
+          <path d="M9 10c0 .5.2 1.15.5 1.5.5.5 1 1.5 3 1.5s2.5-1 3-1.5c.3-.35.5-1 .5-1.5"/>
+        </svg>
+      </div>
+      <div class="btn-text">
+        <span class="btn-label">Fale Comigo</span>
+        <span class="btn-desc">Outros assuntos · WhatsApp direto</span>
+      </div>
+      <svg class="btn-arrow" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </a>
+
+  </div>
+
+  <footer>
+    <span>@ketlen_crs</span>
+    <span class="dot"></span>
+    <span>Água Boa · MT</span>
+  </footer>
+
+</main>
+
+<!-- ═══════════════════════════════
+     SHEET 1 — Designer de Post
+════════════════════════════════ -->
+<div class="overlay" id="sheet-design" onclick="fecharAoFundo(event,'design')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <p class="sheet-tag">Serviço</p>
+    <h2>Designer de <em>Post</em></h2>
+    <p class="sheet-desc">Preencha abaixo e vou entrar em contato pelo WhatsApp já sabendo o que você precisa.</p>
+
+    <div class="form-group">
+      <label for="dp-nome">Seu nome</label>
+      <input type="text" id="dp-nome" placeholder="Como posso te chamar?">
+    </div>
+    <div class="form-group">
+      <label for="dp-tel">Seu WhatsApp</label>
+      <input type="tel" id="dp-tel" placeholder="(66) 9 9999-9999">
+    </div>
+    <div class="form-group">
+      <label for="dp-nicho">Segmento do negócio</label>
+      <select id="dp-nicho">
+        <option value="" disabled selected>Selecione seu segmento</option>
+        <option>Beleza &amp; Estética</option>
+        <option>Moda &amp; Varejo</option>
+        <option>Alimentação &amp; Gastronomia</option>
+        <option>Saúde &amp; Bem-estar</option>
+        <option>Imóveis</option>
+        <option>Serviços Gerais</option>
+        <option>Educação &amp; Cursos</option>
+        <option>Outro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="dp-tipo">Tipo de arte</label>
+      <select id="dp-tipo">
+        <option value="" disabled selected>O que você precisa?</option>
+        <option>Posts para o feed</option>
+        <option>Carrossel</option>
+        <option>Stories</option>
+        <option>Feed + Stories (pacote)</option>
+        <option>Identidade visual para o perfil</option>
+        <option>Não sei ainda, quero orientação</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="dp-freq">Frequência</label>
+      <select id="dp-freq">
+        <option value="" disabled selected>Com que frequência?</option>
+        <option>Pontual (projeto único)</option>
+        <option>Mensal (pacote recorrente)</option>
+        <option>A definir</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="dp-obs">Observações (opcional)</label>
+      <textarea id="dp-obs" placeholder="Cores da marca, referências, urgência..."></textarea>
+    </div>
+
+    <button class="btn-submit" onclick="enviarWpp('design')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/></svg>
+      Enviar pelo WhatsApp
+    </button>
+    <button class="btn-fechar" onclick="fecharSheet('design')">Voltar</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════
+     SHEET 2 — Videomaker & Edição
+════════════════════════════════ -->
+<div class="overlay" id="sheet-video" onclick="fecharAoFundo(event,'video')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <p class="sheet-tag">Serviço</p>
+    <h2>Videomaker · Storymaker<br>&amp; <em>Edição</em></h2>
+    <p class="sheet-desc">Preencha abaixo e vou entrar em contato pelo WhatsApp já sabendo o que você precisa.</p>
+
+    <div class="form-group">
+      <label for="vm-nome">Seu nome</label>
+      <input type="text" id="vm-nome" placeholder="Como posso te chamar?">
+    </div>
+    <div class="form-group">
+      <label for="vm-tel">Seu WhatsApp</label>
+      <input type="tel" id="vm-tel" placeholder="(66) 9 9999-9999">
+    </div>
+    <div class="form-group">
+      <label for="vm-formato">Formato do conteúdo</label>
+      <select id="vm-formato">
+        <option value="" disabled selected>O que você precisa?</option>
+        <option>Reels (até 90s)</option>
+        <option>Vídeo institucional</option>
+        <option>Stories em vídeo</option>
+        <option>Captação + edição no local</option>
+        <option>Edição de material já gravado</option>
+        <option>Não sei, quero orientação</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="vm-freq">Frequência</label>
+      <select id="vm-freq">
+        <option value="" disabled selected>Com que frequência?</option>
+        <option>Pontual (projeto único)</option>
+        <option>Mensal (pacote recorrente)</option>
+        <option>Quinzenal</option>
+        <option>Semanal</option>
+        <option>A definir</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="vm-local">Localização</label>
+      <select id="vm-local">
+        <option value="" disabled selected>Onde você está?</option>
+        <option>Água Boa – MT</option>
+        <option>Canarana – MT</option>
+        <option>Nova Xavantina – MT</option>
+        <option>Outra cidade – MT</option>
+        <option>Outro estado (remoto)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="vm-obs">Conte mais sobre o projeto (opcional)</label>
+      <textarea id="vm-obs" placeholder="Segmento, referências, datas..."></textarea>
+    </div>
+
+    <button class="btn-submit" onclick="enviarWpp('video')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/></svg>
+      Enviar pelo WhatsApp
+    </button>
+    <button class="btn-fechar" onclick="fecharSheet('video')">Voltar</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════
+     SHEET 3 — Social Media
+════════════════════════════════ -->
+<div class="overlay" id="sheet-social" onclick="fecharAoFundo(event,'social')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <p class="sheet-tag">Serviço</p>
+    <h2>Social <em>Media</em></h2>
+    <p class="sheet-desc">Preencha abaixo e vou entrar em contato pelo WhatsApp já sabendo o que você precisa.</p>
+
+    <div class="form-group">
+      <label for="sm-nome">Seu nome</label>
+      <input type="text" id="sm-nome" placeholder="Como posso te chamar?">
+    </div>
+    <div class="form-group">
+      <label for="sm-tel">Seu WhatsApp</label>
+      <input type="tel" id="sm-tel" placeholder="(66) 9 9999-9999">
+    </div>
+    <div class="form-group">
+      <label for="sm-nicho">Segmento do negócio</label>
+      <select id="sm-nicho">
+        <option value="" disabled selected>Selecione seu segmento</option>
+        <option>Beleza &amp; Estética</option>
+        <option>Moda &amp; Varejo</option>
+        <option>Alimentação &amp; Gastronomia</option>
+        <option>Saúde &amp; Bem-estar</option>
+        <option>Imóveis</option>
+        <option>Serviços Gerais</option>
+        <option>Educação &amp; Cursos</option>
+        <option>Outro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="sm-redes">Quais redes sociais?</label>
+      <select id="sm-redes">
+        <option value="" disabled selected>Plataformas de interesse</option>
+        <option>Instagram</option>
+        <option>Instagram + TikTok</option>
+        <option>Instagram + Facebook</option>
+        <option>Todas as principais</option>
+        <option>A definir</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="sm-situacao">Situação atual do perfil</label>
+      <select id="sm-situacao">
+        <option value="" disabled selected>Como estão suas redes hoje?</option>
+        <option>Perfil novo, começando do zero</option>
+        <option>Perfil existente, mas sem estratégia</option>
+        <option>Perfil ativo, quero melhorar resultados</option>
+        <option>Nunca postei, preciso de tudo</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="sm-objetivo">Principal objetivo</label>
+      <select id="sm-objetivo">
+        <option value="" disabled selected>O que você quer alcançar?</option>
+        <option>Atrair mais clientes</option>
+        <option>Aumentar seguidores</option>
+        <option>Construir autoridade na área</option>
+        <option>Vender mais</option>
+        <option>Todos os anteriores</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="sm-obs">Observações (opcional)</label>
+      <textarea id="sm-obs" placeholder="Conte um pouco mais sobre seu negócio..."></textarea>
+    </div>
+
+    <button class="btn-submit" onclick="enviarWpp('social')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/></svg>
+      Enviar pelo WhatsApp
+    </button>
+    <button class="btn-fechar" onclick="fecharSheet('social')">Voltar</button>
+  </div>
+</div>
+
+<script>
+  var WPP = '5566981012302';
+
+  function abrirSheet(id) {
+    document.getElementById('sheet-' + id).classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function fecharSheet(id) {
+    document.getElementById('sheet-' + id).classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  function fecharAoFundo(e, id) {
+    if (e.target === document.getElementById('sheet-' + id)) fecharSheet(id);
+  }
+
+  function v(id) {
+    var el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+  }
+
+  function linha(emoji, label, valor) {
+    return valor ? emoji + ' *' + label + ':* ' + valor + '\n' : '';
+  }
+
+  function enviarWpp(tipo) {
+    var msg = '';
+
+    if (tipo === 'design') {
+      var nome = v('dp-nome'), tel = v('dp-tel');
+      if (!nome || !tel) { alert('Preencha seu nome e WhatsApp para continuar.'); return; }
+      msg = '👋 Olá, Ketlen! Vi sua página e tenho interesse em *Designer de Post*.\n\n';
+      msg += linha('📌','Nome', nome);
+      msg += linha('📱','WhatsApp', tel);
+      msg += linha('🏷️','Segmento', v('dp-nicho'));
+      msg += linha('🎨','Tipo de arte', v('dp-tipo'));
+      msg += linha('🗓️','Frequência', v('dp-freq'));
+      msg += linha('📝','Obs', v('dp-obs'));
+    }
+
+    if (tipo === 'video') {
+      var nome = v('vm-nome'), tel = v('vm-tel');
+      if (!nome || !tel) { alert('Preencha seu nome e WhatsApp para continuar.'); return; }
+      msg = '👋 Olá, Ketlen! Vi sua página e tenho interesse em *Videomaker · Storymaker & Edição*.\n\n';
+      msg += linha('📌','Nome', nome);
+      msg += linha('📱','WhatsApp', tel);
+      msg += linha('🎬','Formato', v('vm-formato'));
+      msg += linha('🗓️','Frequência', v('vm-freq'));
+      msg += linha('📍','Localização', v('vm-local'));
+      msg += linha('📝','Projeto', v('vm-obs'));
+    }
+
+    if (tipo === 'social') {
+      var nome = v('sm-nome'), tel = v('sm-tel');
+      if (!nome || !tel) { alert('Preencha seu nome e WhatsApp para continuar.'); return; }
+      msg = '👋 Olá, Ketlen! Vi sua página e tenho interesse em *Social Media*.\n\n';
+      msg += linha('📌','Nome', nome);
+      msg += linha('📱','WhatsApp', tel);
+      msg += linha('🏷️','Segmento', v('sm-nicho'));
+      msg += linha('📲','Redes', v('sm-redes'));
+      msg += linha('📊','Situação atual', v('sm-situacao'));
+      msg += linha('🎯','Objetivo', v('sm-objetivo'));
+      msg += linha('📝','Obs', v('sm-obs'));
+    }
+
+    window.open('https://wa.me/' + WPP + '?text=' + encodeURIComponent(msg), '_blank');
+  }
+</script>
+</body>
+</html>
