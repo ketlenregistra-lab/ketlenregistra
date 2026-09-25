@@ -140,7 +140,8 @@
   }
   .btn:hover { background-position: 100% 0; }
   .btn:active { transform: scale(.985); }
-  .btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+  .btn:disabled, .btn[aria-disabled="true"] { opacity: .45; cursor: not-allowed; box-shadow: none; }
+  .btn:focus-visible, .opcao:focus-visible, .voltar:focus-visible { outline: 2px solid var(--rose-escuro); outline-offset: 3px; }
   .btn svg { width: 20px; height: 20px; flex: 0 0 auto; }
 
   .nota {
@@ -354,10 +355,10 @@
       <form id="form-nome" autocomplete="on">
         <input class="campo" id="nome" name="given-name" type="text" autocomplete="given-name" placeholder="Seu nome" maxlength="40" required>
         <ul class="resumo" id="resumo"></ul>
-        <button class="btn" type="submit" id="enviar" disabled>
+        <a class="btn" id="enviar" href="https://wa.me/5566984663314" aria-disabled="true">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.87 9.87 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Zm0 18.15h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.23 8.25-8.23 2.2 0 4.27.86 5.83 2.42a8.18 8.18 0 0 1 2.41 5.82c0 4.54-3.7 8.23-8.24 8.23Zm4.52-6.16c-.25-.12-1.46-.72-1.69-.8-.23-.08-.39-.12-.56.12-.16.25-.64.8-.78.97-.14.16-.29.18-.54.06-.25-.12-1.04-.38-1.99-1.23-.73-.66-1.23-1.46-1.37-1.71-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.16.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.43h-.48c-.16 0-.43.06-.66.31-.23.25-.86.84-.86 2.06 0 1.21.88 2.38 1 2.55.12.16 1.74 2.66 4.22 3.73.59.25 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.46-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.22-.16-.47-.28Z"/></svg>
           Continuar no WhatsApp
-        </button>
+        </a>
       </form>
       <p class="sigilo">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
@@ -407,6 +408,7 @@
     passoTxt.textContent = passo + ' de ' + TOTAL;
     if (passo === TOTAL) {
       montarResumo();
+      nome.dispatchEvent(new Event('input'));
       setTimeout(function () { nome.focus(); }, 250);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -445,25 +447,32 @@
     }
   });
 
-  nome.addEventListener('input', function () {
-    enviar.disabled = nome.value.trim().length < 2;
-  });
-
-  document.getElementById('form-nome').addEventListener('submit', function (e) {
-    e.preventDefault();
-    var n = nome.value.trim();
-    if (n.length < 2) return;
-
-    var linhas = ['Olá, Laudiane! Me chamo ' + n + '. Vim pelo Instagram e gostaria de agendar um atendimento.', ''];
+  function mensagem() {
+    var linhas = ['Olá, Laudiane! Me chamo ' + nome.value.trim() + '. Vim pelo Instagram e gostaria de agendar um atendimento.', ''];
     if (respostas.paraQuem !== 'Para mim') {
       linhas.push('• O atendimento é para outra pessoa (filho(a) ou familiar)');
     }
     linhas.push('• O que me trouxe: ' + respostas.motivo);
     linhas.push('• Formato: ' + respostas.formato);
     linhas.push('• Melhor período: ' + respostas.periodo);
+    return linhas.join('\n');
+  }
 
-    var url = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(linhas.join('\n'));
-    window.location.href = url;
+  function nomeOk() { return nome.value.trim().length >= 2; }
+
+  // o botão final é um link de verdade: o href é atualizado a cada letra digitada
+  nome.addEventListener('input', function () {
+    enviar.setAttribute('aria-disabled', nomeOk() ? 'false' : 'true');
+    enviar.href = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(mensagem());
+  });
+
+  enviar.addEventListener('click', function (e) {
+    if (!nomeOk()) { e.preventDefault(); nome.focus(); }
+  });
+
+  document.getElementById('form-nome').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (nomeOk()) enviar.click();
   });
 })();
 </script>
