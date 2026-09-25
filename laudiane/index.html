@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Laudiane Santos · Psicanalista Clínica</title>
+<meta name="description" content="Dor emocional tem caminho de cura. Agende sua primeira conversa com a Laudiane. Acredite, tem jeito.">
+<meta name="theme-color" content="#F5EAE6">
+<meta property="og:title" content="Laudiane Santos · Psicanalista Clínica">
+<meta property="og:description" content="Dor emocional tem caminho de cura. Acredite, tem jeito.">
+<meta property="og:image" content="logo.jpg">
+<link rel="icon" href="monograma.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --fundo:     #F5EAE6;
+    --papel:     #FBF5F3;
+    --rose:      #B7858A;
+    --rose-claro:#E3BFC1;
+    --rose-escuro:#8A5A5F;
+    --tinta:     #4E3437;
+    --suave:     #8E7275;
+    --borda:     #E6D3D0;
+    --metal: linear-gradient(100deg, #8A5A5F 0%, #C9979A 28%, #E8C4C5 45%, #B7858A 62%, #7E5055 100%);
+    --serif: "Playfair Display", Georgia, "Times New Roman", serif;
+    --sans:  "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+
+  html, body { min-height: 100%; background: var(--fundo); }
+
+  body {
+    font-family: var(--sans);
+    color: var(--tinta);
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: calc(28px + env(safe-area-inset-top, 0px)) 16px calc(28px + env(safe-area-inset-bottom, 0px));
+    /* luz suave, como na arte da logo */
+    background-image:
+      linear-gradient(160deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 40%),
+      linear-gradient(200deg, rgba(255,255,255,.35) 10%, rgba(255,255,255,0) 55%);
+  }
+
+  .app {
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---------- cabeçalho ---------- */
+  .marca { text-align: center; }
+  .marca img {
+    width: 92px; height: auto;
+    display: block; margin: 0 auto 10px;
+  }
+  .marca .nome {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 2rem;
+    line-height: 1.1;
+    background: var(--metal);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .marca .titulo {
+    margin-top: 6px;
+    font-family: var(--serif);
+    font-size: .74rem;
+    letter-spacing: .32em;
+    text-transform: uppercase;
+    color: var(--rose-escuro);
+  }
+  .app.em-perguntas .marca img { width: 54px; margin-bottom: 4px; }
+  .app.em-perguntas .marca .nome { font-size: 1.3rem; }
+  .app.em-perguntas .marca .titulo { display: none; }
+
+  /* ---------- telas ---------- */
+  .tela { display: none; animation: entra .35s ease both; }
+  .tela.ativa { display: block; }
+  @keyframes entra { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .tela { animation: none; } }
+
+  /* boas-vindas */
+  .boas-vindas { text-align: center; margin-top: 34px; }
+  .boas-vindas h1 {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 2.35rem;
+    line-height: 1.15;
+    color: var(--tinta);
+  }
+  .boas-vindas p {
+    margin: 16px auto 0;
+    max-width: 340px;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--suave);
+  }
+  .abordagens {
+    list-style: none;
+    display: flex; flex-wrap: wrap; justify-content: center;
+    gap: 8px;
+    margin: 26px 0 30px;
+  }
+  .abordagens li {
+    font-size: .8rem;
+    font-weight: 500;
+    color: var(--rose-escuro);
+    border: 1px solid var(--rose-claro);
+    background: var(--papel);
+    border-radius: 999px;
+    padding: 6px 12px;
+  }
+
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%;
+    border: 0;
+    border-radius: 14px;
+    padding: 17px 20px;
+    font-family: var(--sans);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: .01em;
+    color: #fff;
+    background: var(--metal);
+    background-size: 160% 100%;
+    box-shadow: 0 8px 22px -10px rgba(138,90,95,.7);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-position .5s ease, transform .15s ease;
+  }
+  .btn:hover { background-position: 100% 0; }
+  .btn:active { transform: scale(.985); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+  .btn svg { width: 20px; height: 20px; flex: 0 0 auto; }
+
+  .nota {
+    margin-top: 12px;
+    text-align: center;
+    font-size: .82rem;
+    color: var(--suave);
+  }
+
+  /* perguntas */
+  .topo {
+    display: flex; align-items: center; gap: 12px;
+    margin: 22px 0 22px;
+  }
+  .voltar {
+    flex: 0 0 auto;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--borda);
+    background: var(--papel);
+    color: var(--rose-escuro);
+    display: grid; place-items: center;
+    cursor: pointer;
+  }
+  .voltar svg { width: 18px; height: 18px; }
+  .progresso { flex: 1; height: 4px; border-radius: 4px; background: var(--borda); overflow: hidden; }
+  .progresso i { display: block; height: 100%; width: 0; background: var(--metal); transition: width .35s ease; }
+  .passo { font-size: .8rem; color: var(--suave); font-variant-numeric: tabular-nums; }
+
+  .pergunta h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 1.65rem;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .pergunta .apoio { color: var(--suave); font-size: .92rem; margin-bottom: 20px; line-height: 1.5; }
+
+  .opcoes { display: grid; gap: 10px; }
+  .opcoes.duas { grid-template-columns: 1fr 1fr; }
+  .opcao {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%;
+    text-align: left;
+    padding: 15px 16px;
+    border-radius: 14px;
+    border: 1px solid var(--borda);
+    background: var(--papel);
+    color: var(--tinta);
+    font-family: var(--sans);
+    font-size: .98rem;
+    font-weight: 500;
+    line-height: 1.3;
+    cursor: pointer;
+    transition: border-color .2s ease, background .2s ease, transform .1s ease;
+  }
+  .opcoes.duas .opcao { flex-direction: column; text-align: center; gap: 6px; padding: 18px 10px; }
+  .opcao:hover { border-color: var(--rose-claro); }
+  .opcao:active { transform: scale(.985); }
+  .opcao .icone {
+    flex: 0 0 auto;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--fundo);
+    color: var(--rose-escuro);
+    font-size: 1rem;
+  }
+  .opcao small { display: block; font-size: .8rem; font-weight: 400; color: var(--suave); margin-top: 2px; }
+  .opcao.marcada {
+    border-color: var(--rose);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(183,133,138,.18);
+  }
+  .opcao.marcada .icone { background: var(--rose); color: #fff; }
+
+  .campo {
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid var(--borda);
+    background: #fff;
+    font-family: var(--sans);
+    font-size: 1.05rem;
+    color: var(--tinta);
+    outline: none;
+    margin-bottom: 14px;
+  }
+  .campo:focus { border-color: var(--rose); box-shadow: 0 0 0 3px rgba(183,133,138,.18); }
+
+  /* resumo */
+  .resumo {
+    list-style: none;
+    background: var(--papel);
+    border: 1px solid var(--borda);
+    border-radius: 14px;
+    padding: 6px 16px;
+    margin-bottom: 18px;
+  }
+  .resumo li {
+    display: flex; justify-content: space-between; gap: 14px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--borda);
+    font-size: .92rem;
+  }
+  .resumo li:last-child { border-bottom: 0; }
+  .resumo span { color: var(--suave); }
+  .resumo b { font-weight: 600; text-align: right; }
+
+  .sigilo {
+    display: flex; gap: 8px; align-items: flex-start;
+    margin-top: 14px;
+    font-size: .8rem; line-height: 1.5;
+    color: var(--suave);
+  }
+  .sigilo svg { width: 15px; height: 15px; flex: 0 0 auto; margin-top: 2px; color: var(--rose); }
+
+  footer {
+    margin-top: auto;
+    padding-top: 36px;
+    text-align: center;
+    font-size: .76rem;
+    color: var(--suave);
+    line-height: 1.7;
+  }
+  footer a { color: var(--rose-escuro); text-decoration: none; font-weight: 600; }
+  footer .assinatura { font-family: var(--serif); font-style: italic; font-size: 1rem; color: var(--rose-escuro); }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <header class="marca">
+    <img src="monograma.png" alt="" width="92" height="118">
+    <div class="nome">Laudiane Santos</div>
+    <div class="titulo">Psicanalista Clínica</div>
+  </header>
+
+  <!-- 0 · boas-vindas -->
+  <section class="tela ativa boas-vindas" data-tela="0">
+    <h1>Dor emocional tem caminho de cura.</h1>
+    <p>Responda algumas perguntas rápidas, é só tocar, e fale comigo no WhatsApp. Assim eu já sei como posso te ajudar desde a primeira mensagem.</p>
+    <ul class="abordagens">
+      <li>Psicanálise</li>
+      <li>Reprocessamento</li>
+      <li>Análise corporal</li>
+      <li>Terapia em grupo</li>
+    </ul>
+    <button class="btn" type="button" data-acao="comecar">Quero agendar minha conversa</button>
+    <p class="nota">Leva menos de 30 segundos</p>
+  </section>
+
+  <!-- perguntas -->
+  <section class="tela" data-tela="perguntas">
+    <div class="topo">
+      <button class="voltar" type="button" data-acao="voltar" aria-label="Voltar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="progresso"><i id="barra"></i></div>
+      <span class="passo" id="passo">1 de 5</span>
+    </div>
+
+    <div class="pergunta" data-passo="1" data-campo="motivo">
+      <h2>O que te trouxe até aqui?</h2>
+      <p class="apoio">Escolha o que mais se aproxima. Não precisa ter certeza.</p>
+      <div class="opcoes">
+        <button class="opcao" type="button" data-valor="Ansiedade ou preocupação constante"><span class="icone">~</span>Ansiedade ou preocupação constante</button>
+        <button class="opcao" type="button" data-valor="Feridas e traumas do passado"><span class="icone">✦</span>Feridas e traumas do passado</button>
+        <button class="opcao" type="button" data-valor="Relacionamentos e família"><span class="icone">∞</span>Relacionamentos e família</button>
+        <button class="opcao" type="button" data-valor="Autoestima e insegurança"><span class="icone">♡</span>Autoestima e insegurança</button>
+        <button class="opcao" type="button" data-valor="Tristeza, desânimo ou luto"><span class="icone">☾</span>Tristeza, desânimo ou luto</button>
+        <button class="opcao" type="button" data-valor="Ainda não sei explicar"><span class="icone">?</span>Ainda não sei explicar, só sei que dói</button>
+      </div>
+    </div>
+
+    <div class="pergunta" data-passo="2" data-campo="paraQuem">
+      <h2>O atendimento é para quem?</h2>
+      <p class="apoio">&nbsp;</p>
+      <div class="opcoes duas">
+        <button class="opcao" type="button" data-valor="Para mim"><span class="icone">♡</span>Para mim</button>
+        <button class="opcao" type="button" data-valor="Para outra pessoa (filho(a) ou familiar)"><span class="icone">✦</span>Para outra pessoa<small>filho(a) ou familiar</small></button>
+      </div>
+    </div>
+
+    <div class="pergunta" data-passo="3" data-campo="formato">
+      <h2>Como você prefere ser atendido(a)?</h2>
+      <p class="apoio">&nbsp;</p>
+      <div class="opcoes">
+        <button class="opcao" type="button" data-valor="Individual, online"><span class="icone">◐</span><span>Individual, online<small>por chamada de vídeo, de onde você estiver</small></span></button>
+        <button class="opcao" type="button" data-valor="Individual, presencial"><span class="icone">●</span><span>Individual, presencial<small>no consultório</small></span></button>
+        <button class="opcao" type="button" data-valor="Terapia em grupo"><span class="icone">∞</span><span>Terapia em grupo<small>quero saber das próximas turmas</small></span></button>
+        <button class="opcao" type="button" data-valor="Quero ajuda para escolher"><span class="icone">?</span>Quero ajuda para escolher</button>
+      </div>
+    </div>
+
+    <div class="pergunta" data-passo="4" data-campo="periodo">
+      <h2>Qual o melhor período para você?</h2>
+      <p class="apoio">&nbsp;</p>
+      <div class="opcoes">
+        <button class="opcao" type="button" data-valor="Manhã"><span class="icone">☼</span>Manhã</button>
+        <button class="opcao" type="button" data-valor="Tarde"><span class="icone">◒</span>Tarde</button>
+        <button class="opcao" type="button" data-valor="Noite"><span class="icone">☾</span>Noite</button>
+        <button class="opcao" type="button" data-valor="Qualquer período"><span class="icone">✓</span>Tanto faz, sou flexível</button>
+      </div>
+    </div>
+
+    <div class="pergunta" data-passo="5" data-campo="nome">
+      <h2>Para finalizar, como posso te chamar?</h2>
+      <p class="apoio">Só o primeiro nome já está ótimo.</p>
+      <form id="form-nome" autocomplete="on">
+        <input class="campo" id="nome" name="given-name" type="text" autocomplete="given-name" placeholder="Seu nome" maxlength="40" required>
+        <ul class="resumo" id="resumo"></ul>
+        <button class="btn" type="submit" id="enviar" disabled>
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.87 9.87 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Zm0 18.15h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.23 8.25-8.23 2.2 0 4.27.86 5.83 2.42a8.18 8.18 0 0 1 2.41 5.82c0 4.54-3.7 8.23-8.24 8.23Zm4.52-6.16c-.25-.12-1.46-.72-1.69-.8-.23-.08-.39-.12-.56.12-.16.25-.64.8-.78.97-.14.16-.29.18-.54.06-.25-.12-1.04-.38-1.99-1.23-.73-.66-1.23-1.46-1.37-1.71-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.16.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.43h-.48c-.16 0-.43.06-.66.31-.23.25-.86.84-.86 2.06 0 1.21.88 2.38 1 2.55.12.16 1.74 2.66 4.22 3.73.59.25 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.46-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.22-.16-.47-.28Z"/></svg>
+          Continuar no WhatsApp
+        </button>
+      </form>
+      <p class="sigilo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        Suas respostas não ficam salvas neste site. Elas vão direto para a nossa conversa no WhatsApp, com sigilo.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="assinatura">Acredite, tem jeito.</div>
+    <a href="https://www.instagram.com/laudiane_terapeutatrg/" target="_blank" rel="noopener">@laudiane_terapeutatrg</a>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  var WHATSAPP = '5566984663314';
+  var TOTAL = 5;
+
+  var app = document.getElementById('app');
+  var telas = app.querySelectorAll('.tela');
+  var perguntas = app.querySelectorAll('.pergunta');
+  var barra = document.getElementById('barra');
+  var passoTxt = document.getElementById('passo');
+  var nome = document.getElementById('nome');
+  var enviar = document.getElementById('enviar');
+  var resumo = document.getElementById('resumo');
+
+  var respostas = {};
+  var atual = 0; // 0 = boas-vindas
+
+  function mostrar(passo) {
+    atual = passo;
+    telas.forEach(function (t) { t.classList.remove('ativa'); });
+    if (passo === 0) {
+      app.classList.remove('em-perguntas');
+      app.querySelector('[data-tela="0"]').classList.add('ativa');
+      return;
+    }
+    app.classList.add('em-perguntas');
+    app.querySelector('[data-tela="perguntas"]').classList.add('ativa');
+    perguntas.forEach(function (p) {
+      p.hidden = Number(p.dataset.passo) !== passo;
+    });
+    barra.style.width = (passo / TOTAL * 100) + '%';
+    passoTxt.textContent = passo + ' de ' + TOTAL;
+    if (passo === TOTAL) {
+      montarResumo();
+      setTimeout(function () { nome.focus(); }, 250);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function montarResumo() {
+    var itens = [
+      ['Motivo', respostas.motivo],
+      ['Para', respostas.paraQuem === 'Para mim' ? 'Mim' : 'Outra pessoa'],
+      ['Formato', respostas.formato],
+      ['Período', respostas.periodo]
+    ];
+    resumo.innerHTML = '';
+    itens.forEach(function (i) {
+      var li = document.createElement('li');
+      var s = document.createElement('span'); s.textContent = i[0];
+      var b = document.createElement('b'); b.textContent = i[1];
+      li.appendChild(s); li.appendChild(b);
+      resumo.appendChild(li);
+    });
+  }
+
+  app.addEventListener('click', function (e) {
+    var alvo = e.target.closest('button');
+    if (!alvo) return;
+
+    if (alvo.dataset.acao === 'comecar') return mostrar(1);
+    if (alvo.dataset.acao === 'voltar') return mostrar(atual - 1);
+
+    if (alvo.classList.contains('opcao')) {
+      var pergunta = alvo.closest('.pergunta');
+      pergunta.querySelectorAll('.opcao').forEach(function (o) { o.classList.remove('marcada'); });
+      alvo.classList.add('marcada');
+      respostas[pergunta.dataset.campo] = alvo.dataset.valor;
+      setTimeout(function () { mostrar(atual + 1); }, 260);
+    }
+  });
+
+  nome.addEventListener('input', function () {
+    enviar.disabled = nome.value.trim().length < 2;
+  });
+
+  document.getElementById('form-nome').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var n = nome.value.trim();
+    if (n.length < 2) return;
+
+    var linhas = ['Olá, Laudiane! Me chamo ' + n + '. Vim pelo Instagram e gostaria de agendar um atendimento.', ''];
+    if (respostas.paraQuem !== 'Para mim') {
+      linhas.push('• O atendimento é para outra pessoa (filho(a) ou familiar)');
+    }
+    linhas.push('• O que me trouxe: ' + respostas.motivo);
+    linhas.push('• Formato: ' + respostas.formato);
+    linhas.push('• Melhor período: ' + respostas.periodo);
+
+    var url = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(linhas.join('\n'));
+    window.location.href = url;
+  });
+})();
+</script>
+</body>
+</html>
