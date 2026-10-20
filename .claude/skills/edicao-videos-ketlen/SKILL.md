@@ -21,14 +21,14 @@ A Ketlen definiu este estilo como a identidade dela. **Não invente variações*
 | Ritmo | Cortes rápidos, **nenhuma pausa** entre frases. Vídeo nunca parado. Sem música de fundo. Sem título de abertura. |
 | Cor | `assets/cor_ketlen.cube` — medida pixel a pixel do bruto × edição dela no CapCut (Retrô americano + Bokeh + Qualidade II + 4K). Fundo sóbrio/acinzentado, pele natural. **Nunca** deixe a pele amarelada, alaranjada ou rosada demais (ela já reprovou as três). Nitidez leve. |
 | Legenda automática | Fonte SYSTEM (usamos Inter SemiBold), MAIÚSCULAS, branca com sombra suave, 2–3 palavras por vez sincronizadas com a fala. Tarja **rosa bebê #F4BBCE (4ª bolinha rosa do CapCut), 20% de opacidade**, cantos arredondados. Centro em y=2600 (de 3840). |
-| Destaques | Frases-chave em **amarelo manteiga #FDF7B6 (4ª bolinha amarela do CapCut)**, letra manuscrita (Gochi Hand ≈ "Peaceful Script" do CapCut), **minúsculas**, palavras empilhadas, acima da cabeça. Entram com **clique**. Delicado — nada de caixa ou contorno grosso. |
-| Camadas | Print/foto/vídeo entra **só enquanto ela fala do assunto** e sai logo depois. Tela cheia: card arredondado grande + **desfoque nela atrás**. Card pequeno (ex.: foto de produto): flutua acima da cabeça, sem desfoque. Toda camada entra com **whoosh + pop**. |
-| Zoom de ênfase | Zoom-in **leve (8%)** centrado no rosto quando ela fala algo com ênfase ("atenção", frase de impacto). Sobe em 0,2 s, segura, volta. |
+| Destaques | Frases-chave em **amarelo manteiga #FDF7B6 (4ª bolinha amarela do CapCut)**, letra manuscrita (Gochi Hand ≈ "Peaceful Script" do CapCut), **minúsculas**, palavras empilhadas, acima da cabeça. Entram com **clique de mouse**. Delicado — nada de caixa ou contorno grosso. |
+| Camadas | Print/foto/vídeo entra **só enquanto ela fala do assunto** e sai logo depois. Tela cheia: card arredondado grande + **desfoque nela atrás**. Card pequeno (ex.: foto de produto): flutua acima da cabeça, sem desfoque. Toda camada entra com **swoosh + clique de mouse**. |
+| Zoom de ênfase | Zoom-in **leve (8%)** centrado no rosto quando ela fala algo com ênfase ("atenção", frase de impacto). Sobe em 0,2 s, segura, volta. Sempre com **swoosh** de aproximação. |
 | Graça | Quando ela faz uma piada: imagem em **preto e branco** + voz de **fonógrafo** (só esse efeito de voz). Sem eco, sem outros sons por cima. |
-| Final | Termina com **clique** e a tela **apaga** (como desligar a luz). Nada escrito. |
+| Final | Termina com **clique de mouse** e a tela **apaga** (como desligar a luz). Nada escrito. |
 | Exportação | 4K (2160×3840), 30 fps. Mande também uma versão 1080p leve para ela ver no celular. |
 
-Efeitos sonoros que ela usa no CapCut (referência de timbre): cliques (mouse, caneta, botão), swish/whoosh, vento curto, clique de câmera, papel rasgando, brilho/mágica, glitch, teclado, estalo de dedo. O script gera whoosh, pop e clique sintetizados; se ela mandar os arquivos de áudio, prefira os dela.
+Efeitos sonoros que ela usa no CapCut (referência de timbre): cliques (mouse, caneta, botão), swish/whoosh, vento curto, clique de câmera, papel rasgando, brilho/mágica, glitch, teclado, estalo de dedo. Sons da skill: `assets/sfx/click_mouse.wav` (clique de mouse) e `assets/sfx/swoosh.wav` (aproximação). **Nunca use "pop"/gotinha** — ela não gosta. Se ela mandar os arquivos de áudio dela, prefira os dela.
 
 ## Fluxo de trabalho
 

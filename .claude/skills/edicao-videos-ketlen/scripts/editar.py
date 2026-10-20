@@ -139,19 +139,7 @@ def garantir_assets(T):
     g = os.path.join(fontes, 'GochiHand-Regular.ttf')
     if not os.path.exists(g):
         sh(['curl', '-sSfL', '-o', g, FONTE_GOCHI])
-    sfx = os.path.join(T, 'sfx'); os.makedirs(sfx, exist_ok=True)
-    sons = {
-        'whoosh': ['-f', 'lavfi', '-i', 'anoisesrc=color=pink:d=0.55:a=0.9', '-af',
-                   'highpass=f=400,lowpass=f=5000,bandpass=f=1800:width_type=o:w=2,afade=t=in:d=0.3:curve=exp,afade=t=out:st=0.3:d=0.25,volume=4'],
-        'pop': ['-f', 'lavfi', '-i', "aevalsrc='0.8*sin(2*PI*(300*t+9000*t*t))*exp(-35*t)':d=0.15:s=48000"],
-        'click': ['-f', 'lavfi', '-i',
-                  "aevalsrc='0.9*(sin(2*PI*2400*t)*exp(-260*t)+0.6*sin(2*PI*900*t)*exp(-120*t)+0.5*(random(0)*2-1)*exp(-600*t))':d=0.12:s=48000",
-                  '-af', 'highpass=f=300'],
-    }
-    for nome, args in sons.items():
-        o = os.path.join(sfx, nome + '.wav')
-        if not os.path.exists(o):
-            ff(*args, '-ar', '48000', '-ac', '2', o)
+    sfx = os.path.abspath(os.path.join(ASSETS, 'sfx'))   # click_mouse.wav e swoosh.wav (nada de "pop"/gotinha)
     from PIL import Image, ImageDraw
     mk = os.path.join(T, 'mascara_tela.png')
     if not os.path.exists(mk):
@@ -218,12 +206,12 @@ def audio_final(p, T, sfx, fim):
     voz = os.path.join(T, 'voz.wav')
     ev = []
     for c in p.get('camadas', []):
-        ev += [('whoosh', c['t0'] - 0.15, 0.5), ('pop', c['t0'], 0.5)]
+        ev += [('swoosh', c['t0'] - 0.3, 0.5), ('click_mouse', c['t0'], 0.8)]
     for a, b, _ in p.get('destaques', []):
-        ev.append(('click', a, 0.8))
-    for a, b in p.get('zooms', []):
-        ev.append(('whoosh', a - 0.1, 0.25))
-    ev.append(('click', fim - 0.15, 0.9))
+        ev.append(('click_mouse', a, 0.8))
+    for a, b in p.get('zooms', []):          # swoosh de aproximação: termina quando o zoom chega
+        ev.append(('swoosh', a - 0.35, 0.6))
+    ev.append(('click_mouse', fim - 0.15, 0.9))
     gr = p.get('gracas', [])
     inp = ['-i', voz]; f = []
     mute = '+'.join(f'between(t,{a},{b})' for a, b in gr) or '0'
