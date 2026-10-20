@@ -18,10 +18,9 @@ W4K, H4K = 2160, 3840                     # tudo é desenhado em coordenadas 4K
 LEG_Y = 2600                              # centro da legenda automática
 LEG_TAM, LEG_ESP, LEG_PADX, LEG_PADY = 64, 2, 40, 24
 LEG_CAIXA, LEG_CAIXA_A = '&HCEBBF4&', '&HCC&'   # rosa bebê do CapCut (#F4BBCE), 20% de opacidade
-DESTAQUE_COR = '&H00B6F7FD'                     # amarelo manteiga do CapCut (#FDF7B6), BGR
+DESTAQUE_COR = '&H0084FBFD'                     # amarelo manteiga da Ketlen (#FDFB84), BGR
 ZOOM = 0.08                                     # zoom de ênfase: 8%, leve
 NITIDEZ = 'unsharp=5:5:0.35:5:5:0.0'
-FONTE_GOCHI = 'https://raw.githubusercontent.com/google/fonts/main/ofl/gochihand/GochiHand-Regular.ttf'
 
 
 def sh(cmd, **kw):
@@ -141,10 +140,7 @@ def cmd_montar(a):
 
 # ---------------------------------------------------------------- 3. renderizar
 def garantir_assets(T):
-    fontes = os.path.join(T, 'fontes'); os.makedirs(fontes, exist_ok=True)
-    g = os.path.join(fontes, 'GochiHand-Regular.ttf')
-    if not os.path.exists(g):
-        sh(['curl', '-sSfL', '-o', g, FONTE_GOCHI])
+    fontes = os.path.abspath(os.path.join(ASSETS, 'fontes'))   # A Hint of Sass: fonte dos destaques
     sfx = os.path.abspath(os.path.join(ASSETS, 'sfx'))   # click_mouse.wav e swoosh.wav (nada de "pop"/gotinha)
     from PIL import Image, ImageDraw
     mk = os.path.join(T, 'mascara_tela.png')
@@ -216,7 +212,7 @@ WrapStyle: 2
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Caixa,Inter SemiBold,{LEG_TAM},&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,0,0,7,0,0,0,1
 Style: Leg,Inter SemiBold,{LEG_TAM},&H00FFFFFF,&H00FFFFFF,&H00000000,&H90623A4A,0,0,0,0,100,100,{LEG_ESP},0,1,0,3,5,0,0,0,1
-Style: Destaque,Gochi Hand,190,{DESTAQUE_COR},{DESTAQUE_COR},&H00000000,&HA0000000,0,0,0,0,100,100,6,0,1,0,2,5,80,80,0,1
+Style: Destaque,AHintofSass,200,{DESTAQUE_COR},{DESTAQUE_COR},&H00000000,&HA0000000,0,0,0,0,100,100,6,0,1,0,2,5,80,80,0,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -231,18 +227,18 @@ def audio_final(p, T, sfx, fim):
     ev = []
     for c in p.get('camadas', []):           # camadas: só clique de mouse
         ev.append(('click_mouse', c['t0'], 0.8))
-    for a, b in p.get('zooms', []):          # swoosh de aproximação: termina quando o zoom chega
-        ev.append(('swoosh', a - 0.35, 0.6))
+    for a, b in p.get('zooms', []):          # swoosh do CapCut dela: pico logo no início do zoom
+        ev.append(('swoosh', a - 0.05, 0.8))
     ev.append(('click_mouse', fim - 0.15, 0.9))
     # teclado: uma tecla para cada letra digitada dos destaques (faixa única, montada em numpy)
-    sr = 48000; tec = [wav16_st(os.path.join(sfx, f'tecla{i}.wav')) for i in range(1, 5)]
+    sr = 48000; tec = [wav16_st(f) for f in sorted(glob.glob(os.path.join(sfx, 'tecla*.wav')))]   # teclas gravadas do CapCut dela
     trilha = np.zeros(int((fim + 2) * sr)); rng = np.random.default_rng(3)
     for a, b, txt in p.get('destaques', []):
         toks, tempos = digitacao(a, b, txt)
         for x, t in zip(toks, tempos):
             if x == '\\N':
                 continue
-            s = tec[rng.integers(4)] * (0.35 if x == ' ' else rng.uniform(0.5, 0.7)); i = int(t * sr)
+            s = tec[rng.integers(len(tec))] * (0.35 if x == ' ' else rng.uniform(0.5, 0.7)); i = int(t * sr)
             trilha[i:i + len(s)] += s[:len(trilha) - i]
     tw = os.path.join(T, 'teclado.wav'); wv = wave.open(tw, 'w'); wv.setnchannels(1); wv.setsampwidth(2); wv.setframerate(sr)
     wv.writeframes((np.clip(trilha, -1, 1) * 32767).astype(np.int16).tobytes()); wv.close()

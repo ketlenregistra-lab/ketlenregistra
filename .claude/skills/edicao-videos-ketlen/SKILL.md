@@ -21,14 +21,14 @@ A Ketlen definiu este estilo como a identidade dela. **Não invente variações*
 | Ritmo | Cortes rápidos, **nenhuma pausa** entre frases. Vídeo nunca parado. Sem música de fundo. Sem título de abertura. |
 | Cor | **Aprovada por ela — não mexer.** `assets/cor_ketlen.cube` — medida pixel a pixel do bruto × edição dela no CapCut (Retrô americano + Bokeh + Qualidade II + 4K). Fundo sóbrio/acinzentado, pele natural. **Nunca** deixe a pele amarelada, alaranjada ou rosada demais (ela já reprovou as três). Nitidez leve. |
 | Legenda automática | Fonte SYSTEM (usamos Inter SemiBold), MAIÚSCULAS, branca com sombra suave, 2–3 palavras por vez sincronizadas com a fala. Tarja **rosa bebê #F4BBCE (4ª bolinha rosa do CapCut), 20% de opacidade**, cantos arredondados. Centro em y=2600 (de 3840). |
-| Destaques | Frases-chave em **amarelo manteiga #FDF7B6 (4ª bolinha amarela do CapCut)**, letra manuscrita (Gochi Hand ≈ "Peaceful Script" do CapCut), **minúsculas**, palavras empilhadas, acima da cabeça. Aparecem **digitando letra por letra** (máquina de escrever) com **som de teclado** em cada letra. Delicado — nada de caixa ou contorno grosso. |
+| Destaques | Frases-chave em **amarelo manteiga #FDFB84** (cor enviada por ela), fonte **A Hint of Sass** (`assets/fontes/AHintofSass.ttf`, a fonte da identidade dela — não troque), **minúsculas**, palavras empilhadas, acima da cabeça. Aparecem **digitando letra por letra** (máquina de escrever) com **som de teclado** em cada letra. Delicado — nada de caixa ou contorno grosso. |
 | Camadas | Print/foto/vídeo entra **só enquanto ela fala do assunto** e sai logo depois. Tela cheia: card arredondado grande + **desfoque nela atrás**. Card pequeno (ex.: foto de produto): flutua acima da cabeça, sem desfoque. Toda camada entra com **clique de mouse** (só clique, sem swoosh). |
 | Zoom de ênfase | Zoom-in **leve (8%)** centrado no rosto quando ela fala algo com ênfase ("atenção", frase de impacto). Sobe em 0,2 s, segura, volta. Sempre com **swoosh** de aproximação — o swoosh é exclusivo do zoom. |
 | Graça | Quando ela faz uma piada: imagem em **preto e branco** + voz de **fonógrafo** (só esse efeito de voz). Sem eco, sem outros sons por cima. |
 | Final | Termina com **clique de mouse** e a tela **apaga** (como desligar a luz). Nada escrito. |
 | Exportação | 4K (2160×3840), 30 fps. Mande também uma versão 1080p leve para ela ver no celular. |
 
-Efeitos sonoros que ela usa no CapCut (referência de timbre): cliques (mouse, caneta, botão), swish/whoosh, vento curto, clique de câmera, papel rasgando, brilho/mágica, glitch, teclado, estalo de dedo. Sons da skill (aprovados por ela): `assets/sfx/click_mouse.wav` (camadas e final), `assets/sfx/swoosh.wav` (só no zoom) e `assets/sfx/tecla1-4.wav` (digitação dos destaques). **Nunca use "pop"/gotinha** — ela não gosta. Se ela mandar os arquivos de áudio dela, prefira os dela.
+Efeitos sonoros que ela usa no CapCut (referência de timbre): cliques (mouse, caneta, botão), swish/whoosh, vento curto, clique de câmera, papel rasgando, brilho/mágica, glitch, teclado, estalo de dedo. Sons da skill: `assets/sfx/swoosh.wav` e `assets/sfx/tecla1-10.wav` foram **recortados do CapCut dela** (swoosh só no zoom; teclas na digitação dos destaques); `assets/sfx/click_mouse.wav` (camadas e final) foi aprovado por ela. **Nunca use "pop"/gotinha** — ela não gosta. Se ela mandar os arquivos de áudio dela, prefira os dela.
 
 ## Fluxo de trabalho
 
@@ -68,5 +68,5 @@ Tudo em `scripts/editar.py`. Use uma pasta de trabalho no scratchpad.
 - Mostre a cor em quadros **4K reais** e em momentos em que ela está bonita (olho aberto, sorrindo) — quadro no meio da fala parece "deformado".
 - Antes de mudar a cor, confira com ela num quadro; não faça exportação longa com cor não aprovada.
 - Não rode prévia e 4K ao mesmo tempo (falta memória).
-- Rede necessária no ambiente: `drive.usercontent.google.com`, `drive.google.com`, `docs.google.com`, `huggingface.co`, `cdn-lfs.huggingface.co`, `cas-bridge.xethub.hf.co`, `cas-server.xethub.hf.co`, `us.aws.cdn.hf.co` (modelo de transcrição) e `raw.githubusercontent.com` (fonte Gochi Hand). Dependências: `pip install faster-whisper`, ffmpeg com libass/zscale.
+- Rede necessária no ambiente: `drive.usercontent.google.com`, `drive.google.com`, `docs.google.com`, `huggingface.co`, `cdn-lfs.huggingface.co`, `cas-bridge.xethub.hf.co`, `cas-server.xethub.hf.co`, `us.aws.cdn.hf.co` (modelo de transcrição) e Dependências: `pip install faster-whisper`, ffmpeg com libass/zscale.
 - A tarja de 20% fica fraca por cima de telas brancas (prints de Ajustes). Ela aceitou assim; se reclamar, aumente a opacidade só nesses trechos.
