@@ -19,6 +19,7 @@ LEG_Y = 2600                              # centro da legenda automática
 LEG_TAM, LEG_ESP, LEG_PADX, LEG_PADY = 64, 2, 40, 24
 LEG_CAIXA, LEG_CAIXA_A = '&HCEBBF4&', '&HCC&'   # rosa bebê do CapCut (#F4BBCE), 20% de opacidade
 DESTAQUE_COR = '&H0084FBFD'                     # amarelo manteiga da Ketlen (#FDFB84), BGR
+FPS = 30
 ZOOM = 0.08                                     # zoom de ênfase: 8%, leve
 CARD_W, CARD_H, CARD_Y = 1170, 2610, 720        # print em tela cheia: centralizado, sem cobrir tudo
 ROTULO_COR, ROTULO_A = '&HAD8FEE&', '&H26&'      # rótulo dos prints: rosa mais escuro (#EE8FAD), ~85% opaco
@@ -129,13 +130,15 @@ def cmd_montar(a):
         if n not in cache:
             cache[n] = wav16(os.path.join(T, 'audio', n + '.wav'))
         x = cache[n][int(i0 * 16000):int(i1 * 16000)]
-        cortes += [(n, s, e) for s, e in sem_pausas(x, i0, i1)]
+        for s, e in sem_pausas(x, i0, i1):     # alinha cada corte aos quadros (30 fps) p/ som e imagem não se separarem
+            s = round(s * FPS) / FPS; e = s + max(1, round((e - s) * FPS)) / FPS
+            cortes.append((n, round(s, 4), round(e, 4)))
     json.dump(cortes, open(os.path.join(T, 'cortes.json'), 'w'))
     inp, f = [], []
     for i, (n, s, e) in enumerate(cortes):
         inp += ['-i', os.path.join(T, 'audio', n + '.wav')]
         d = e - s
-        f.append(f'[{i}:a]atrim={s:.3f}:{e:.3f},asetpts=PTS-STARTPTS,afade=t=in:d=0.015,afade=t=out:st={d - 0.02:.3f}:d=0.02[a{i}]')
+        f.append(f'[{i}:a]atrim={s:.4f}:{e:.4f},asetpts=PTS-STARTPTS,afade=t=in:d=0.015,afade=t=out:st={d - 0.02:.3f}:d=0.02[a{i}]')
     f.append(''.join(f'[a{i}]' for i in range(len(cortes))) + f'concat=n={len(cortes)}:v=0:a=1[o]')
     voz = os.path.join(T, 'voz.wav')
     ff(*inp, '-filter_complex', ';'.join(f), '-map', '[o]', voz)
@@ -327,8 +330,8 @@ def cmd_renderizar(a):
         src = [x for x in glob.glob(os.path.join(p['brutos'], n + '.*')) if x.lower().endswith(('.mov', '.mp4'))][0]
         o = os.path.join(pasta, hashlib.md5(f'{n}{s}{e}{W}'.encode()).hexdigest()[:12] + '.mp4')
         if not os.path.exists(o):
-            ff('-threads', '4', '-ss', f'{s:.3f}', '-t', f'{e - s:.3f}', '-i', src, '-vf',
-               f'fps=30,trim=duration={e - s:.3f},scale={W}:{H},{cor(src)}', '-an', '-c:v', 'libx264', '-preset', 'fast',
+            ff('-threads', '4', '-ss', f'{s:.4f}', '-i', src, '-vf', f'fps={FPS},scale={W}:{H},{cor(src)}',
+               '-frames:v', str(round((e - s) * FPS)), '-an', '-c:v', 'libx264', '-preset', 'fast',
                '-crf', '12' if final else '18', '-pix_fmt', 'yuv420p', o + '.tmp.mp4')
             os.rename(o + '.tmp.mp4', o)
         lista.append(o); print(f'corte {i + 1}/{len(cortes)}', flush=True)
