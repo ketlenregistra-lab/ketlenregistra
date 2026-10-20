@@ -39,8 +39,8 @@ def dur(path):
 
 def hdr(path):
     t = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=color_transfer',
-                        '-of', 'csv=p=0', path], capture_output=True, text=True).stdout.strip()
-    return t in ('arib-std-b67', 'smpte2084')
+                        '-of', 'default=nw=1:nk=1', path], capture_output=True, text=True).stdout
+    return 'arib-std-b67' in t or 'smpte2084' in t
 
 
 def cor(path):
