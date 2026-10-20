@@ -59,6 +59,12 @@ def wav16(path):
     return np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float32) / 32768
 
 
+def wav16_st(path):
+    """Lê um wav estéreo 16 bits e devolve o canal esquerdo em float."""
+    w = wave.open(path)
+    return (np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float32) / 32768)[::w.getnchannels()]
+
+
 def modelo():
     from faster_whisper import WhisperModel
     return WhisperModel('medium', device='cpu', compute_type='int8', cpu_threads=os.cpu_count() or 4)
@@ -147,6 +153,19 @@ def garantir_assets(T):
     return fontes, sfx, mk
 
 
+def digitacao(a, b, txt):
+    """Divide o destaque em letras ('\\N' é quebra de linha) e devolve o instante em que cada letra aparece."""
+    toks = re.findall(r'\\N|.', txt)
+    letras = [i for i, x in enumerate(toks) if x != '\\N']
+    dt = min(0.06, 0.6 * (b - a) / max(1, len(letras)))
+    tempos, k = [], 0
+    for x in toks:
+        tempos.append(a + k * dt)
+        if x != '\\N':
+            k += 1
+    return toks, tempos
+
+
 def legendas(p, T, fontes):
     from PIL import ImageFont
     fonte = '/usr/share/fonts/opentype/inter/Inter-SemiBold.otf'
@@ -178,10 +197,15 @@ def legendas(p, T, fontes):
         t = re.sub(r'[.,]', '', ' '.join(y[2] for y in g).upper())
         ev.append(f'Dialogue: 0,{ts(a)},{ts(b)},Caixa,,0,0,0,,{caixa(t)}')
         ev.append(f'Dialogue: 1,{ts(a)},{ts(b)},Leg,,0,0,0,,{{\\an5\\pos({W4K // 2},{LEG_Y})}}{t}')
-    pop = r'\fad(180,180)\fscx92\fscy92\t(0,220,\fscx100\fscy100)'
-    for a, b, txt in p.get('destaques', []):
+    for a, b, txt in p.get('destaques', []):   # efeito máquina de escrever: letra por letra
         y = 950 if txt.count('\\N') >= 2 else 1000
-        ev.append(f'Dialogue: 2,{ts(a)},{ts(b)},Destaque,,0,0,0,,{{\\an5\\pos({W4K // 2},{y}){pop}}}{txt}')
+        toks, tempos = digitacao(a, b, txt)
+        for i, t0 in enumerate(tempos):
+            t1 = tempos[i + 1] if i + 1 < len(tempos) else b
+            vis = ''.join(toks[:i + 1]); resto = ''.join(toks[i + 1:])
+            fad = r'\fad(0,180)' if i + 1 == len(tempos) else ''
+            ev.append(f'Dialogue: 2,{ts(t0)},{ts(t1)},Destaque,,0,0,0,,{{\\an5\\pos({W4K // 2},{y}){fad}}}{vis}'
+                      + (f'{{\\alpha&HFF&}}{resto}' if resto else ''))
     cab = f"""[Script Info]
 ScriptType: v4.00+
 PlayResX: {W4K}
@@ -205,18 +229,29 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 def audio_final(p, T, sfx, fim):
     voz = os.path.join(T, 'voz.wav')
     ev = []
-    for c in p.get('camadas', []):
-        ev += [('swoosh', c['t0'] - 0.3, 0.5), ('click_mouse', c['t0'], 0.8)]
-    for a, b, _ in p.get('destaques', []):
-        ev.append(('click_mouse', a, 0.8))
+    for c in p.get('camadas', []):           # camadas: só clique de mouse
+        ev.append(('click_mouse', c['t0'], 0.8))
     for a, b in p.get('zooms', []):          # swoosh de aproximação: termina quando o zoom chega
         ev.append(('swoosh', a - 0.35, 0.6))
     ev.append(('click_mouse', fim - 0.15, 0.9))
+    # teclado: uma tecla para cada letra digitada dos destaques (faixa única, montada em numpy)
+    sr = 48000; tec = [wav16_st(os.path.join(sfx, f'tecla{i}.wav')) for i in range(1, 5)]
+    trilha = np.zeros(int((fim + 2) * sr)); rng = np.random.default_rng(3)
+    for a, b, txt in p.get('destaques', []):
+        toks, tempos = digitacao(a, b, txt)
+        for x, t in zip(toks, tempos):
+            if x == '\\N':
+                continue
+            s = tec[rng.integers(4)] * (0.35 if x == ' ' else rng.uniform(0.5, 0.7)); i = int(t * sr)
+            trilha[i:i + len(s)] += s[:len(trilha) - i]
+    tw = os.path.join(T, 'teclado.wav'); wv = wave.open(tw, 'w'); wv.setnchannels(1); wv.setsampwidth(2); wv.setframerate(sr)
+    wv.writeframes((np.clip(trilha, -1, 1) * 32767).astype(np.int16).tobytes()); wv.close()
     gr = p.get('gracas', [])
     inp = ['-i', voz]; f = []
     mute = '+'.join(f'between(t,{a},{b})' for a, b in gr) or '0'
     f.append(f"[0]aresample=48000,volume=0:enable='{mute}',apad=pad_dur=1[m]")
-    k = 1; mix = ['[m]']
+    inp += ['-i', tw]; f.append('[1]aresample=48000[tk]')
+    k = 2; mix = ['[m]', '[tk]']
     for j, (a, b) in enumerate(gr):          # voz de fonógrafo nos momentos de graça
         d = b - a
         inp += ['-i', voz, '-f', 'lavfi', '-t', f'{d}', '-i', "aevalsrc='0.5*if(lt(random(0),0.0012),random(1)*2-1,0)':s=48000"]
