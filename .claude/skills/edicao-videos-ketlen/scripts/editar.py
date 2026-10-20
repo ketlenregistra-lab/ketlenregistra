@@ -22,7 +22,8 @@ DESTAQUE_COR = '&H0084FBFD'                     # amarelo manteiga da Ketlen (#F
 ZOOM = 0.08                                     # zoom de ênfase: 8%, leve
 CARD_W, CARD_H, CARD_Y = 1170, 2610, 720        # print em tela cheia: centralizado, sem cobrir tudo
 ROTULO_COR, ROTULO_A = '&HAD8FEE&', '&H26&'      # rótulo dos prints: rosa mais escuro (#EE8FAD), ~85% opaco
-DESTAQUE_TAM, DESTAQUE_Y = 230, 2080            # destaques: uma palavra por linha, por cima do corpo
+DESTAQUE_TAM, DESTAQUE_Y = 230, 1850            # destaques: uma palavra por linha, por cima do corpo
+SUBIR = 0.18                                    # quanto o vídeo aproxima/sobe nos destaques
 LEG_Y_PRINT = CARD_Y + CARD_H + 120             # legenda automática quando há print em tela cheia
 ROTULO_TAM = 125
 NITIDEZ = 'unsharp=5:5:0.35:5:5:0.0'
@@ -340,12 +341,14 @@ def cmd_renderizar(a):
     aud = audio_final(p, T, sfx, fim)
     # 2) efeitos na linha do tempo
     inp = ['-i', base, '-i', aud]; f = []; k = 2
-    zs = '+'.join(f'clip((t-{z0})/0.2,0,1)*clip(({z1}-t)/0.15,0,1)' for z0, z1 in p.get('zooms', [])) or '0'
+    zs = '+'.join(f'clip((it-{z0})/0.2,0,1)*clip(({z1}-it)/0.15,0,1)' for z0, z1 in p.get('zooms', [])) or '0'
+    # durante os destaques amarelos o vídeo sobe e aproxima (ela fica no alto, a frase ocupa o corpo)
+    zd = '+'.join(f'clip((it-{a})/0.25,0,1)*clip(({b}-it)/0.25,0,1)' for a, b, _ in p.get('destaques', [])) or '0'
     cheias = [c for c in p.get('camadas', []) if c.get('tipo', 'tela_cheia') == 'tela_cheia']
     blur = '+'.join(f"between(t,{c['t0']},{c['t1']})" for c in cheias) or '0'
     gr = '+'.join(f'between(t,{x},{y})' for x, y in p.get('gracas', [])) or '0'
-    f.append(f"[0:v]setpts=PTS-STARTPTS,scale=w='trunc({W}*(1+{ZOOM}*({zs}))/2)*2':h=-2:eval=frame,"
-             f"crop={W}:{H}:(iw-{W})/2:(ih-{H})*0.42,gblur=sigma={30 * sc:.0f}:enable='{blur}',"
+    f.append(f"[0:v]setpts=PTS-STARTPTS,zoompan=z='1+{ZOOM}*({zs})+{SUBIR}*({zd})':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)*(0.42+0.58*({zd}))':d=1:s={W}x{H}:fps=30,"
+             f"gblur=sigma={30 * sc:.0f}:enable='{blur}',"
              f"drawbox=x=0:y=0:w=iw:h=ih:color=black@0.35:t=fill:enable='{blur}',hue=s=0:enable='{gr}'[b0]")
     cur = 'b0'
     for j, c in enumerate(p.get('camadas', [])):
