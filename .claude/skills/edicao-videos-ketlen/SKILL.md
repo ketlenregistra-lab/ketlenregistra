@@ -64,7 +64,7 @@ Tudo em `scripts/editar.py`. Use uma pasta de trabalho no scratchpad.
    `python3 scripts/editar.py renderizar --plano TRAB/plano.json --modo previa`
 6. **Final** 4K (~30–40 min, corte por corte para não estourar memória):
    `python3 scripts/editar.py renderizar --plano TRAB/plano.json --modo final`
-   Gere a cópia 1080p a partir do 4K e envie os dois. Arquivos > ~50 MB não sobem pelo conector do Drive: entregue pela conversa.
+   Depois gere a **versão de entrega 4K leve** (o arquivo de 4K original passa de 250 MB e não baixa no celular dela): `ffmpeg -i SAIDA_4K.mp4 -c:v libx264 -preset medium -crf 23 -maxrate 12M -bufsize 24M -profile:v high -level 5.1 -pix_fmt yuv420p -c:a copy -movflags +faststart SAIDA_4K_leve.mp4` (~75 MB por minuto) e a cópia 1080p; envie os dois pela conversa (o conector do Drive não sobe arquivos grandes).
 
 ## Cuidados que já aprendemos
 
