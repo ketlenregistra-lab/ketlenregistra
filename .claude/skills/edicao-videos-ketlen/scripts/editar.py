@@ -17,8 +17,8 @@ LUT = os.path.abspath(os.path.join(ASSETS, 'cor_ketlen.cube'))
 W4K, H4K = 2160, 3840                     # tudo é desenhado em coordenadas 4K
 LEG_Y = 2600                              # centro da legenda automática
 LEG_TAM, LEG_ESP, LEG_PADX, LEG_PADY = 64, 2, 40, 24
-LEG_CAIXA, LEG_CAIXA_A = '&HD4C8F7&', '&HCC&'   # rosa bebê (#F7C8D4), 20% de opacidade
-DESTAQUE_COR = '&H008CECF3'                     # amarelo manteiga (#F3EC8C), BGR
+LEG_CAIXA, LEG_CAIXA_A = '&HCEBBF4&', '&HCC&'   # rosa bebê do CapCut (#F4BBCE), 20% de opacidade
+DESTAQUE_COR = '&H00B6F7FD'                     # amarelo manteiga do CapCut (#FDF7B6), BGR
 ZOOM = 0.08                                     # zoom de ênfase: 8%, leve
 NITIDEZ = 'unsharp=5:5:0.35:5:5:0.0'
 FONTE_GOCHI = 'https://raw.githubusercontent.com/google/fonts/main/ofl/gochihand/GochiHand-Regular.ttf'

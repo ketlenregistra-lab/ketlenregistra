@@ -20,8 +20,8 @@ A Ketlen definiu este estilo como a identidade dela. **Não invente variações*
 |---|---|
 | Ritmo | Cortes rápidos, **nenhuma pausa** entre frases. Vídeo nunca parado. Sem música de fundo. Sem título de abertura. |
 | Cor | `assets/cor_ketlen.cube` — medida pixel a pixel do bruto × edição dela no CapCut (Retrô americano + Bokeh + Qualidade II + 4K). Fundo sóbrio/acinzentado, pele natural. **Nunca** deixe a pele amarelada, alaranjada ou rosada demais (ela já reprovou as três). Nitidez leve. |
-| Legenda automática | Fonte SYSTEM (usamos Inter SemiBold), MAIÚSCULAS, branca com sombra suave, 2–3 palavras por vez sincronizadas com a fala. Tarja **rosa bebê #F7C8D4, 20% de opacidade**, cantos arredondados. Centro em y=2600 (de 3840). |
-| Destaques | Frases-chave em **amarelo manteiga #F3EC8C**, letra manuscrita (Gochi Hand ≈ "Peaceful Script" do CapCut), **minúsculas**, palavras empilhadas, acima da cabeça. Entram com **clique**. Delicado — nada de caixa ou contorno grosso. |
+| Legenda automática | Fonte SYSTEM (usamos Inter SemiBold), MAIÚSCULAS, branca com sombra suave, 2–3 palavras por vez sincronizadas com a fala. Tarja **rosa bebê #F4BBCE (4ª bolinha rosa do CapCut), 20% de opacidade**, cantos arredondados. Centro em y=2600 (de 3840). |
+| Destaques | Frases-chave em **amarelo manteiga #FDF7B6 (4ª bolinha amarela do CapCut)**, letra manuscrita (Gochi Hand ≈ "Peaceful Script" do CapCut), **minúsculas**, palavras empilhadas, acima da cabeça. Entram com **clique**. Delicado — nada de caixa ou contorno grosso. |
 | Camadas | Print/foto/vídeo entra **só enquanto ela fala do assunto** e sai logo depois. Tela cheia: card arredondado grande + **desfoque nela atrás**. Card pequeno (ex.: foto de produto): flutua acima da cabeça, sem desfoque. Toda camada entra com **whoosh + pop**. |
 | Zoom de ênfase | Zoom-in **leve (8%)** centrado no rosto quando ela fala algo com ênfase ("atenção", frase de impacto). Sobe em 0,2 s, segura, volta. |
 | Graça | Quando ela faz uma piada: imagem em **preto e branco** + voz de **fonógrafo** (só esse efeito de voz). Sem eco, sem outros sons por cima. |
