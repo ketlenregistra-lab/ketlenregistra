@@ -193,6 +193,9 @@ def legendas(p, T, fontes):
         t = re.sub(r'[.,]', '', ' '.join(y[2] for y in g).upper())
         ev.append(f'Dialogue: 0,{ts(a)},{ts(b)},Caixa,,0,0,0,,{caixa(t)}')
         ev.append(f'Dialogue: 1,{ts(a)},{ts(b)},Leg,,0,0,0,,{{\\an5\\pos({W4K // 2},{LEG_Y})}}{t}')
+    if p.get('titulo'):                        # abertura do desafio: surge com fade (sem digitação)
+        a, b, txt = p['titulo']
+        ev.append(f'Dialogue: 2,{ts(a)},{ts(b)},Destaque,,0,0,0,,{{\\an5\\pos({W4K // 2},950)\\fad(250,200)}}{txt}')
     for a, b, txt in p.get('destaques', []):   # efeito máquina de escrever: letra por letra
         y = 950 if txt.count('\\N') >= 2 else 1000
         toks, tempos = digitacao(a, b, txt)
@@ -227,6 +230,8 @@ def audio_final(p, T, sfx, fim):
     ev = []
     for c in p.get('camadas', []):           # camadas: só clique de mouse
         ev.append(('click_mouse', c['t0'], 0.8))
+    if p.get('titulo'):                      # título: clique quando surge
+        ev.append(('click_mouse', p['titulo'][0], 0.8))
     for a, b in p.get('zooms', []):          # swoosh do CapCut dela: pico logo no início do zoom
         ev.append(('swoosh', a - 0.05, 0.8))
     ev.append(('click_mouse', fim - 0.15, 0.9))

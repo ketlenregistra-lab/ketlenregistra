@@ -18,7 +18,8 @@ A Ketlen definiu este estilo como a identidade dela. **Não invente variações*
 
 | Elemento | Regra |
 |---|---|
-| Ritmo | Cortes rápidos, **nenhuma pausa** entre frases. Vídeo nunca parado. Sem música de fundo. Sem título de abertura. |
+| Ritmo | Cortes rápidos, **nenhuma pausa** entre frases. Vídeo nunca parado. Sem música de fundo. |
+| Título (desafio) | Nos vídeos do desafio, abre com **"dia N de 20"** + tema (ex.: `dia 1 de 20\Nconfigurações\Nda câmera`), na mesma fonte e amarelo dos destaques, **surgindo com fade in** (sem digitação) e **clique de mouse**. Fica do início até a primeira camada/frase importante (~2 s). Fora do desafio, sem título. |
 | Cor | **Aprovada por ela — não mexer.** `assets/cor_ketlen.cube` — medida pixel a pixel do bruto × edição dela no CapCut (Retrô americano + Bokeh + Qualidade II + 4K). Fundo sóbrio/acinzentado, pele natural. **Nunca** deixe a pele amarelada, alaranjada ou rosada demais (ela já reprovou as três). Nitidez leve. |
 | Legenda automática | Fonte SYSTEM (usamos Inter SemiBold), MAIÚSCULAS, branca com sombra suave, 2–3 palavras por vez sincronizadas com a fala. Tarja **rosa bebê #F4BBCE (4ª bolinha rosa do CapCut), 20% de opacidade**, cantos arredondados. Centro em y=2600 (de 3840). |
 | Destaques | Frases-chave em **amarelo manteiga #FDFB84** (cor enviada por ela), fonte **A Hint of Sass** (`assets/fontes/AHintofSass.ttf`, a fonte da identidade dela — não troque), **minúsculas**, palavras empilhadas, acima da cabeça. Aparecem **digitando letra por letra** (máquina de escrever) com **som de teclado** em cada letra. Delicado — nada de caixa ou contorno grosso. |
@@ -48,6 +49,7 @@ Tudo em `scripts/editar.py`. Use uma pasta de trabalho no scratchpad.
    `python3 scripts/editar.py montar --plano TRAB/plano.json`
    Use os tempos impressos para preencher o resto do plano:
    ```json
+   "titulo": [0.1, 2.1, "dia 1 de 20\\Nconfigurações\\Nda câmera"],
    "correcoes": [[6.66, "Em", "E"]],
    "destaques": [[26.94, 28.3, "tem que\\Nter luz"]],
    "camadas":  [{"arquivo": "foto.png", "tipo": "card", "t0": 2.1, "t1": 3.3},
