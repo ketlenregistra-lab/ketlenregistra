@@ -20,6 +20,11 @@ LEG_TAM, LEG_ESP, LEG_PADX, LEG_PADY = 64, 2, 40, 24
 LEG_CAIXA, LEG_CAIXA_A = '&HCEBBF4&', '&HCC&'   # rosa bebê do CapCut (#F4BBCE), 20% de opacidade
 DESTAQUE_COR = '&H0084FBFD'                     # amarelo manteiga da Ketlen (#FDFB84), BGR
 ZOOM = 0.08                                     # zoom de ênfase: 8%, leve
+CARD_W, CARD_H, CARD_Y = 1170, 2610, 720        # print em tela cheia: centralizado, sem cobrir tudo
+ROTULO_COR, ROTULO_A = '&HAD8FEE&', '&H26&'      # rótulo dos prints: rosa mais escuro (#EE8FAD), ~85% opaco
+DESTAQUE_TAM, DESTAQUE_Y = 230, 2080            # destaques: uma palavra por linha, por cima do corpo
+LEG_Y_PRINT = CARD_Y + CARD_H + 120             # legenda automática quando há print em tela cheia
+ROTULO_TAM = 125
 NITIDEZ = 'unsharp=5:5:0.35:5:5:0.0'
 
 
@@ -143,10 +148,28 @@ def garantir_assets(T):
     fontes = os.path.abspath(os.path.join(ASSETS, 'fontes'))   # A Hint of Sass: fonte dos destaques
     sfx = os.path.abspath(os.path.join(ASSETS, 'sfx'))   # click_mouse.wav e swoosh.wav (nada de "pop"/gotinha)
     from PIL import Image, ImageDraw
-    mk = os.path.join(T, 'mascara_tela.png')
+    mk = os.path.join(T, 'mascara_print.png')
     if not os.path.exists(mk):
-        m = Image.new('L', (1564, 3400), 0); ImageDraw.Draw(m).rounded_rectangle([0, 0, 1563, 3399], 80, fill=255); m.save(mk)
+        m = Image.new('L', (CARD_W, CARD_H), 0); ImageDraw.Draw(m).rounded_rectangle([0, 0, CARD_W - 1, CARD_H - 1], 50, fill=255); m.save(mk)
     return fontes, sfx, mk
+
+
+def seta_png(de, para, W, H, out):
+    """Seta branca desenhada à mão (curva + ponta), em tela inteira transparente."""
+    from PIL import Image, ImageDraw
+    sc = W / W4K; (x0, y0), (x1, y1) = [(x * sc, y * sc) for x, y in (de, para)]
+    dx, dy = x1 - x0, y1 - y0; L = (dx * dx + dy * dy) ** 0.5
+    cx, cy = (x0 + x1) / 2 - dy * 0.25, (y0 + y1) / 2 + dx * 0.25          # curvinha
+    pts = [((1 - u) ** 2 * x0 + 2 * (1 - u) * u * cx + u * u * x1, (1 - u) ** 2 * y0 + 2 * (1 - u) * u * cy + u * u * y1)
+           for u in np.linspace(0, 1, 60)]
+    im = Image.new('RGBA', (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(im); lw = max(3, int(14 * sc))
+    d.line(pts, fill=(255, 255, 255, 255), width=lw, joint='curve')
+    ex, ey = pts[-1]; px, py = pts[-6]; ang = np.arctan2(ey - py, ex - px); k = 0.16 * L
+    for s in (+0.5, -0.5):
+        d.line([(ex, ey), (ex - k * np.cos(ang + s), ey - k * np.sin(ang + s))], fill=(255, 255, 255, 255), width=lw)
+    for x, y in [pts[0], (ex, ey)]:
+        d.ellipse([x - lw / 2, y - lw / 2, x + lw / 2, y + lw / 2], fill=(255, 255, 255, 255))
+    im.save(out)
 
 
 def digitacao(a, b, txt):
@@ -168,13 +191,13 @@ def legendas(p, T, fontes):
     f100 = ImageFont.truetype(fonte, 100); a_, d_ = f100.getmetrics(); em = LEG_TAM * 100 / (a_ + d_)
     fnt = ImageFont.truetype(fonte, max(1, round(em)))
 
-    def caixa(t):
-        w = fnt.getlength(t) + LEG_ESP * (len(t) - 1) + 2 * LEG_PADX; h = em * 0.78 + 2 * LEG_PADY; r = min(30, h / 2)
-        x0, y0 = W4K / 2 - w / 2, LEG_Y - h / 2
+    def caixa(t, fnt=fnt, em=em, esp=LEG_ESP, cy=LEG_Y, cor=None, alfa=None, padx=LEG_PADX, pady=LEG_PADY):
+        w = fnt.getlength(t) + esp * (len(t) - 1) + 2 * padx; h = em * 0.78 + 2 * pady; r = min(30, h / 2)
+        x0, y0 = W4K / 2 - w / 2, cy - h / 2
         path = (f'm {r:.0f} 0 l {w - r:.0f} 0 b {w:.0f} 0 {w:.0f} 0 {w:.0f} {r:.0f} l {w:.0f} {h - r:.0f} '
                 f'b {w:.0f} {h:.0f} {w:.0f} {h:.0f} {w - r:.0f} {h:.0f} l {r:.0f} {h:.0f} b 0 {h:.0f} 0 {h:.0f} 0 {h - r:.0f} '
                 f'l 0 {r:.0f} b 0 0 0 0 {r:.0f} 0')
-        return '{\\an7\\pos(%d,%d)\\bord0\\shad0\\1c%s\\1a%s\\p1}%s' % (x0, y0, LEG_CAIXA, LEG_CAIXA_A, path)
+        return '{\\an7\\pos(%d,%d)\\bord0\\shad0\\1c%s\\1a%s\\p1}%s' % (x0, y0, cor or LEG_CAIXA, alfa or LEG_CAIXA_A, path)
 
     w = json.load(open(os.path.join(T, 'palavras.json')))
     for t, errado, certo in p.get('correcoes', []):
@@ -187,23 +210,42 @@ def legendas(p, T, fontes):
         if re.search(r'[.,?!]$', x[2]) or len(g) == 3 or len(txt) >= 16 or i == len(w) - 1:
             grupos.append(g); g = []
     ev = []
+    janelas = [(a, b) for a, b, _ in p.get('destaques', [])]
+    cheias = [c for c in p.get('camadas', []) if c.get('tipo', 'tela_cheia') == 'tela_cheia']
     for i, g in enumerate(grupos):
         a = g[0][0]; b = grupos[i + 1][0][0] if i + 1 < len(grupos) else g[-1][1] + 0.4
         b = min(b, g[-1][1] + 0.5)
+        if any(a < y and b > x for x, y in janelas):   # durante o destaque amarelo, sem legenda automática
+            continue
+        cy = LEG_Y_PRINT if any(a < c['t1'] and b > c['t0'] for c in cheias) else LEG_Y   # com print: legenda embaixo dele
         t = re.sub(r'[.,]', '', ' '.join(y[2] for y in g).upper())
-        ev.append(f'Dialogue: 0,{ts(a)},{ts(b)},Caixa,,0,0,0,,{caixa(t)}')
-        ev.append(f'Dialogue: 1,{ts(a)},{ts(b)},Leg,,0,0,0,,{{\\an5\\pos({W4K // 2},{LEG_Y})}}{t}')
+        ev.append(f'Dialogue: 0,{ts(a)},{ts(b)},Caixa,,0,0,0,,{caixa(t, cy=cy)}')
+        ev.append(f'Dialogue: 1,{ts(a)},{ts(b)},Leg,,0,0,0,,{{\\an5\\pos({W4K // 2},{cy})}}{t}')
     if p.get('titulo'):                        # abertura do desafio: surge com fade (sem digitação)
         a, b, txt = p['titulo']
         ev.append(f'Dialogue: 2,{ts(a)},{ts(b)},Destaque,,0,0,0,,{{\\an5\\pos({W4K // 2},950)\\fad(250,200)}}{txt}')
-    for a, b, txt in p.get('destaques', []):   # efeito máquina de escrever: letra por letra
-        y = 950 if txt.count('\\N') >= 2 else 1000
+    fs = ImageFont.truetype(os.path.join(fontes, 'AHintofSass.ttf'), 100); a_, d_ = fs.getmetrics(); em_r = ROTULO_TAM * 100 / (a_ + d_)
+    fr = ImageFont.truetype(os.path.join(fontes, 'AHintofSass.ttf'), max(1, round(em_r)))
+    for c in p.get('camadas', []):             # rótulo amarelo em fundinho rosa em cima do print
+        if c.get('rotulo'):
+            cy = CARD_Y - 95; a, b = c['t0'], c['t1']
+            ev.append(f"Dialogue: 3,{ts(a)},{ts(b)},Caixa,,0,0,0,,{{\\fad(150,150)}}"
+                      + caixa(c['rotulo'], fr, em_r, 4, cy, ROTULO_COR, ROTULO_A, 44, 22))
+            ev.append(f"Dialogue: 4,{ts(a)},{ts(b)},Rotulo,,0,0,0,,{{\\an5\\pos({W4K // 2},{cy})\\fad(150,150)}}{c['rotulo']}")
+    for a, b, txt in p.get('destaques', []):   # uma palavra por linha, por cima do corpo, digitando
+        pal, linhas = txt.replace('\\N', ' ').split(), []
+        for x in pal:                          # junta palavrinhas curtas ("pra não", "um")
+            if linhas and len(linhas[-1]) + 1 + len(x) <= 7:
+                linhas[-1] += ' ' + x
+            else:
+                linhas.append(x)
+        txt = '\\N'.join(linhas); y = DESTAQUE_Y
         toks, tempos = digitacao(a, b, txt)
         for i, t0 in enumerate(tempos):
             t1 = tempos[i + 1] if i + 1 < len(tempos) else b
             vis = ''.join(toks[:i + 1]); resto = ''.join(toks[i + 1:])
             fad = r'\fad(0,180)' if i + 1 == len(tempos) else ''
-            ev.append(f'Dialogue: 2,{ts(t0)},{ts(t1)},Destaque,,0,0,0,,{{\\an5\\pos({W4K // 2},{y}){fad}}}{vis}'
+            ev.append(f'Dialogue: 2,{ts(t0)},{ts(t1)},Destaque,,0,0,0,,{{\\an8\\fs{DESTAQUE_TAM}\\pos({W4K // 2},{y}){fad}}}{vis}'
                       + (f'{{\\alpha&HFF&}}{resto}' if resto else ''))
     cab = f"""[Script Info]
 ScriptType: v4.00+
@@ -216,6 +258,7 @@ Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour,
 Style: Caixa,Inter SemiBold,{LEG_TAM},&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,0,0,7,0,0,0,1
 Style: Leg,Inter SemiBold,{LEG_TAM},&H00FFFFFF,&H00FFFFFF,&H00000000,&H90623A4A,0,0,0,0,100,100,{LEG_ESP},0,1,0,3,5,0,0,0,1
 Style: Destaque,AHintofSass,200,{DESTAQUE_COR},{DESTAQUE_COR},&H00000000,&HA0000000,0,0,0,0,100,100,6,0,1,0,2,5,80,80,0,1
+Style: Rotulo,AHintofSass,{ROTULO_TAM},{DESTAQUE_COR},{DESTAQUE_COR},&H00000000,&H60000000,0,0,0,0,100,100,4,0,1,0,2,5,40,40,0,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -230,6 +273,8 @@ def audio_final(p, T, sfx, fim):
     ev = []
     for c in p.get('camadas', []):           # camadas: só clique de mouse
         ev.append(('click_mouse', c['t0'], 0.8))
+    for s in p.get('setas', []):             # seta apontando algo do cenário: pop
+        ev.append(('pop', s['t0'], 0.8))
     if p.get('titulo'):                      # título: clique quando surge
         ev.append(('click_mouse', p['titulo'][0], 0.8))
     for a, b in p.get('zooms', []):          # swoosh do CapCut dela: pico logo no início do zoom
@@ -308,7 +353,7 @@ def cmd_renderizar(a):
         video = arq.lower().endswith(('.mov', '.mp4'))
         fd = f'fade=t=in:st={t0}:d=0.15:alpha=1,fade=t=out:st={t1 - 0.15:.2f}:d=0.15:alpha=1'
         if c.get('tipo', 'tela_cheia') == 'tela_cheia':
-            CW, CH = int(1564 * sc) // 2 * 2, int(3400 * sc) // 2 * 2
+            CW, CH = int(CARD_W * sc) // 2 * 2, int(CARD_H * sc) // 2 * 2
             if video:
                 de, ate = c.get('de', 0), c.get('ate', dur(arq)); vel = (ate - de) / (t1 - t0)
                 inp += ['-ss', str(de), '-t', str(ate - de), '-i', arq]
@@ -319,7 +364,7 @@ def cmd_renderizar(a):
             inp += ['-loop', '1', '-t', str(t1 - t0 + 1), '-i', mk]
             f.append(f'[{k + 1}:v]fps=30,format=gray,scale={CW}:{CH},setpts=PTS-STARTPTS[tm{j}];[tv{j}][tm{j}]alphamerge,'
                      f'setpts=PTS-STARTPTS+{t0}/TB,{fd}[tc{j}]')
-            f.append(f"[{cur}][tc{j}]overlay={(W - CW) // 2}:{int(220 * sc)}:enable='between(t,{t0},{t1})':eof_action=pass[c{j}]")
+            f.append(f"[{cur}][tc{j}]overlay={(W - CW) // 2}:{int(CARD_Y * sc)}:enable='between(t,{t0},{t1})':eof_action=pass[c{j}]")
             k += 2
         else:   # card flutuando acima da cabeça
             inp += ['-loop', '1', '-t', str(t1 - t0 + 0.5), '-i', arq]
@@ -328,6 +373,12 @@ def cmd_renderizar(a):
             f.append(f"[{cur}][tc{j}]overlay={(W - cw) // 2}:{int(c.get('y', 300) * sc)}:enable='between(t,{t0},{t1})':eof_action=pass[c{j}]")
             k += 1
         cur = f'c{j}'
+    for j, s in enumerate(p.get('setas', [])):   # setas desenhadas
+        png = os.path.join(T, f'seta{j}_{W}.png'); seta_png(s['de'], s['para'], W, H, png)
+        inp += ['-loop', '1', '-t', str(s['t1'] - s['t0'] + 0.5), '-i', png]; t0, t1 = s['t0'], s['t1']
+        f.append(f'[{k}:v]fps=30,format=rgba,setpts=PTS-STARTPTS+{t0}/TB,fade=t=in:st={t0}:d=0.15:alpha=1,'
+                 f'fade=t=out:st={t1 - 0.15:.2f}:d=0.15:alpha=1[sa{j}]')
+        f.append(f"[{cur}][sa{j}]overlay=0:0:enable='between(t,{t0},{t1})':eof_action=pass[s{j}]"); cur = f's{j}'; k += 1
     f.append(f'[{cur}]format=yuv420p,ass={ass}:fontsdir={fontes},tpad=stop_mode=add:stop_duration=0.8:color=black,'
              f'fade=t=out:st={fim + 0.05:.2f}:d=0.08[v]')
     saida = os.path.join(T, p.get('saida', 'video') + ('_4K.mp4' if final else '_previa.mp4'))

@@ -22,14 +22,15 @@ A Ketlen definiu este estilo como a identidade dela. **Não invente variações*
 | Título (desafio) | Nos vídeos do desafio, abre com **"dia N de 20"** + tema (ex.: `dia 1 de 20\Nconfigurações\Nda câmera`), na mesma fonte e amarelo dos destaques, **surgindo com fade in** (sem digitação) e **clique de mouse**. Fica do início até a primeira camada/frase importante (~2 s). Fora do desafio, sem título. |
 | Cor | **Aprovada por ela — não mexer.** `assets/cor_ketlen.cube` — medida pixel a pixel do bruto × edição dela no CapCut (Retrô americano + Bokeh + Qualidade II + 4K). Fundo sóbrio/acinzentado, pele natural. **Nunca** deixe a pele amarelada, alaranjada ou rosada demais (ela já reprovou as três). Nitidez leve. |
 | Legenda automática | Fonte SYSTEM (usamos Inter SemiBold), MAIÚSCULAS, branca com sombra suave, 2–3 palavras por vez sincronizadas com a fala. Tarja **rosa bebê #F4BBCE (4ª bolinha rosa do CapCut), 20% de opacidade**, cantos arredondados. Centro em y=2600 (de 3840). |
-| Destaques | Frases-chave em **amarelo manteiga #FDFB84** (cor enviada por ela), fonte **A Hint of Sass** (`assets/fontes/AHintofSass.ttf`, a fonte da identidade dela — não troque), **minúsculas**, palavras empilhadas, acima da cabeça. Aparecem **digitando letra por letra** (máquina de escrever) com **som de teclado** em cada letra. Delicado — nada de caixa ou contorno grosso. |
-| Camadas | Print/foto/vídeo entra **só enquanto ela fala do assunto** e sai logo depois. Tela cheia: card arredondado grande + **desfoque nela atrás**. Card pequeno (ex.: foto de produto): flutua acima da cabeça, sem desfoque. Toda camada entra com **clique de mouse** (só clique, sem swoosh). |
+| Destaques | Frases-chave em **amarelo manteiga #FDFB84**, fonte **A Hint of Sass** (`assets/fontes/AHintofSass.ttf`, a fonte da identidade dela — não troque), **minúsculas**, **uma palavra por linha** (palavrinhas curtas juntas, ex.: "pra não"), grandes, **por cima do corpo** (logo abaixo do queixo). Aparecem **digitando letra por letra** com **som de teclado** em cada letra. Enquanto o destaque está na tela, a legenda automática some. |
+| Camadas | Print/foto/vídeo entra **só enquanto ela fala do assunto** e sai logo depois. **Print em tela cheia**: card arredondado centralizado (~54% da largura, sem cobrir tudo), **desfoque nela atrás**, **rótulo em cima** em amarelo A Hint of Sass num fundinho **rosa mais escuro #EE8FAD (~85% opaco)** (ex.: "configurações da câmera") e a **legenda automática passa para baixo do print**. Card pequeno (ex.: foto de produto): flutua acima da cabeça, sem desfoque. Toda camada entra com **clique de mouse**. |
+| Setas | Quando ela aponta/fala de algo do cenário ("esse vaso de planta"), **seta branca desenhada à mão** apontando para o objeto, com som de **pop** (estalo seco, não gotinha). No plano: `"setas": [{"t0":32.3,"t1":36.8,"de":[1640,1560],"para":[1900,2060]}]` (coordenadas 4K; confira o lugar do objeto num quadro). |
 | Zoom de ênfase | Zoom-in **leve (8%)** centrado no rosto quando ela fala algo com ênfase ("atenção", frase de impacto). Sobe em 0,2 s, segura, volta. Sempre com **swoosh** de aproximação — o swoosh é exclusivo do zoom. |
 | Graça | Quando ela faz uma piada: imagem em **preto e branco** + voz de **fonógrafo** (só esse efeito de voz). Sem eco, sem outros sons por cima. |
 | Final | Termina com **clique de mouse** e a tela **apaga** (como desligar a luz). Nada escrito. |
 | Exportação | 4K (2160×3840), 30 fps. Mande também uma versão 1080p leve para ela ver no celular. |
 
-Efeitos sonoros que ela usa no CapCut (referência de timbre): cliques (mouse, caneta, botão), swish/whoosh, vento curto, clique de câmera, papel rasgando, brilho/mágica, glitch, teclado, estalo de dedo. Sons da skill: `assets/sfx/swoosh.wav` e `assets/sfx/tecla1-10.wav` foram **recortados do CapCut dela** (swoosh só no zoom; teclas na digitação dos destaques); `assets/sfx/click_mouse.wav` (camadas e final) foi aprovado por ela. **Nunca use "pop"/gotinha** — ela não gosta. Se ela mandar os arquivos de áudio dela, prefira os dela.
+Efeitos sonoros que ela usa no CapCut (referência de timbre): cliques (mouse, caneta, botão), swish/whoosh, vento curto, clique de câmera, papel rasgando, brilho/mágica, glitch, teclado, estalo de dedo. Sons da skill: `assets/sfx/swoosh.wav` e `assets/sfx/tecla1-10.wav` foram **recortados do CapCut dela** (swoosh só no zoom; teclas na digitação dos destaques); `assets/sfx/click_mouse.wav` (camadas e final) foi aprovado por ela; `assets/sfx/pop.wav` só nas setas. **Nunca use "pop"/gotinha** — ela não gosta. Se ela mandar os arquivos de áudio dela, prefira os dela.
 
 ## Fluxo de trabalho
 
@@ -53,9 +54,10 @@ Tudo em `scripts/editar.py`. Use uma pasta de trabalho no scratchpad.
    "correcoes": [[6.66, "Em", "E"]],
    "destaques": [[26.94, 28.3, "tem que\\Nter luz"]],
    "camadas":  [{"arquivo": "foto.png", "tipo": "card", "t0": 2.1, "t1": 3.3},
-                {"arquivo": "tela.mp4", "t0": 7.4, "t1": 16.6, "de": 0, "ate": 13.6}],
+                {"arquivo": "tela.mp4", "t0": 7.4, "t1": 16.6, "de": 0, "ate": 13.6, "rotulo": "configurações da câmera"}],
+   "setas":    [{"t0": 32.3, "t1": 36.8, "de": [1640, 1560], "para": [1900, 2060]}],
    "zooms":    [[3.6, 6.5]],
-   "gracas":   [[41.95, 44.75]]
+   "gracas":   [[41.95, 44.75]]   (piada: P&B + fonógrafo — use só se ela quiser; no Dia 1 ela pediu para cortar o trecho)
    ```
    (`tipo` padrão é `tela_cheia`; `de`/`ate` é o trecho do vídeo da camada, acelerado para caber em t0–t1.)
 5. **Prévia** 1080p (~5 min) → mande para ela e espere aprovação:
