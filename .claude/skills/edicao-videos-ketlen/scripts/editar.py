@@ -281,16 +281,15 @@ def audio_final(p, T, sfx, fim):
     for a, b in p.get('zooms', []):          # swoosh do CapCut dela: pico logo no início do zoom
         ev.append(('swoosh', a - 0.05, 0.8))
     ev.append(('click_mouse', fim - 0.15, 0.9))
-    # teclado: uma tecla para cada letra digitada dos destaques (faixa única, montada em numpy)
-    sr = 48000; tec = [wav16_st(f) for f in sorted(glob.glob(os.path.join(sfx, 'tecla*.wav')))]   # teclas gravadas do CapCut dela
-    trilha = np.zeros(int((fim + 2) * sr)); rng = np.random.default_rng(3)
+    # teclado: trecho contínuo de digitação gravado do CapCut dela, tocando enquanto as letras aparecem
+    sr = 48000; tec = wav16_st(os.path.join(sfx, 'teclado.wav'))
+    trilha = np.zeros(int((fim + 2) * sr))
     for a, b, txt in p.get('destaques', []):
         toks, tempos = digitacao(a, b, txt)
-        for x, t in zip(toks, tempos):
-            if x == '\\N':
-                continue
-            s = tec[rng.integers(len(tec))] * (0.35 if x == ' ' else rng.uniform(0.5, 0.7)); i = int(t * sr)
-            trilha[i:i + len(s)] += s[:len(trilha) - i]
+        n = int((tempos[-1] - a + 0.12) * sr)
+        s = np.tile(tec, n // len(tec) + 1)[:n] * 0.8
+        f_ = min(n, int(0.04 * sr)); s[-f_:] *= np.linspace(1, 0, f_)
+        i = int(a * sr); trilha[i:i + n] += s[:len(trilha) - i]
     tw = os.path.join(T, 'teclado.wav'); wv = wave.open(tw, 'w'); wv.setnchannels(1); wv.setsampwidth(2); wv.setframerate(sr)
     wv.writeframes((np.clip(trilha, -1, 1) * 32767).astype(np.int16).tobytes()); wv.close()
     gr = p.get('gracas', [])

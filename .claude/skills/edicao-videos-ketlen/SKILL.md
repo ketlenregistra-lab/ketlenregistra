@@ -30,7 +30,7 @@ A Ketlen definiu este estilo como a identidade dela. **Não invente variações*
 | Final | Termina com **clique de mouse** e a tela **apaga** (como desligar a luz). Nada escrito. |
 | Exportação | 4K (2160×3840), 30 fps. Mande também uma versão 1080p leve para ela ver no celular. |
 
-Efeitos sonoros que ela usa no CapCut (referência de timbre): cliques (mouse, caneta, botão), swish/whoosh, vento curto, clique de câmera, papel rasgando, brilho/mágica, glitch, teclado, estalo de dedo. Sons da skill: `assets/sfx/swoosh.wav` e `assets/sfx/tecla1-10.wav` foram **recortados do CapCut dela** (swoosh só no zoom; teclas na digitação dos destaques); `assets/sfx/click_mouse.wav` (camadas e final) foi aprovado por ela; `assets/sfx/pop.wav` só nas setas. **Nunca use "pop"/gotinha** — ela não gosta. Se ela mandar os arquivos de áudio dela, prefira os dela.
+Efeitos sonoros que ela usa no CapCut (referência de timbre): cliques (mouse, caneta, botão), swish/whoosh, vento curto, clique de câmera, papel rasgando, brilho/mágica, glitch, teclado, estalo de dedo. Sons da skill: `assets/sfx/swoosh.wav` e `assets/sfx/teclado.wav` foram **recortados do CapCut dela** (swoosh só no zoom; `teclado.wav` é o trecho contínuo de digitação, tocado enquanto as letras aparecem — **não** recorte em batidas soltas por letra: rápido demais soa como dinheiro sendo contado); `assets/sfx/click_mouse.wav` (camadas e final) foi aprovado por ela; `assets/sfx/pop.wav` só nas setas. **Nunca use "pop"/gotinha** — ela não gosta. Se ela mandar os arquivos de áudio dela, prefira os dela.
 
 ## Fluxo de trabalho
 
