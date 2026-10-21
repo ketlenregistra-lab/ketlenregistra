@@ -141,7 +141,7 @@ def cmd_montar(a):
         if n not in cache:
             cache[n] = wav16(os.path.join(T, 'audio', n + '.wav'))
         x = cache[n][int(i0 * 16000):int(i1 * 16000)]
-        v = 1.0 if tela else float(p.get('velocidade', 1.0))   # rosto pode acelerar; narração sobre tela nunca
+        v = 1.0 if tela else float(p.get('velocidades', {}).get(n, p.get('velocidade', 1.0)))   # rosto pode acelerar; narração sobre tela nunca
         for s, e in ([(i0, i1)] if inteiro else sem_pausas(x, i0, i1)):
             # alinha aos quadros (30 fps): a duração final (e-s)/v vira um número inteiro de quadros -> som e imagem juntos
             s = round(s * FPS) / FPS; e = s + max(1, round((e - s) / v * FPS)) / FPS * v
@@ -263,15 +263,12 @@ ACENTOS = set('ÁÀÂÃÉÊÍÓÔÕÚÇáàâãéêíóôõúç')
 
 
 def quebrada(t):
-    """Imita o bug do CapCut com fonte sem português: letra acentuada cai em outra fonte, minúscula e fora do tamanho,
-    e a palavra fica misturando caixa alta e baixa."""
+    """Imita o bug do CapCut com fonte sem português: só as letras com acento/ç caem em outra fonte, minúsculas e fora do tamanho."""
     out = []
     for w in t.split(' '):
         for i, ch in enumerate(w):
             if ch in ACENTOS:
                 out.append('{\\fnDejaVu Serif\\fs118\\b0}' + ch.lower() + '{\\r}')
-            elif i % 3 == 2 or (len(w) > 3 and i == len(w) - 1):
-                out.append('{\\fs120}' + ch.lower() + '{\\r}')
             else:
                 out.append(ch)
         out.append(' ')
@@ -312,7 +309,10 @@ def legendas(p, T, fontes):
             continue
         cy = LEG_Y_PRINT if any(a < c['t1'] and b > c['t0'] for c in cheias) else LEG_Y   # com print: legenda embaixo dele
         t = re.sub(r'[.,]', '', ' '.join(y[2] for y in g).upper())
-        if any(a < y and b > x for x, y in p.get('legenda_quebrada', [])):   # demonstração do erro do CapCut
+        if any(a < y and b > x for x, y, *_ in p.get('legenda_quebrada', [])):   # demonstração do erro do CapCut
+            for qa, qb, *qt in p.get('legenda_quebrada', []):
+                if a < qb and b > qa and qt:   # texto de exemplo (com acentos) no lugar da fala
+                    t = qt[0]
             ev.append(f'Dialogue: 1,{ts(a)},{ts(b)},Quebrada,,0,0,0,,{{\\an5\\pos({W4K // 2},560)}}{quebrada(t)}')   # acima da cabeça
             continue
         ev.append(f'Dialogue: 0,{ts(a)},{ts(b)},Caixa,,0,0,0,,{caixa(t, cy=cy)}')
