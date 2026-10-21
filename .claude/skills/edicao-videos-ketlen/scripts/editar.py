@@ -253,6 +253,25 @@ def espalhados(p):
     return out
 
 
+ACENTOS = set('ÁÀÂÃÉÊÍÓÔÕÚÇáàâãéêíóôõúç')
+
+
+def quebrada(t):
+    """Imita o bug do CapCut com fonte sem português: letra acentuada cai em outra fonte, minúscula e fora do tamanho,
+    e a palavra fica misturando caixa alta e baixa."""
+    out = []
+    for w in t.split(' '):
+        for i, ch in enumerate(w):
+            if ch in ACENTOS:
+                out.append('{\\fnDejaVu Serif\\fs118\\b0}' + ch.lower() + '{\\r}')
+            elif i % 3 == 2 or (len(w) > 3 and i == len(w) - 1):
+                out.append('{\\fs120}' + ch.lower() + '{\\r}')
+            else:
+                out.append(ch)
+        out.append(' ')
+    return ''.join(out).strip()
+
+
 def legendas(p, T, fontes):
     from PIL import ImageFont
     fonte = '/usr/share/fonts/opentype/inter/Inter-SemiBold.otf'
@@ -287,6 +306,9 @@ def legendas(p, T, fontes):
             continue
         cy = LEG_Y_PRINT if any(a < c['t1'] and b > c['t0'] for c in cheias) else LEG_Y   # com print: legenda embaixo dele
         t = re.sub(r'[.,]', '', ' '.join(y[2] for y in g).upper())
+        if any(a < y and b > x for x, y in p.get('legenda_quebrada', [])):   # demonstração do erro do CapCut
+            ev.append(f'Dialogue: 1,{ts(a)},{ts(b)},Quebrada,,0,0,0,,{{\\an5\\pos({W4K // 2},{LEG_Y})}}{quebrada(t)}')
+            continue
         ev.append(f'Dialogue: 0,{ts(a)},{ts(b)},Caixa,,0,0,0,,{caixa(t, cy=cy)}')
         ev.append(f'Dialogue: 1,{ts(a)},{ts(b)},Leg,,0,0,0,,{{\\an5\\pos({W4K // 2},{cy})}}{t}')
     if p.get('titulo'):                        # abertura do desafio: surge com fade (sem digitação)
@@ -334,6 +356,7 @@ Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour,
 Style: Caixa,Inter SemiBold,{LEG_TAM},&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,0,0,7,0,0,0,1
 Style: Leg,Inter SemiBold,{LEG_TAM},&H00FFFFFF,&H00FFFFFF,&H00000000,&H90623A4A,0,0,0,0,100,100,{LEG_ESP},0,1,0,3,5,0,0,0,1
 Style: Destaque,AHintofSass,200,{DESTAQUE_COR},{DESTAQUE_COR},&H00000000,&HA0000000,0,0,0,0,100,100,6,0,1,0,2,5,80,80,0,1
+Style: Quebrada,DejaVu Sans,150,&H00FFFFFF,&H00FFFFFF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,7,3,5,0,0,0,1
 Style: Rotulo,AHintofSass,{ROTULO_TAM},{DESTAQUE_COR},{DESTAQUE_COR},&H00000000,&H60000000,0,0,0,0,100,100,4,0,1,0,2,5,40,40,0,1
 
 [Events]
