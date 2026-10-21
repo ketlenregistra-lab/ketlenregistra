@@ -161,6 +161,36 @@ def garantir_assets(T):
     return fontes, sfx, mk
 
 
+MODELO_SEG = 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite'
+
+
+def mascara_pessoa(T, base, t0, t1, out):
+    """Silhueta dela quadro a quadro (branco = pessoa) entre t0 e t1 da base, para pôr vídeos ATRÁS dela."""
+    import mediapipe as mp
+    from mediapipe.tasks.python import vision, BaseOptions
+    from PIL import Image, ImageFilter
+    mod = os.path.join(T, 'selfie.tflite')
+    if not os.path.exists(mod):
+        sh(['curl', '-sSfL', '-o', mod, MODELO_SEG])
+    seg = vision.ImageSegmenter.create_from_options(vision.ImageSegmenterOptions(
+        base_options=BaseOptions(model_asset_path=mod), output_confidence_masks=True))
+    w, h = 540, 960
+    src = subprocess.Popen(['ffmpeg', '-v', 'error', '-ss', f'{t0:.3f}', '-t', f'{t1 - t0:.3f}', '-i', base, '-vf',
+                            f'fps={FPS},scale={w}:{h},format=rgb24', '-f', 'rawvideo', '-'], stdout=subprocess.PIPE)
+    dst = subprocess.Popen(['ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'gray', '-s', f'{w}x{h}', '-r', str(FPS),
+                            '-i', '-', '-c:v', 'ffv1', out], stdin=subprocess.PIPE)
+    while True:
+        buf = src.stdout.read(w * h * 3)
+        if len(buf) < w * h * 3:
+            break
+        a = np.frombuffer(buf, np.uint8).reshape(h, w, 3)
+        r = seg.segment(mp.Image(image_format=mp.ImageFormat.SRGB, data=np.ascontiguousarray(a)))
+        fundo = np.squeeze(np.asarray(r.confidence_masks[0].numpy_view(), dtype=np.float32))
+        m = Image.fromarray((np.clip(1 - fundo, 0, 1) * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(2))
+        dst.stdin.write(m.tobytes())
+    dst.stdin.close(); dst.wait(); src.wait(); seg.close()
+
+
 def seta_png(de, para, W, H, out):
     """Seta branca desenhada à mão (curva + ponta), em tela inteira transparente."""
     from PIL import Image, ImageDraw
@@ -190,6 +220,21 @@ def digitacao(a, b, txt):
         if x != '\\N':
             k += 1
     return toks, tempos
+
+
+POS_ESPALHADOS = [(560, 640, -7), (1600, 780, 6), (430, 1680, -5), (1740, 1580, 7), (1080, 520, -3), (1080, 3000, 4)]
+
+
+def espalhados(p):
+    """Frases curtas espalhadas pela tela (ex.: 4x "quais efeitos sonoros?"): cada uma digita em sequência e todas somem em t1."""
+    out = []
+    for e in p.get('espalhados', []):
+        t0, t1, txts = e['t0'], e['t1'], e['textos']; gap = min(0.45, 0.7 * (t1 - t0) / len(txts))
+        for i, txt in enumerate(txts):
+            x, y, rot = (e.get('posicoes') or POS_ESPALHADOS)[i % len(POS_ESPALHADOS)]
+            a = t0 + i * gap
+            out.append((a, a + min(0.5, gap), t1, txt, x, y, rot))
+    return out
 
 
 def legendas(p, T, fontes):
@@ -239,6 +284,14 @@ def legendas(p, T, fontes):
             ev.append(f"Dialogue: 3,{ts(a)},{ts(b)},Caixa,,0,0,0,,{{\\fad(150,150)}}"
                       + caixa(c['rotulo'], fr, em_r, 4, cy, ROTULO_COR, ROTULO_A, 44, 22))
             ev.append(f"Dialogue: 4,{ts(a)},{ts(b)},Rotulo,,0,0,0,,{{\\an5\\pos({W4K // 2},{cy})\\fad(150,150)}}{c['rotulo']}")
+    for a, b_dig, b, txt, x, y, rot in espalhados(p):
+        toks, tempos = digitacao(a, b_dig, txt)
+        for i, t0 in enumerate(tempos):
+            t1 = tempos[i + 1] if i + 1 < len(tempos) else b
+            vis = ''.join(toks[:i + 1]); resto = ''.join(toks[i + 1:])
+            fad = r'\fad(0,150)' if i + 1 == len(tempos) else ''
+            ev.append(f'Dialogue: 2,{ts(t0)},{ts(t1)},Destaque,,0,0,0,,{{\\an5\\fs120\\frz{rot}\\pos({x},{y}){fad}}}{vis}'
+                      + (f'{{\\alpha&HFF&}}{resto}' if resto else ''))
     for a, b, txt in p.get('destaques', []):   # uma palavra por linha, por cima do corpo, digitando
         pal, linhas = txt.replace('\\N', ' ').split(), []
         for x in pal:                          # junta palavrinhas curtas ("pra não", "um")
@@ -278,6 +331,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 def audio_final(p, T, sfx, fim):
     voz = os.path.join(T, 'voz.wav')
     ev = []
+    for c in p.get('atras', []):             # vídeos atrás dela: clique ao surgir
+        ev.append(('click_mouse', c['t0'], 0.8))
     for c in p.get('camadas', []):           # camadas: só clique de mouse
         ev.append(('click_mouse', c['t0'], 0.8))
     for s in p.get('setas', []):             # seta apontando algo do cenário: pop
@@ -290,7 +345,7 @@ def audio_final(p, T, sfx, fim):
     # teclado: trecho contínuo de digitação gravado do CapCut dela, tocando enquanto as letras aparecem
     sr = 48000; tec = wav16_st(os.path.join(sfx, 'teclado.wav'))
     trilha = np.zeros(int((fim + 2) * sr))
-    for a, b, txt in p.get('destaques', []):
+    for a, b, txt in p.get('destaques', []) + [(a, bd, txt) for a, bd, _, txt, *_ in espalhados(p)]:
         toks, tempos = digitacao(a, b, txt)
         n = int((tempos[-1] - a + 0.12) * sr)
         s = np.tile(tec, n // len(tec) + 1)[:n] * 0.8
@@ -352,7 +407,26 @@ def cmd_renderizar(a):
     cheias = [c for c in p.get('camadas', []) if c.get('tipo', 'tela_cheia') == 'tela_cheia']
     blur = '+'.join(f"between(t,{c['t0']},{c['t1']})" for c in cheias) or '0'
     gr = '+'.join(f'between(t,{x},{y})' for x, y in p.get('gracas', [])) or '0'
-    f.append(f"[0:v]setpts=PTS-STARTPTS,zoompan=z='1+{ZOOM}*({zs})+{SUBIR}*({zd})':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)*(0.42+0.58*({zd}))':d=1:s={W}x{H}:fps=30,"
+    pre = '0:v'
+    for j, c in enumerate(p.get('atras', [])):   # vídeos pronto dela ATRÁS dela (ela recortada na frente), sem som
+        t0, t1 = c['t0'], c['t1']; mpes = os.path.join(T, f'mascara_atras{j}.mkv')
+        mascara_pessoa(T, base, t0, t1, mpes)
+        trechos = c.get('trechos', [0]); cw, ch = int(820 * sc) // 2 * 2, int(1458 * sc) // 2 * 2
+        xs = [int(200 * sc), int(1140 * sc)] if len(trechos) > 1 else [int(1140 * sc)]
+        f.append(f'[{pre}]split=2[pa{j}][pb{j}]'); cur_a = f'pa{j}'
+        for q, (de, x) in enumerate(zip(trechos, xs)):
+            inp += ['-ss', str(de), '-t', str(t1 - t0 + 0.5), '-an', '-i', c['arquivo']]
+            inp += ['-loop', '1', '-t', str(t1 - t0 + 0.5), '-i', mk]
+            f.append(f'[{k}:v]setpts=PTS-STARTPTS,fps={FPS},scale={cw}:{ch}:force_original_aspect_ratio=increase,crop={cw}:{ch},format=rgba[av{j}{q}];'
+                     f'[{k + 1}:v]fps={FPS},format=gray,scale={cw}:{ch},setpts=PTS-STARTPTS[am{j}{q}];[av{j}{q}][am{j}{q}]alphamerge,'
+                     f'setpts=PTS-STARTPTS+{t0}/TB,fade=t=in:st={t0}:d=0.2:alpha=1,fade=t=out:st={t1 - 0.2:.2f}:d=0.2:alpha=1[ac{j}{q}]')
+            f.append(f"[{cur_a}][ac{j}{q}]overlay={x}:{int(450 * sc)}:enable='between(t,{t0},{t1})':eof_action=pass[ao{j}{q}]")
+            cur_a = f'ao{j}{q}'; k += 2
+        inp += ['-i', mpes]
+        f.append(f'[{k}:v]scale={W}:{H},format=gray,setpts=PTS-STARTPTS+{t0}/TB[mp{j}];[pb{j}]format=rgba[pr{j}];'
+                 f'[pr{j}][mp{j}]alphamerge[pp{j}];[{cur_a}][pp{j}]overlay=0:0:enable=\'between(t,{t0},{t1})\':eof_action=pass,format=yuv420p[pre{j}]')
+        pre = f'pre{j}'; k += 1
+    f.append(f"[{pre}]setpts=PTS-STARTPTS,zoompan=z='1+{ZOOM}*({zs})+{SUBIR}*({zd})':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)*(0.42+0.58*({zd}))':d=1:s={W}x{H}:fps=30,"
              f"gblur=sigma={30 * sc:.0f}:enable='{blur}',"
              f"drawbox=x=0:y=0:w=iw:h=ih:color=black@0.35:t=fill:enable='{blur}',hue=s=0:enable='{gr}'[b0]")
     cur = 'b0'
