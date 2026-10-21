@@ -18,7 +18,7 @@ A Ketlen definiu este estilo como a identidade dela. **Não invente variações*
 
 | Elemento | Regra |
 |---|---|
-| Ritmo | Cortes rápidos, **nenhuma pausa** entre frases. Vídeo nunca parado. Sem música de fundo. |
+| Ritmo | Cortes rápidos, **nenhuma pausa** entre frases. Vídeo nunca parado. Sem música de fundo. As partes com ela falando ficam **um pouco aceleradas** (`"velocidade": 1.15` no plano; voz sem mudar o tom) — rápido mas entendível. **Narração sobre gravação de tela (tomada `"tela"`) nunca é acelerada nem cortada.** |
 | Título (desafio) | Nos vídeos do desafio, abre com **"dia N de 20"** + tema (ex.: `dia 1 de 20\Nconfigurações\Nda câmera`), na mesma fonte e amarelo dos destaques, **surgindo com fade in** (sem digitação) e **clique de mouse**. Fica do início até a primeira camada/frase importante (~2 s). Fora do desafio, sem título. |
 | Cor | **Aprovada por ela — não mexer.** Brutos **HDR** (HLG, padrão do iPhone) usam `assets/cor_ketlen.cube`; brutos **SDR** (bt709, ex.: exportados de outro app) usam `assets/cor_ketlen_sdr.cube` — o script escolhe sozinho. `assets/cor_ketlen.cube` — medida pixel a pixel do bruto × edição dela no CapCut (Retrô americano + Bokeh + Qualidade II + 4K). Fundo sóbrio/acinzentado, pele natural. **Nunca** deixe a pele amarelada, alaranjada ou rosada demais (ela já reprovou as três). Nitidez leve. |
 | Legenda automática | Fonte SYSTEM (usamos Inter SemiBold), MAIÚSCULAS, branca com sombra suave, 2–3 palavras por vez sincronizadas com a fala. Tarja **rosa bebê #F4BBCE (4ª bolinha rosa do CapCut), 20% de opacidade**, cantos arredondados. Centro em y=2600 (de 3840). |
@@ -46,10 +46,10 @@ Tudo em `scripts/editar.py`. Use uma pasta de trabalho no scratchpad.
    {"brutos": "BRUTOS", "trabalho": "TRAB", "saida": "Dia2_Tema",
     "prompt": "iPhone 17, 4K, 30 fps.",
     "tomadas": [["IMG_2577", 3.75, 11.45], ["IMG_2578", 1.65, 5.85],
-                ["Camada", 0.0, 106.4, "inteiro"]]}
+                ["Camada", 0.0, 106.4, "tela"]]}
    ```
    Se um trecho tiver tropeço no meio, transcreva só aquela janela de novo para achar o corte exato.
-   Tutorial narrado sobre gravação de tela (ex.: Dia 2): ponha a gravação na pasta dos brutos, use a tomada com `"inteiro"` (sem cortar pausas, para tela e voz não se separarem) e, no plano, uma camada `tela_cheia` com o mesmo arquivo, `de`=início, `ate`=fim, `t0`/`t1` = posição dela na linha do tempo, mais `fundo` com o vídeo pronto dela.
+   Tutorial narrado sobre gravação de tela (ex.: Dia 2): ponha a gravação na pasta dos brutos, use a tomada com `"tela"` (sem cortar pausas e sem acelerar, para tela e voz não se separarem; `"inteiro"` só não corta pausas, ex.: trecho com risada) e, no plano, uma camada `tela_cheia` com o mesmo arquivo, `de`=início, `ate`=fim, `t0`/`t1` = posição dela na linha do tempo, mais `fundo` com o vídeo pronto dela.
 4. **Montar** (tira todas as pausas e transcreve a linha do tempo final):
    `python3 scripts/editar.py montar --plano TRAB/plano.json`
    Use os tempos impressos para preencher o resto do plano:

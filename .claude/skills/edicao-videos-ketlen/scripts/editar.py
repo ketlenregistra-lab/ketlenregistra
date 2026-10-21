@@ -129,19 +129,25 @@ def cmd_montar(a):
     p = json.load(open(a.plano)); T = p['trabalho']
     cache, cortes = {}, []
     for tom in p['tomadas']:
-        n, i0, i1 = tom[:3]; inteiro = len(tom) > 3 and tom[3] == 'inteiro'   # 'inteiro': não corta pausas (narração sobre tela)
+        n, i0, i1 = tom[:3]; flag = tom[3] if len(tom) > 3 else ''
+        inteiro = flag in ('inteiro', 'tela')   # não corta pausas
+        tela = flag == 'tela'                   # narração sobre gravação de tela: intocada (sem cortes e sem acelerar)
         if n not in cache:
             cache[n] = wav16(os.path.join(T, 'audio', n + '.wav'))
         x = cache[n][int(i0 * 16000):int(i1 * 16000)]
-        for s, e in ([(i0, i1)] if inteiro else sem_pausas(x, i0, i1)):     # alinha cada corte aos quadros (30 fps) p/ som e imagem não se separarem
-            s = round(s * FPS) / FPS; e = s + max(1, round((e - s) * FPS)) / FPS
-            cortes.append((n, round(s, 4), round(e, 4)))
+        v = 1.0 if tela else float(p.get('velocidade', 1.0))   # rosto pode acelerar; narração sobre tela nunca
+        for s, e in ([(i0, i1)] if inteiro else sem_pausas(x, i0, i1)):
+            # alinha aos quadros (30 fps): a duração final (e-s)/v vira um número inteiro de quadros -> som e imagem juntos
+            s = round(s * FPS) / FPS; e = s + max(1, round((e - s) / v * FPS)) / FPS * v
+            cortes.append((n, round(s, 4), round(e, 6), v))
     json.dump(cortes, open(os.path.join(T, 'cortes.json'), 'w'))
     inp, f = [], []
-    for i, (n, s, e) in enumerate(cortes):
+    for i, (n, s, e, *vv) in enumerate(cortes):
+        v = vv[0] if vv else 1.0
         inp += ['-i', os.path.join(T, 'audio', n + '.wav')]
-        d = e - s
-        f.append(f'[{i}:a]atrim={s:.4f}:{e:.4f},asetpts=PTS-STARTPTS,afade=t=in:d=0.015,afade=t=out:st={d - 0.02:.3f}:d=0.02[a{i}]')
+        d = (e - s) / v
+        tempo = f',atempo={v:.4f}' if v != 1.0 else ''          # acelera sem mudar o tom da voz
+        f.append(f'[{i}:a]atrim={s:.6f}:{e:.6f},asetpts=PTS-STARTPTS{tempo},apad=whole_dur={d:.6f},atrim=duration={d:.6f},afade=t=in:d=0.015,afade=t=out:st={d - 0.02:.3f}:d=0.02[a{i}]')
     f.append(''.join(f'[a{i}]' for i in range(len(cortes))) + f'concat=n={len(cortes)}:v=0:a=1[o]')
     voz = os.path.join(T, 'voz.wav')
     ff(*inp, '-filter_complex', ';'.join(f), '-map', '[o]', voz)
@@ -396,12 +402,14 @@ def cmd_renderizar(a):
     # 1) cada corte separado com cor (pouca memória; reaproveita se já existir)
     pasta = os.path.join(T, f'cortes_{a.modo}'); os.makedirs(pasta, exist_ok=True)
     lista = []
-    for i, (n, s, e) in enumerate(cortes):
+    for i, (n, s, e, *vv) in enumerate(cortes):
+        v = vv[0] if vv else 1.0
         src = [x for x in glob.glob(os.path.join(p['brutos'], n + '.*')) if x.lower().endswith(('.mov', '.mp4'))][0]
-        o = os.path.join(pasta, hashlib.md5(f'{n}{s}{e}{W}'.encode()).hexdigest()[:12] + '.mp4')
+        o = os.path.join(pasta, hashlib.md5(f'{n}{s}{e}{W}{v}'.encode()).hexdigest()[:12] + '.mp4')
         if not os.path.exists(o):
-            ff('-threads', '4', '-ss', f'{s:.4f}', '-i', src, '-vf', f'fps={FPS},scale={W}:{H},{cor(src)}',
-               '-frames:v', str(round((e - s) * FPS)), '-an', '-c:v', 'libx264', '-preset', 'fast',
+            acel = f'setpts=PTS/{v:.4f},' if v != 1.0 else ''
+            ff('-threads', '4', '-ss', f'{s:.4f}', '-i', src, '-vf', f'{acel}fps={FPS},scale={W}:{H},{cor(src)}',
+               '-frames:v', str(round((e - s) / v * FPS)), '-an', '-c:v', 'libx264', '-preset', 'fast',
                '-crf', '12' if final else '18', '-pix_fmt', 'yuv420p', o + '.tmp.mp4')
             os.rename(o + '.tmp.mp4', o)
         lista.append(o); print(f'corte {i + 1}/{len(cortes)}', flush=True)
