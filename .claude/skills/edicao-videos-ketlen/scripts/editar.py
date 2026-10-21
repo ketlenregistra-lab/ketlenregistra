@@ -11,7 +11,8 @@ import numpy as np
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(AQUI, '..', 'assets')
-LUT = os.path.abspath(os.path.join(ASSETS, 'cor_ketlen.cube'))
+LUT = os.path.abspath(os.path.join(ASSETS, 'cor_ketlen.cube'))          # para brutos HDR (HLG) do iPhone
+LUT_SDR = os.path.abspath(os.path.join(ASSETS, 'cor_ketlen_sdr.cube'))  # para brutos SDR (bt709)
 
 # ---------------------------------------------------------------- estilo
 W4K, H4K = 2160, 3840                     # tudo é desenhado em coordenadas 4K
@@ -51,9 +52,10 @@ def hdr(path):
 
 def cor(path):
     """HDR do iPhone -> SDR (hable) -> cor Ketlen (LUT medida da edição dela no CapCut)."""
-    base = 'zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=gbrp' \
-        if hdr(path) else 'format=gbrp'
-    return f'{base},lut3d={LUT}:interp=tetrahedral,{NITIDEZ},format=yuv420p'
+    if hdr(path):
+        return f'zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=gbrp,' \
+               f'lut3d={LUT}:interp=tetrahedral,{NITIDEZ},format=yuv420p'
+    return f'format=gbrp,lut3d={LUT_SDR}:interp=tetrahedral,{NITIDEZ},format=yuv420p'
 
 
 def ts(t):
@@ -359,6 +361,11 @@ def cmd_renderizar(a):
         fd = f'fade=t=in:st={t0}:d=0.15:alpha=1,fade=t=out:st={t1 - 0.15:.2f}:d=0.15:alpha=1'
         if c.get('tipo', 'tela_cheia') == 'tela_cheia':
             CW, CH = int(CARD_W * sc) // 2 * 2, int(CARD_H * sc) // 2 * 2
+            if c.get('fundo'):             # vídeo pronto dela tocando desfocado atrás do print (estilo referência)
+                fu = c['fundo']; inp += ['-ss', str(fu.get('de', 0)), '-t', str(t1 - t0 + 0.5), '-i', fu['arquivo']]
+                f.append(f'[{k}:v]setpts=PTS-STARTPTS,fps=30,scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},'
+                         f'gblur=sigma={14 * sc:.0f},eq=brightness=-0.08,format=yuv420p,setpts=PTS-STARTPTS+{t0}/TB[fu{j}]')
+                f.append(f"[{cur}][fu{j}]overlay=0:0:enable='between(t,{t0},{t1})':eof_action=pass[cf{j}]"); cur = f'cf{j}'; k += 1
             if video:
                 de, ate = c.get('de', 0), c.get('ate', dur(arq)); vel = (ate - de) / (t1 - t0)
                 inp += ['-ss', str(de), '-t', str(ate - de), '-i', arq]
