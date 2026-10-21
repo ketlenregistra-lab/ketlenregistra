@@ -13,6 +13,8 @@ AQUI = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(AQUI, '..', 'assets')
 LUT = os.path.abspath(os.path.join(ASSETS, 'cor_ketlen.cube'))          # para brutos HDR (HLG) do iPhone
 LUT_SDR = os.path.abspath(os.path.join(ASSETS, 'cor_ketlen_sdr.cube'))  # para brutos SDR (bt709)
+LUT_ROSA = os.path.abspath(os.path.join(ASSETS, 'cor_rosa.cube'))       # PADRÃO desde out/2026: cenário rosa
+COR_PADRAO = 'rosa'
 
 # ---------------------------------------------------------------- estilo
 W4K, H4K = 2160, 3840                     # tudo é desenhado em coordenadas 4K
@@ -52,6 +54,10 @@ def hdr(path):
 
 def cor(path):
     """HDR do iPhone -> SDR (hable) -> cor Ketlen (LUT medida da edição dela no CapCut)."""
+    if COR_PADRAO == 'rosa':
+        pre = 'zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=gbrp' \
+            if hdr(path) else 'format=gbrp'
+        return f'{pre},lut3d={LUT_ROSA}:interp=tetrahedral,{NITIDEZ},format=yuv420p'
     if hdr(path):
         return f'zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=gbrp,' \
                f'lut3d={LUT}:interp=tetrahedral,{NITIDEZ},format=yuv420p'
@@ -307,7 +313,7 @@ def legendas(p, T, fontes):
         cy = LEG_Y_PRINT if any(a < c['t1'] and b > c['t0'] for c in cheias) else LEG_Y   # com print: legenda embaixo dele
         t = re.sub(r'[.,]', '', ' '.join(y[2] for y in g).upper())
         if any(a < y and b > x for x, y in p.get('legenda_quebrada', [])):   # demonstração do erro do CapCut
-            ev.append(f'Dialogue: 1,{ts(a)},{ts(b)},Quebrada,,0,0,0,,{{\\an5\\pos({W4K // 2},{LEG_Y})}}{quebrada(t)}')
+            ev.append(f'Dialogue: 1,{ts(a)},{ts(b)},Quebrada,,0,0,0,,{{\\an5\\pos({W4K // 2},560)}}{quebrada(t)}')   # acima da cabeça
             continue
         ev.append(f'Dialogue: 0,{ts(a)},{ts(b)},Caixa,,0,0,0,,{caixa(t, cy=cy)}')
         ev.append(f'Dialogue: 1,{ts(a)},{ts(b)},Leg,,0,0,0,,{{\\an5\\pos({W4K // 2},{cy})}}{t}')
@@ -419,6 +425,7 @@ def audio_final(p, T, sfx, fim):
 
 def cmd_renderizar(a):
     p = json.load(open(a.plano)); T = p['trabalho']; final = a.modo == 'final'
+    global COR_PADRAO; COR_PADRAO = p.get('cor', 'rosa')   # 'antiga' = cenário branco (Dias 1 e 2)
     W, H = (W4K, H4K) if final else (1080, 1920); sc = W / W4K
     fontes, sfx, mk = garantir_assets(T)
     cortes = json.load(open(os.path.join(T, 'cortes.json')))
@@ -428,7 +435,7 @@ def cmd_renderizar(a):
     for i, (n, s, e, *vv) in enumerate(cortes):
         v = vv[0] if vv else 1.0
         src = [x for x in glob.glob(os.path.join(p['brutos'], n + '.*')) if x.lower().endswith(('.mov', '.mp4'))][0]
-        o = os.path.join(pasta, hashlib.md5(f'{n}{s}{e}{W}{v}'.encode()).hexdigest()[:12] + '.mp4')
+        o = os.path.join(pasta, hashlib.md5(f'{n}{s}{e}{W}{v}{COR_PADRAO}'.encode()).hexdigest()[:12] + '.mp4')
         if not os.path.exists(o):
             acel = f'setpts=PTS/{v:.4f},' if v != 1.0 else ''
             ff('-threads', '4', '-ss', f'{s:.4f}', '-i', src, '-vf', f'{acel}fps={FPS},scale={W}:{H},{cor(src)}',
