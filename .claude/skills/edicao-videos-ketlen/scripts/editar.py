@@ -222,6 +222,16 @@ def digitacao(a, b, txt):
     return toks, tempos
 
 
+def dest(p):
+    """Destaques como (a, b, txt); o 4º campo opcional "cima" fica em cima_(p)."""
+    return [tuple(d[:3]) for d in p.get('destaques', [])]
+
+
+def cima_(p):
+    """Destaques marcados "cima": ficam acima da cabeça (ela aponta pra cima) e não sobem o vídeo."""
+    return {(d[0], d[1]) for d in p.get('destaques', []) if len(d) > 3 and d[3] == 'cima'}
+
+
 POS_ESPALHADOS = [(560, 640, -7), (1600, 780, 6), (430, 1680, -5), (1740, 1580, 7), (1080, 520, -3), (1080, 3000, 4)]
 
 
@@ -262,7 +272,7 @@ def legendas(p, T, fontes):
         if re.search(r'[.,?!]$', x[2]) or len(g) == 3 or len(txt) >= 16 or i == len(w) - 1:
             grupos.append(g); g = []
     ev = []
-    janelas = [(a, b) for a, b, _ in p.get('destaques', [])]
+    janelas = [(a, b) for a, b, _ in dest(p)]
     cheias = [c for c in p.get('camadas', []) if c.get('tipo', 'tela_cheia') == 'tela_cheia']
     for i, g in enumerate(grupos):
         a = g[0][0]; b = grupos[i + 1][0][0] if i + 1 < len(grupos) else g[-1][1] + 0.4
@@ -292,14 +302,14 @@ def legendas(p, T, fontes):
             fad = r'\fad(0,150)' if i + 1 == len(tempos) else ''
             ev.append(f'Dialogue: 2,{ts(t0)},{ts(t1)},Destaque,,0,0,0,,{{\\an5\\fs120\\frz{rot}\\pos({x},{y}){fad}}}{vis}'
                       + (f'{{\\alpha&HFF&}}{resto}' if resto else ''))
-    for a, b, txt in p.get('destaques', []):   # uma palavra por linha, por cima do corpo, digitando
+    for a, b, txt in dest(p):   # uma palavra por linha, por cima do corpo, digitando
         pal, linhas = txt.replace('\\N', ' ').split(), []
         for x in pal:                          # junta palavrinhas curtas ("pra não", "um")
             if linhas and len(linhas[-1]) + 1 + len(x) <= 7:
                 linhas[-1] += ' ' + x
             else:
                 linhas.append(x)
-        txt = '\\N'.join(linhas); y = DESTAQUE_Y
+        txt = '\\N'.join(linhas); y = 430 if (a, b) in cima_(p) else DESTAQUE_Y
         toks, tempos = digitacao(a, b, txt)
         for i, t0 in enumerate(tempos):
             t1 = tempos[i + 1] if i + 1 < len(tempos) else b
@@ -340,12 +350,15 @@ def audio_final(p, T, sfx, fim):
     if p.get('titulo'):                      # título: clique quando surge
         ev.append(('click_mouse', p['titulo'][0], 0.8))
     for a, b in p.get('zooms', []):          # swoosh do CapCut dela: pico logo no início do zoom
-        ev.append(('swoosh', a - 0.05, 0.8))
+        ev.append(('swoosh', a - 0.05, 1.0))
+    for a, b, _ in dest(p):                  # destaque também é zoom in: swoosh
+        if (a, b) not in cima_(p):
+            ev.append(('swoosh', a - 0.05, 1.0))
     ev.append(('click_mouse', fim - 0.15, 0.9))
     # teclado: trecho contínuo de digitação gravado do CapCut dela, tocando enquanto as letras aparecem
     sr = 48000; tec = wav16_st(os.path.join(sfx, 'teclado.wav'))
     trilha = np.zeros(int((fim + 2) * sr))
-    for a, b, txt in p.get('destaques', []) + [(a, bd, txt) for a, bd, _, txt, *_ in espalhados(p)]:
+    for a, b, txt in dest(p) + [(a, bd, txt) for a, bd, _, txt, *_ in espalhados(p)]:
         toks, tempos = digitacao(a, b, txt)
         n = int((tempos[-1] - a + 0.12) * sr)
         s = np.tile(tec, n // len(tec) + 1)[:n] * 0.8
@@ -361,12 +374,11 @@ def audio_final(p, T, sfx, fim):
     k = 2; mix = ['[m]', '[tk]']
     for j, (a, b) in enumerate(gr):          # voz de fonógrafo nos momentos de graça
         d = b - a
-        inp += ['-i', voz, '-f', 'lavfi', '-t', f'{d}', '-i', "aevalsrc='0.5*if(lt(random(0),0.0012),random(1)*2-1,0)':s=48000"]
+        inp += ['-i', voz]
         f.append(f'[{k}]atrim={a}:{b},asetpts=PTS-STARTPTS,aresample=48000,highpass=f=500,lowpass=f=2800,'
-                 f'equalizer=f=1400:t=q:w=1.2:g=7,asoftclip=type=atan,volume=1.1[v{j}];[{k + 1}]highpass=f=1500,lowpass=f=7000[c{j}];'
-                 f'[v{j}][c{j}]amix=inputs=2:normalize=0,afade=t=in:d=0.03,afade=t=out:st={d - 0.04:.2f}:d=0.04,'
+                 f'equalizer=f=1400:t=q:w=1.2:g=7,asoftclip=type=atan,volume=1.1,afade=t=in:d=0.03,afade=t=out:st={d - 0.04:.2f}:d=0.04,'
                  f'adelay={int(a * 1000)}|{int(a * 1000)}[g{j}]')
-        mix.append(f'[g{j}]'); k += 2
+        mix.append(f'[g{j}]'); k += 1
     for i, (n, t, v) in enumerate(ev):
         inp += ['-i', os.path.join(sfx, n + '.wav')]; ms = max(0, int(t * 1000))
         f.append(f'[{k}]volume={v},adelay={ms}|{ms}[s{i}]'); mix.append(f'[s{i}]'); k += 1
@@ -403,7 +415,7 @@ def cmd_renderizar(a):
     inp = ['-i', base, '-i', aud]; f = []; k = 2
     zs = '+'.join(f'clip((it-{z0})/0.2,0,1)*clip(({z1}-it)/0.15,0,1)' for z0, z1 in p.get('zooms', [])) or '0'
     # durante os destaques amarelos o vídeo sobe e aproxima (ela fica no alto, a frase ocupa o corpo)
-    zd = '+'.join(f'clip((it-{a})/0.25,0,1)*clip(({b}-it)/0.25,0,1)' for a, b, _ in p.get('destaques', [])) or '0'
+    zd = '+'.join(f'clip((it-{a})/0.25,0,1)*clip(({b}-it)/0.25,0,1)' for a, b, _ in dest(p) if (a, b) not in cima_(p)) or '0'
     cheias = [c for c in p.get('camadas', []) if c.get('tipo', 'tela_cheia') == 'tela_cheia']
     blur = '+'.join(f"between(t,{c['t0']},{c['t1']})" for c in cheias) or '0'
     gr = '+'.join(f'between(t,{x},{y})' for x, y in p.get('gracas', [])) or '0'
