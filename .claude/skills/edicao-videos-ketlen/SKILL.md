@@ -72,6 +72,8 @@ Tudo em `scripts/editar.py`. Use uma pasta de trabalho no scratchpad.
 
 ## Cuidados que já aprendemos
 
+- **Não coma palavras**: defina início/fim de cada tomada pelo **fim real da última palavra** na transcrição (campo `end`, não o início da palavra) + ~0,2 s de folga. O corte de pausas só considera silêncio o que está 30 dB abaixo da fala e mantém 0,12 s de cauda depois de cada palavra. Depois de montar, confira os finais de frase.
+
 - Os brutos do iPhone são **HDR (HLG)**; o script converte para SDR antes da LUT. Não use a conversão `mobius` (deixa amarelada).
 - Mostre a cor em quadros **4K reais** e em momentos em que ela está bonita (olho aberto, sorrindo) — quadro no meio da fala parece "deformado".
 - Antes de mudar a cor, confira com ela num quadro; não faça exportação longa com cor não aprovada.

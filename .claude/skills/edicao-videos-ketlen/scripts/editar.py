@@ -100,12 +100,12 @@ def cmd_transcrever(a):
 
 
 # ---------------------------------------------------------------- 2. montar (cortes rápidos, sem pausas)
-def sem_pausas(x, inicio, fim, sr=16000, janela=0.02, min_pausa=0.14, folga=0.05):
+def sem_pausas(x, inicio, fim, sr=16000, janela=0.02, min_pausa=0.18, folga=0.04, cauda=0.12):
     k = int(janela * sr); m = len(x) // k
     if m == 0:
         return [(inicio, fim)]
     r = 20 * np.log10(np.sqrt((x[:m * k].reshape(m, k) ** 2).mean(1)) + 1e-9)
-    q = r < np.percentile(r, 90) - 24
+    q = r < np.percentile(r, 90) - 30          # só silêncio de verdade (finais de palavra são baixinhos)
     keep, i, start = [], 0, 0.0
     while i < m:
         if q[i]:
@@ -113,7 +113,7 @@ def sem_pausas(x, inicio, fim, sr=16000, janela=0.02, min_pausa=0.14, folga=0.05
             while j < m and q[j]:
                 j += 1
             if (j - i) * janela >= min_pausa:
-                s, e = i * janela + folga, j * janela - folga
+                s, e = i * janela + cauda, j * janela - folga   # mantém o finzinho da palavra antes da pausa
                 if s > start:
                     keep.append((start, s))
                 start = e
