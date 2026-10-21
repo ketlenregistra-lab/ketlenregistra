@@ -43,9 +43,11 @@ Tudo em `scripts/editar.py`. Use uma pasta de trabalho no scratchpad.
    ```json
    {"brutos": "BRUTOS", "trabalho": "TRAB", "saida": "Dia2_Tema",
     "prompt": "iPhone 17, 4K, 30 fps.",
-    "tomadas": [["IMG_2577", 3.75, 11.45], ["IMG_2578", 1.65, 5.85]]}
+    "tomadas": [["IMG_2577", 3.75, 11.45], ["IMG_2578", 1.65, 5.85],
+                ["Camada", 0.0, 106.4, "inteiro"]]}
    ```
    Se um trecho tiver tropeço no meio, transcreva só aquela janela de novo para achar o corte exato.
+   Tutorial narrado sobre gravação de tela (ex.: Dia 2): ponha a gravação na pasta dos brutos, use a tomada com `"inteiro"` (sem cortar pausas, para tela e voz não se separarem) e, no plano, uma camada `tela_cheia` com o mesmo arquivo, `de`=início, `ate`=fim, `t0`/`t1` = posição dela na linha do tempo, mais `fundo` com o vídeo pronto dela.
 4. **Montar** (tira todas as pausas e transcreve a linha do tempo final):
    `python3 scripts/editar.py montar --plano TRAB/plano.json`
    Use os tempos impressos para preencher o resto do plano:

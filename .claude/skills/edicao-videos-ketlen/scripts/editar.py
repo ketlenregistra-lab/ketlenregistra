@@ -128,11 +128,12 @@ def sem_pausas(x, inicio, fim, sr=16000, janela=0.02, min_pausa=0.14, folga=0.05
 def cmd_montar(a):
     p = json.load(open(a.plano)); T = p['trabalho']
     cache, cortes = {}, []
-    for n, i0, i1 in p['tomadas']:
+    for tom in p['tomadas']:
+        n, i0, i1 = tom[:3]; inteiro = len(tom) > 3 and tom[3] == 'inteiro'   # 'inteiro': não corta pausas (narração sobre tela)
         if n not in cache:
             cache[n] = wav16(os.path.join(T, 'audio', n + '.wav'))
         x = cache[n][int(i0 * 16000):int(i1 * 16000)]
-        for s, e in sem_pausas(x, i0, i1):     # alinha cada corte aos quadros (30 fps) p/ som e imagem não se separarem
+        for s, e in ([(i0, i1)] if inteiro else sem_pausas(x, i0, i1)):     # alinha cada corte aos quadros (30 fps) p/ som e imagem não se separarem
             s = round(s * FPS) / FPS; e = s + max(1, round((e - s) * FPS)) / FPS
             cortes.append((n, round(s, 4), round(e, 4)))
     json.dump(cortes, open(os.path.join(T, 'cortes.json'), 'w'))
