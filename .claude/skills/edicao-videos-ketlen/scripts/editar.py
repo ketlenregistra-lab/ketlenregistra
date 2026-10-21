@@ -309,14 +309,12 @@ def legendas(p, T, fontes):
             continue
         cy = LEG_Y_PRINT if any(a < c['t1'] and b > c['t0'] for c in cheias) else LEG_Y   # com print: legenda embaixo dele
         t = re.sub(r'[.,]', '', ' '.join(y[2] for y in g).upper())
-        if any(a < y and b > x for x, y, *_ in p.get('legenda_quebrada', [])):   # demonstração do erro do CapCut
-            for qa, qb, *qt in p.get('legenda_quebrada', []):
-                if a < qb and b > qa and qt:   # texto de exemplo (com acentos) no lugar da fala
-                    t = qt[0]
-            ev.append(f'Dialogue: 1,{ts(a)},{ts(b)},Quebrada,,0,0,0,,{{\\an5\\pos({W4K // 2},560)}}{quebrada(t)}')   # acima da cabeça
+        if any(a < y and b > x for x, y, *_ in p.get('legenda_quebrada', [])):   # na demonstração, só a legenda quebrada
             continue
         ev.append(f'Dialogue: 0,{ts(a)},{ts(b)},Caixa,,0,0,0,,{caixa(t, cy=cy)}')
         ev.append(f'Dialogue: 1,{ts(a)},{ts(b)},Leg,,0,0,0,,{{\\an5\\pos({W4K // 2},{cy})}}{t}')
+    for qa, qb, *qt in p.get('legenda_quebrada', []):   # demonstração do erro do CapCut, acima da cabeça
+        ev.append(f'Dialogue: 1,{ts(qa)},{ts(qb)},Quebrada,,0,0,0,,{{\\an5\\pos({W4K // 2},560)}}{quebrada(qt[0] if qt else "")}')
     if p.get('titulo'):                        # abertura do desafio: surge com fade (sem digitação)
         a, b, txt = p['titulo']
         ev.append(f'Dialogue: 2,{ts(a)},{ts(b)},Destaque,,0,0,0,,{{\\an5\\pos({W4K // 2},950)\\fad(250,200)}}{txt}')
@@ -376,6 +374,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 def audio_final(p, T, sfx, fim):
     voz = os.path.join(T, 'voz.wav')
     ev = []
+    for qa, *_ in p.get('legenda_quebrada', []):   # legenda quebrada surge com clique
+        ev.append(('click_mouse', qa, 0.8))
     for c in p.get('atras', []):             # vídeos atrás dela: clique ao surgir
         ev.append(('click_mouse', c['t0'], 0.8))
     for c in p.get('camadas', []):           # camadas: só clique de mouse
@@ -465,11 +465,18 @@ def cmd_renderizar(a):
         xs = [int(200 * sc), int(1140 * sc)] if len(trechos) > 1 else [int(1140 * sc)]
         f.append(f'[{pre}]split=2[pa{j}][pb{j}]'); cur_a = f'pa{j}'
         for q, (de, x) in enumerate(zip(trechos, xs)):
+            fd_a = f'setpts=PTS-STARTPTS+{t0}/TB,fade=t=in:st={t0}:d=0.2:alpha=1,fade=t=out:st={t1 - 0.2:.2f}:d=0.2:alpha=1[ac{j}{q}]'
+            if c['arquivo'].lower().endswith('.png'):   # imagem com transparência (ex.: logo): quadrada, sem máscara
+                lw = int(c.get('largura', 700) * sc) // 2 * 2
+                inp += ['-loop', '1', '-t', str(t1 - t0 + 0.5), '-i', c['arquivo']]
+                f.append(f'[{k}:v]fps={FPS},format=rgba,scale={lw}:-2,{fd_a}')
+                f.append(f"[{cur_a}][ac{j}{q}]overlay={int(c.get('x', 1250) * sc)}:{int(c.get('y', 380) * sc)}:enable='between(t,{t0},{t1})':eof_action=pass[ao{j}{q}]")
+                cur_a = f'ao{j}{q}'; k += 1
+                continue
             inp += ['-ss', str(de), '-t', str(t1 - t0 + 0.5), '-an', '-i', c['arquivo']]
             inp += ['-loop', '1', '-t', str(t1 - t0 + 0.5), '-i', mk]
             f.append(f'[{k}:v]setpts=PTS-STARTPTS,fps={FPS},scale={cw}:{ch}:force_original_aspect_ratio=increase,crop={cw}:{ch},format=rgba[av{j}{q}];'
-                     f'[{k + 1}:v]fps={FPS},format=gray,scale={cw}:{ch},setpts=PTS-STARTPTS[am{j}{q}];[av{j}{q}][am{j}{q}]alphamerge,'
-                     f'setpts=PTS-STARTPTS+{t0}/TB,fade=t=in:st={t0}:d=0.2:alpha=1,fade=t=out:st={t1 - 0.2:.2f}:d=0.2:alpha=1[ac{j}{q}]')
+                     f'[{k + 1}:v]fps={FPS},format=gray,scale={cw}:{ch},setpts=PTS-STARTPTS[am{j}{q}];[av{j}{q}][am{j}{q}]alphamerge,{fd_a}')
             f.append(f"[{cur_a}][ac{j}{q}]overlay={x}:{int(450 * sc)}:enable='between(t,{t0},{t1})':eof_action=pass[ao{j}{q}]")
             cur_a = f'ao{j}{q}'; k += 2
         inp += ['-i', mpes]
