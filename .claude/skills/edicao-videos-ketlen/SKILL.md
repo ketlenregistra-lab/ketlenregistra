@@ -71,6 +71,13 @@ Tudo em `scripts/editar.py`. Use uma pasta de trabalho no scratchpad.
    `python3 scripts/editar.py renderizar --plano TRAB/plano.json --modo final`
    Depois gere a **versão de entrega 4K leve** (o arquivo de 4K original passa de 250 MB e não baixa no celular dela): `ffmpeg -i SAIDA_4K.mp4 -c:v libx264 -preset medium -crf 23 -maxrate 12M -bufsize 24M -profile:v high -level 5.1 -pix_fmt yuv420p -c:a copy -movflags +faststart SAIDA_4K_leve.mp4` (~75 MB por minuto) e a cópia 1080p; envie os dois pela conversa (o conector do Drive não sobe arquivos grandes).
 
+7. **Legenda estratégica do post** — SEMPRE, junto com a entrega final (ela pediu: quer crescer o Instagram, ganhar seguidores e passar confiança). Siga a skill `legenda-instagram`:
+   - **2 opções de gancho** (afirmação, contradição ou dado; 1 linha; nada de pergunta óbvia, "você sabia que" ou "hoje vim aqui").
+   - **Desenvolvimento** em 2–3 parágrafos curtos, uma ideia por parágrafo, com as **palavras-chave do tema** escritas por extenso (o Instagram usa a legenda na busca: ex. "CapCut", "edição de vídeo", "legenda automática", "efeitos sonoros").
+   - **CTA direto** (sem "se gostou, compartilha"): prefira **salvar** (tutorial) e **seguir** amarrado à série ("dia N de 20 … não perder os próximos X dias").
+   - **3–5 hashtags do nicho** (ex.: #capcut #ediçãodevideo #reels #dicasdeedição #socialmedia).
+   - Explique em 2–4 linhas por que as escolhas ajudam o alcance.
+
 ## Cuidados que já aprendemos
 
 - **Não coma palavras**: defina início/fim de cada tomada pelo **fim real da última palavra** na transcrição (campo `end`, não o início da palavra) + ~0,2 s de folga. O corte de pausas só considera silêncio o que está 30 dB abaixo da fala e mantém 0,12 s de cauda depois de cada palavra. Depois de montar, confira os finais de frase.
