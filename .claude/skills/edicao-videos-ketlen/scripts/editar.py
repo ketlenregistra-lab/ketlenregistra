@@ -138,6 +138,12 @@ def cmd_montar(a):
     cache, cortes = {}, []
     for tom in p['tomadas']:
         n, i0, i1 = tom[:3]; flag = tom[3] if len(tom) > 3 else ''
+        src = [x for x in glob.glob(os.path.join(p['brutos'], n + '.*')) if x.lower().endswith(('.mov', '.mp4'))]
+        if src:   # nunca passa do fim da imagem (áudio às vezes é mais longo que o vídeo)
+            dv = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=duration',
+                                 '-of', 'csv=p=0', src[0]], capture_output=True, text=True).stdout.strip().strip(',')
+            if dv and dv != 'N/A':
+                i1 = min(i1, float(dv) - 1.0 / FPS)
         inteiro = flag in ('inteiro', 'tela')   # não corta pausas
         tela = flag == 'tela'                   # narração sobre gravação de tela: intocada (sem cortes e sem acelerar)
         if n not in cache:
