@@ -54,6 +54,8 @@ def hdr(path):
 
 def cor(path):
     """HDR do iPhone -> SDR (hable) -> cor Ketlen (LUT medida da edição dela no CapCut)."""
+    if COR_PADRAO == 'nenhuma':            # ela já tratou a cor no CapCut: não mexe
+        return 'format=yuv420p'
     if COR_PADRAO == 'rosa':
         pre = 'zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=gbrp' \
             if hdr(path) else 'format=gbrp'
