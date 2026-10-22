@@ -483,7 +483,8 @@ def cmd_renderizar(a):
                 continue
             inp += ['-ss', str(de), '-t', str(t1 - t0 + 0.5), '-an', '-i', c['arquivo']]
             inp += ['-loop', '1', '-t', str(t1 - t0 + 0.5), '-i', mk]
-            f.append(f'[{k}:v]setpts=PTS-STARTPTS,fps={FPS},scale={cw}:{ch}:force_original_aspect_ratio=increase,crop={cw}:{ch},format=rgba[av{j}{q}];'
+            rec = f"crop={c['recorte']}," if c.get('recorte') else ''   # ex.: só o preview do CapCut numa gravação de tela
+            f.append(f'[{k}:v]setpts=PTS-STARTPTS,fps={FPS},{rec}scale={cw}:{ch}:force_original_aspect_ratio=increase,crop={cw}:{ch},format=rgba[av{j}{q}];'
                      f'[{k + 1}:v]fps={FPS},format=gray,scale={cw}:{ch},setpts=PTS-STARTPTS[am{j}{q}];[av{j}{q}][am{j}{q}]alphamerge,{fd_a}')
             f.append(f"[{cur_a}][ac{j}{q}]overlay={x}:{int(450 * sc)}:enable='between(t,{t0},{t1})':eof_action=pass[ao{j}{q}]")
             cur_a = f'ao{j}{q}'; k += 2
