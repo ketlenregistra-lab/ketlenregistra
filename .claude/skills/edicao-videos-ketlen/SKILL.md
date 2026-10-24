@@ -69,7 +69,7 @@ Tudo em `scripts/editar.py`. Use uma pasta de trabalho no scratchpad.
    `python3 scripts/editar.py renderizar --plano TRAB/plano.json --modo previa`
 6. **Final** 4K (~30–40 min, corte por corte para não estourar memória):
    `python3 scripts/editar.py renderizar --plano TRAB/plano.json --modo final`
-   Depois gere a **versão de entrega 4K leve** (o arquivo de 4K original passa de 250 MB e não baixa no celular dela): `ffmpeg -i SAIDA_4K.mp4 -c:v libx264 -preset medium -crf 23 -maxrate 12M -bufsize 24M -profile:v high -level 5.1 -pix_fmt yuv420p -c:a copy -movflags +faststart SAIDA_4K_leve.mp4` (~75 MB por minuto) e a cópia 1080p; envie os dois pela conversa (o conector do Drive não sobe arquivos grandes).
+   Depois gere a **versão de entrega 4K leve, com no máximo ~40 MB** (arquivos de 75+ MB não baixam no celular dela): encode em 2 passadas com bitrate = 40 MB ÷ duração (≈ `2300k` para 2 min, `3500k` para 1 min 30), ex.: `ffmpeg -i SAIDA_4K.mp4 -c:v libx264 -preset medium -b:v 2300k -pass 1 -an -f null /dev/null && ffmpeg -i SAIDA_4K.mp4 -c:v libx264 -preset medium -b:v 2300k -maxrate 5M -bufsize 10M -pass 2 -profile:v high -level 5.1 -pix_fmt yuv420p -c:a aac -b:a 128k -movflags +faststart SAIDA_4K_leve.mp4`, e a cópia 1080p; envie as duas pela conversa (o conector do Drive não sobe arquivos grandes).
 
 7. **Legenda estratégica do post** — SEMPRE, junto com a entrega final (ela quer crescer o Instagram e passar confiança). **Use o formato dela, curto** (legenda longa ninguém lê):
    ```
