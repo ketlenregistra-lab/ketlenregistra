@@ -87,6 +87,9 @@ Tudo em `scripts/editar.py`. Use uma pasta de trabalho no scratchpad.
 
 ## Cuidados que já aprendemos
 
+- **Revise a legenda inteira antes de mandar a prévia** (liste o texto de todas as legendas): a transcrição erra ("-usear", "consegui" no lugar de "conseguia", "para me saber") e vícios como "mano" devem sair (`"correcoes": [[t, "mano", ""]]` remove a palavra). Na transcrição nova a cada `montar` os erros podem mudar.
+- Não invente camadas que ela não pediu (no Dia 5 ela pediu para tirar um vídeo atrás dela no gancho).
+
 - **Não coma palavras**: defina início/fim de cada tomada pelo **fim real da última palavra** na transcrição (campo `end`, não o início da palavra) + ~0,2 s de folga. O corte de pausas só considera silêncio o que está 30 dB abaixo da fala e mantém 0,12 s de cauda depois de cada palavra. Depois de montar, confira os finais de frase.
 
 - Os brutos do iPhone são **HDR (HLG)**; o script converte para SDR antes da LUT. Não use a conversão `mobius` (deixa amarelada).

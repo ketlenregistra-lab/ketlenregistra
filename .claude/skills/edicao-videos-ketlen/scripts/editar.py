@@ -302,6 +302,7 @@ def legendas(p, T, fontes):
         for x in w:
             if abs(x[0] - t) < 0.3 and x[2] == errado:
                 x[2] = certo
+    w = [x for x in w if x[2]]                 # correção vazia = palavra removida (ex.: vício de linguagem)
     grupos, g = [], []
     for i, x in enumerate(w):
         g.append(x); txt = ' '.join(y[2] for y in g)
