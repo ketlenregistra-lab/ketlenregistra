@@ -482,7 +482,8 @@ def cmd_renderizar(a):
     inp = ['-i', base, '-i', aud]; f = []; k = 2
     zs = '+'.join(f'clip((it-{z0})/0.2,0,1)*clip(({z1}-it)/0.15,0,1)' for z0, z1 in p.get('zooms', [])) or '0'
     # durante os destaques amarelos o vídeo sobe e aproxima (ela fica no alto, a frase ocupa o corpo)
-    zd = '+'.join(f'clip((it-{a})/0.25,0,1)*clip(({b}-it)/0.25,0,1)' for a, b, _ in dest(p) if (a, b) not in cima_(p)) or '0'
+    zd = '+'.join(f'clip((it-{a})/0.25,0,1)*clip(({b}-it)/0.25,0,1)' for a, b in [(a, b) for a, b, _ in dest(p) if (a, b) not in cima_(p)]
+                   + [(c['t0'], c['t1']) for c in p.get('camadas', []) if c.get('subir')]) or '0'   # card no peito: ela sobe junto
     cheias = [c for c in p.get('camadas', []) if c.get('tipo', 'tela_cheia') == 'tela_cheia']
     blur = '+'.join(f"between(t,{c['t0']},{c['t1']})" for c in cheias) or '0'
     gr = '+'.join(f'between(t,{x},{y})' for x, y in p.get('gracas', [])) or '0'
