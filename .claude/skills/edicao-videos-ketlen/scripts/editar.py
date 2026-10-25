@@ -172,6 +172,20 @@ def cmd_montar(a):
 
 
 # ---------------------------------------------------------------- 3. renderizar
+def altura_card(c):
+    from PIL import Image
+    im = Image.open(c['arquivo']); return round(im.height * c.get('largura', 900) / im.width)
+
+
+def arredondar(arq, lw, out, sc):
+    """Print/foto redimensionado para a largura lw com cantos arredondados (PNG com transparência)."""
+    from PIL import Image, ImageDraw
+    im = Image.open(arq).convert('RGBA')
+    im = im.resize((lw, round(im.height * lw / im.width) // 2 * 2), Image.LANCZOS)
+    m = Image.new('L', im.size, 0); ImageDraw.Draw(m).rounded_rectangle([0, 0, im.width - 1, im.height - 1], int(50 * sc), fill=255)
+    im.putalpha(m); im.save(out)
+
+
 def garantir_assets(T):
     fontes = os.path.abspath(os.path.join(ASSETS, 'fontes'))   # A Hint of Sass: fonte dos destaques
     sfx = os.path.abspath(os.path.join(ASSETS, 'sfx'))   # click_mouse.wav e swoosh.wav (nada de "pop"/gotinha)
@@ -318,6 +332,11 @@ def legendas(p, T, fontes):
         if any(a < y and b > x for x, y in janelas):   # durante o destaque amarelo, sem legenda automática
             continue
         cy = LEG_Y_PRINT if any(a < c['t1'] and b > c['t0'] for c in cheias) else LEG_Y   # com print: legenda embaixo dele
+        for c in p.get('camadas', []):         # card no peito que cobre a altura da legenda: legenda vai para baixo dele
+            if c.get('tipo') == 'card' and a < c['t1'] and b > c['t0']:
+                topo = c.get('y', 300); base_ = topo + altura_card(c)
+                if topo - 60 < cy < base_ + 60:
+                    cy = base_ + 120
         t = re.sub(r'[.,]', '', ' '.join(y[2] for y in g).upper())
         if any(a < y and b > x for x, y, *_ in p.get('legenda_quebrada', [])):   # na demonstração, só a legenda quebrada
             continue
@@ -332,7 +351,7 @@ def legendas(p, T, fontes):
     fr = ImageFont.truetype(os.path.join(fontes, 'AHintofSass.ttf'), max(1, round(em_r)))
     for c in p.get('camadas', []):             # rótulo amarelo em fundinho rosa em cima do print
         if c.get('rotulo'):
-            cy = CARD_Y - 95; a, b = c['t0'], c['t1']
+            cy = (c.get('y', 300) - 95 if c.get('tipo', 'tela_cheia') != 'tela_cheia' else CARD_Y - 95); a, b = c['t0'], c['t1']
             ev.append(f"Dialogue: 3,{ts(a)},{ts(b)},Caixa,,0,0,0,,{{\\fad(150,150)}}"
                       + caixa(c['rotulo'], fr, em_r, 4, cy, ROTULO_COR, ROTULO_A, 44, 22))
             ev.append(f"Dialogue: 4,{ts(a)},{ts(b)},Rotulo,,0,0,0,,{{\\an5\\pos({W4K // 2},{cy})\\fad(150,150)}}{c['rotulo']}")
@@ -514,11 +533,7 @@ def cmd_renderizar(a):
                 inp += ['-ss', str(de), '-t', str(ate - de), '-i', arq]
                 f.append(f'[{k}:v]setpts=(PTS-STARTPTS)/{vel:.4f},fps=30,scale={CW}:{CH}:force_original_aspect_ratio=increase,crop={CW}:{CH},format=rgba[tv{j}]')
             elif c.get('inteira'):   # print largo (ex.: cards de filtros): inteiro, sem cortar, cantos arredondados, no topo do card
-                from PIL import Image, ImageDraw
-                lw = int(c.get('largura', 1800) * sc) // 2 * 2; im = Image.open(arq).convert('RGBA')
-                im = im.resize((lw, round(im.height * lw / im.width) // 2 * 2), Image.LANCZOS)
-                m = Image.new('L', im.size, 0); ImageDraw.Draw(m).rounded_rectangle([0, 0, im.width - 1, im.height - 1], int(50 * sc), fill=255)
-                im.putalpha(m); png = os.path.join(T, f'inteira{j}_{W}.png'); im.save(png)
+                lw = int(c.get('largura', 1800) * sc) // 2 * 2; png = os.path.join(T, f'inteira{j}_{W}.png'); arredondar(arq, lw, png, sc)
                 inp += ['-loop', '1', '-t', str(t1 - t0 + 0.5), '-i', png]
                 f.append(f'[{k}:v]fps=30,format=rgba,setpts=PTS-STARTPTS+{t0}/TB,{fd}[tc{j}]')
                 f.append(f"[{cur}][tc{j}]overlay={(W - lw) // 2}:{int(CARD_Y * sc)}:enable='between(t,{t0},{t1})':eof_action=pass[c{j}]")
@@ -533,8 +548,10 @@ def cmd_renderizar(a):
             f.append(f"[{cur}][tc{j}]overlay={(W - CW) // 2}:{int(CARD_Y * sc)}:enable='between(t,{t0},{t1})':eof_action=pass[c{j}]")
             k += 2
         else:   # card flutuando acima da cabeça
+            cw = int(c.get('largura', 900) * sc) // 2 * 2
+            if not arq.lower().endswith('.png'):   # print/foto sem transparência: cantos arredondados (ex.: filtros no peito, Dia 6)
+                png = os.path.join(T, f'card{j}_{W}.png'); arredondar(arq, cw, png, sc); arq = png
             inp += ['-loop', '1', '-t', str(t1 - t0 + 0.5), '-i', arq]
-            cw = int(c.get('largura', 900) * sc)
             f.append(f'[{k}:v]fps=30,format=rgba,scale={cw}:-1,setpts=PTS-STARTPTS+{t0}/TB,{fd}[tc{j}]')
             f.append(f"[{cur}][tc{j}]overlay={(W - cw) // 2}:{int(c.get('y', 300) * sc)}:enable='between(t,{t0},{t1})':eof_action=pass[c{j}]")
             k += 1
