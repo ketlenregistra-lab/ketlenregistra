@@ -512,6 +512,17 @@ def cmd_renderizar(a):
                 de, ate = c.get('de', 0), c.get('ate', dur(arq)); vel = (ate - de) / (t1 - t0)
                 inp += ['-ss', str(de), '-t', str(ate - de), '-i', arq]
                 f.append(f'[{k}:v]setpts=(PTS-STARTPTS)/{vel:.4f},fps=30,scale={CW}:{CH}:force_original_aspect_ratio=increase,crop={CW}:{CH},format=rgba[tv{j}]')
+            elif c.get('inteira'):   # print largo (ex.: cards de filtros): inteiro, sem cortar, cantos arredondados, no topo do card
+                from PIL import Image, ImageDraw
+                lw = int(c.get('largura', 1800) * sc) // 2 * 2; im = Image.open(arq).convert('RGBA')
+                im = im.resize((lw, round(im.height * lw / im.width) // 2 * 2), Image.LANCZOS)
+                m = Image.new('L', im.size, 0); ImageDraw.Draw(m).rounded_rectangle([0, 0, im.width - 1, im.height - 1], int(50 * sc), fill=255)
+                im.putalpha(m); png = os.path.join(T, f'inteira{j}_{W}.png'); im.save(png)
+                inp += ['-loop', '1', '-t', str(t1 - t0 + 0.5), '-i', png]
+                f.append(f'[{k}:v]fps=30,format=rgba,setpts=PTS-STARTPTS+{t0}/TB,{fd}[tc{j}]')
+                f.append(f"[{cur}][tc{j}]overlay={(W - lw) // 2}:{int(CARD_Y * sc)}:enable='between(t,{t0},{t1})':eof_action=pass[c{j}]")
+                k += 1; cur = f'c{j}'
+                continue
             else:
                 inp += ['-loop', '1', '-t', str(t1 - t0 + 0.5), '-i', arq]
                 f.append(f'[{k}:v]fps=30,scale={CW}:{CH}:force_original_aspect_ratio=increase,crop={CW}:{CH},format=rgba[tv{j}]')
