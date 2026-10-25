@@ -56,10 +56,11 @@ def cor(path):
     """HDR do iPhone -> SDR (hable) -> cor Ketlen (LUT medida da edição dela no CapCut)."""
     if COR_PADRAO == 'nenhuma':            # ela já tratou a cor no CapCut: não mexe
         return 'format=yuv420p'
-    if COR_PADRAO == 'rosa':
+    lut = os.path.join(ASSETS, f'cor_{COR_PADRAO}.cube')   # 'rosa', 'azul_dia6' (roupa colorida) ...
+    if COR_PADRAO != 'antiga' and os.path.exists(lut):
         pre = 'zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=gbrp' \
             if hdr(path) else 'format=gbrp'
-        return f'{pre},lut3d={LUT_ROSA}:interp=tetrahedral,{NITIDEZ},format=yuv420p'
+        return f'{pre},lut3d={os.path.abspath(lut)}:interp=tetrahedral,{NITIDEZ},format=yuv420p'
     if hdr(path):
         return f'zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=gbrp,' \
                f'lut3d={LUT}:interp=tetrahedral,{NITIDEZ},format=yuv420p'
