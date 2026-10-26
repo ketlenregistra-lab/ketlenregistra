@@ -206,15 +206,15 @@ TELA_W = 1764                              # largura útil da gravação de tela
 
 
 def celular_png(W, H, sc, out):
-    """Moldura de iPhone (aro prateado, cantos bem arredondados, fundo preto) com o buraco da tela transparente."""
+    """Moldura de iPhone (aro rosa, cantos bem arredondados, fundo preto) com o buraco da tela transparente."""
     from PIL import Image, ImageDraw
     ch = int(3240 * sc) // 2 * 2; cw = int(ch * TELA_W / 3840) // 2 * 2
     x0, y0 = (W - cw) // 2, int(300 * sc)
-    b = int(34 * sc); r = int(190 * sc)
+    b = int(52 * sc); r = int(190 * sc)
     img = Image.new('RGBA', (W, H), (0, 0, 0, 255)); d = ImageDraw.Draw(img)
-    d.rounded_rectangle([x0 - b, y0 - b, x0 + cw + b, y0 + ch + b], r + b, fill=(214, 214, 218, 255))      # aro
+    d.rounded_rectangle([x0 - b, y0 - b, x0 + cw + b, y0 + ch + b], r + b, fill=(244, 187, 206, 255))      # aro rosa bebê por fora (#F4BBCE), identidade dela
     d.rounded_rectangle([x0 - b + int(6 * sc), y0 - b + int(6 * sc), x0 + cw + b - int(6 * sc), y0 + ch + b - int(6 * sc)],
-                        r + b - int(6 * sc), fill=(150, 150, 156, 255))                                          # brilho interno do aro
+                        r + b - int(6 * sc), fill=(238, 143, 173, 255))                                          # rosa mais forte no meio do aro (#EE8FAD)
     d.rounded_rectangle([x0 - int(10 * sc), y0 - int(10 * sc), x0 + cw + int(10 * sc), y0 + ch + int(10 * sc)], r + int(10 * sc), fill=(8, 8, 8, 255))
     m = Image.new('L', (W, H), 0); ImageDraw.Draw(m).rounded_rectangle([x0, y0, x0 + cw, y0 + ch], r, fill=255)
     a = img.getchannel('A').point(lambda v: v); import PIL.ImageChops as C
@@ -378,6 +378,8 @@ def legendas(p, T, fontes):
     # destaque com altura fixa (em cima da gravação de tela) não divide espaço com a legenda: ela continua
     janelas = [(a, b) for a, b, _ in dest(p) if not isinstance(y_destaque(p, a, b), (int, float)) or y_destaque(p, a, b) == DESTAQUE_Y
                or (a, b) in {(d[0], d[1]) for d in p.get('destaques', []) if len(d) > 3 and d[3] == 'cima'}]
+    if p.get('titulo_corpo') and p.get('titulo'):   # título no corpo (vídeo sobe): sem legenda branca nesse trecho
+        janelas.append(tuple(p['titulo'][:2]))
     dentro = lambda t: any(x - 0.05 <= t < y for x, y in janelas)
     grupos, g = [], []
     for i, x in enumerate(w):
@@ -414,7 +416,7 @@ def legendas(p, T, fontes):
         ev.append(f'Dialogue: 1,{ts(qa)},{ts(qb)},Quebrada,,0,0,0,,{{\\an5\\pos({W4K // 2},560)}}{quebrada(qt[0] if qt else "")}')
     if p.get('titulo'):                        # abertura do desafio: surge com fade (sem digitação)
         a, b, txt = p['titulo']
-        ev.append(f'Dialogue: 2,{ts(a)},{ts(b)},Destaque,,0,0,0,,{{\\an5\\pos({W4K // 2},950)\\fad(250,200)}}{txt}')
+        ev.append(f'Dialogue: 2,{ts(a)},{ts(b)},Destaque,,0,0,0,,{{\\an5\\pos({W4K // 2},{DESTAQUE_Y if p.get('titulo_corpo') else 950})\\fad(250,200)}}{txt}')
     fs = ImageFont.truetype(os.path.join(fontes, 'AHintofSass.ttf'), 100); a_, d_ = fs.getmetrics(); em_r = ROTULO_TAM * 100 / (a_ + d_)
     fr = ImageFont.truetype(os.path.join(fontes, 'AHintofSass.ttf'), max(1, round(em_r)))
     for c in p.get('camadas', []):             # rótulo amarelo em fundinho rosa em cima do print
@@ -562,7 +564,8 @@ def cmd_renderizar(a):
     zs = '+'.join(f'clip((it-{z0})/0.2,0,1)*clip(({z1}-it)/0.15,0,1)' for z0, z1 in p.get('zooms', [])) or '0'
     # durante os destaques amarelos o vídeo sobe e aproxima (ela fica no alto, a frase ocupa o corpo)
     zd = '+'.join(f'clip((it-{a})/0.25,0,1)*clip(({b}-it)/0.25,0,1)' for a, b in [(a, b) for a, b, _ in dest(p) if (a, b) not in cima_(p)]
-                   + [(c['t0'], c['t1']) for c in p.get('camadas', []) if c.get('subir')]) or '0'   # card no peito: ela sobe junto
+                   + [(c['t0'], c['t1']) for c in p.get('camadas', []) if c.get('subir')]   # card no peito: ela sobe junto
+                   + ([tuple(p['titulo'][:2])] if p.get('titulo_corpo') and p.get('titulo') else [])) or '0'   # título no corpo: sobe também
     cheias = [c for c in p.get('camadas', []) if c.get('tipo', 'tela_cheia') == 'tela_cheia']
     blur = '+'.join(f"between(t,{c['t0']},{c['t1']})" for c in cheias) or '0'
     gr = '+'.join(f'between(t,{x},{y})' for x, y in p.get('gracas', [])) or '0'
