@@ -31,7 +31,7 @@ A Ketlen definiu este estilo como a identidade dela. **Não invente variações*
 | Zoom de ênfase | Zoom-in **leve (8%)** centrado no rosto quando ela fala algo com ênfase ("atenção", frase de impacto). Sobe em 0,2 s, segura, volta. **Todo zoom in tem swoosh** — inclusive quando o vídeo sobe/aproxima num destaque. O swoosh é exclusivo do zoom. |
 | Graça | Quando ela faz uma piada: imagem em **preto e branco** + voz de **fonógrafo** (só a voz filtrada — **sem chiado/estalos de disco**, ela não gosta). Sem eco, sem outros sons por cima. Ela costuma marcar a graça com "gente..." + risadinha. **O P&B cobre a frase inteira da piada, do começo até o fim da risada** (deixe a tomada com `"inteiro"` para não cortar a risadinha). |
 | Final | Termina com **clique de mouse** e a tela **apaga** (como desligar a luz). Nada escrito. |
-| Exportação | 4K (2160×3840), 30 fps. Mande também uma versão 1080p leve para ela ver no celular. |
+| Exportação | 4K (2160×3840), 30 fps. **Entregue SÓ o 4K** (versão leve ~40 MB) — ela não quer cópia 1080p (Dia 7). |
 
 Efeitos sonoros que ela usa no CapCut (referência de timbre): cliques (mouse, caneta, botão), swish/whoosh, vento curto, clique de câmera, papel rasgando, brilho/mágica, glitch, teclado, estalo de dedo. Sons da skill: `assets/sfx/swoosh.wav` e `assets/sfx/teclado.wav` foram **recortados do CapCut dela** (swoosh só no zoom; `teclado.wav` é o trecho contínuo de digitação, tocado enquanto as letras aparecem — **não** recorte em batidas soltas por letra: rápido demais soa como dinheiro sendo contado); `assets/sfx/click_mouse.wav` (camadas e final) foi aprovado por ela; `assets/sfx/pop.wav` só nas setas. **Nunca use "pop"/gotinha** — ela não gosta. Se ela mandar os arquivos de áudio dela, prefira os dela.
 
@@ -69,7 +69,7 @@ Tudo em `scripts/editar.py`. Use uma pasta de trabalho no scratchpad.
    `python3 scripts/editar.py renderizar --plano TRAB/plano.json --modo previa`
 6. **Final** 4K (~30–40 min, corte por corte para não estourar memória):
    `python3 scripts/editar.py renderizar --plano TRAB/plano.json --modo final`
-   Depois gere a **versão de entrega 4K leve, com no máximo ~40 MB** (arquivos de 75+ MB não baixam no celular dela): encode em 2 passadas com bitrate = 40 MB ÷ duração (≈ `2300k` para 2 min, `3500k` para 1 min 30), ex.: `ffmpeg -i SAIDA_4K.mp4 -c:v libx264 -preset medium -b:v 2300k -pass 1 -an -f null /dev/null && ffmpeg -i SAIDA_4K.mp4 -c:v libx264 -preset medium -b:v 2300k -maxrate 5M -bufsize 10M -pass 2 -profile:v high -level 5.1 -pix_fmt yuv420p -c:a aac -b:a 128k -movflags +faststart SAIDA_4K_leve.mp4`, e a cópia 1080p; envie as duas pela conversa (o conector do Drive não sobe arquivos grandes).
+   Depois gere a **versão de entrega 4K leve, com no máximo ~40 MB** (arquivos de 75+ MB não baixam no celular dela): encode em 2 passadas com bitrate = 40 MB ÷ duração (≈ `2300k` para 2 min, `3500k` para 1 min 30), ex.: `ffmpeg -i SAIDA_4K.mp4 -c:v libx264 -preset medium -b:v 2300k -pass 1 -an -f null /dev/null && ffmpeg -i SAIDA_4K.mp4 -c:v libx264 -preset medium -b:v 2300k -maxrate 5M -bufsize 10M -pass 2 -profile:v high -level 5.1 -pix_fmt yuv420p -c:a aac -b:a 128k -movflags +faststart SAIDA_4K_leve.mp4`. Envie só esse 4K pela conversa (sem cópia 1080p; o conector do Drive não sobe arquivos grandes).
 
 7. **Legenda estratégica do post** — SEMPRE, junto com a entrega final (ela quer crescer o Instagram e passar confiança). **Use o formato dela, curto** (legenda longa ninguém lê):
    ```
