@@ -86,9 +86,9 @@ Tudo em `scripts/editar.py`. Use uma pasta de trabalho no scratchpad.
    Regras da skill `legenda-instagram`: gancho sem pergunta óbvia nem "você sabia que"; CTA direto (salvar); 5 hashtags do nicho em CamelCase. Explique em 1–2 linhas o porquê das escolhas.
 
 ## Cuidados que já aprendemos
-- **Instagram dela: @ketlen_crs** (está no site dela). `"instagram": "@ketlen_crs"` no plano põe o logo + @ discreto no canto superior direito e, depois do preto final, um cartão com o logo em degradê e o @ (estilo da inspiração do Dia 7). Confirme com ela se quer em todos os vídeos.
+- **Não colocar o @ dela** (`"instagram"`): no Dia 7 ela disse que não precisa. A opção existe no script, mas só use se ela pedir.
 
-- **Vídeo que ela já editou inteiro (ex.: Dia 7, efeito clone):** um único arquivo; não corte nada. Tomadas `"inteiro"` para o rosto e `"tela"` para a gravação de tela em tela cheia (sem cor, sem acelerar). Legenda na faixa de baixo durante a tela: `"legenda_y": [[t0, t1, 3700]]` (não cobre a timeline do CapCut). Cliques na entrada/saída da tela: `"cliques": [t, ...]`. Destaques com `"cima"` quando o rosto dela está no meio do quadro. Cenário branco/sala: `"cor": "antiga"`.
+- **Vídeo que ela já editou inteiro (ex.: Dia 7, efeito clone):** um único arquivo; não corte nada. Tomadas `"inteiro"` para o rosto e `"tela"` para a gravação de tela em tela cheia (sem cor, sem acelerar). Legenda na faixa de baixo durante a tela: `"legenda_y": [[t0, t1, 3700]]` (não cobre a timeline do CapCut). Cliques na entrada/saída da tela: `"cliques": [t, ...]`. Destaques com `"cima"` quando o rosto dela está no meio do quadro. Cenário da sala branca: confira trecho por trecho se ela já filtrou (no Dia 7 a abertura já tinha o filtro dela e o final não) → `"cor_tomadas": {"0": "nenhuma", "2": "sala_branca"}` (índice da tomada; `cor_sala_branca.cube` iguala a parte sem filtro à parte filtrada: mais contraste, parede neutra).
 
 - **Revise a legenda inteira antes de mandar a prévia** (liste o texto de todas as legendas): a transcrição erra ("-usear", "consegui" no lugar de "conseguia", "para me saber") e vícios como "mano" devem sair (`"correcoes": [[t, "mano", ""]]` remove a palavra). Na transcrição nova a cada `montar` os erros podem mudar.
 - Não invente camadas que ela não pediu (no Dia 5 ela pediu para tirar um vídeo atrás dela no gancho).

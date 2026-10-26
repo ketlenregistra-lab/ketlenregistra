@@ -52,12 +52,13 @@ def hdr(path):
     return 'arib-std-b67' in t or 'smpte2084' in t
 
 
-def cor(path):
+def cor(path, nome=None):
     """HDR do iPhone -> SDR (hable) -> cor Ketlen (LUT medida da edição dela no CapCut)."""
-    if COR_PADRAO == 'nenhuma':            # ela já tratou a cor no CapCut: não mexe
+    nome = nome or COR_PADRAO
+    if nome == 'nenhuma':                  # ela já tratou a cor no CapCut: não mexe
         return 'format=yuv420p'
-    lut = os.path.join(ASSETS, f'cor_{COR_PADRAO}.cube')   # 'rosa', 'azul_dia6' (roupa colorida) ...
-    if COR_PADRAO != 'antiga' and os.path.exists(lut):
+    lut = os.path.join(ASSETS, f'cor_{nome}.cube')   # 'rosa', 'rosa_roupa', 'sala_branca' ...
+    if nome != 'antiga' and os.path.exists(lut):
         pre = 'zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=gbrp' \
             if hdr(path) else 'format=gbrp'
         return f'{pre},lut3d={os.path.abspath(lut)}:interp=tetrahedral,{NITIDEZ},format=yuv420p'
@@ -507,8 +508,11 @@ def cmd_renderizar(a):
         src = [x for x in glob.glob(os.path.join(p['brutos'], n + '.*')) if x.lower().endswith(('.mov', '.mp4'))][0]
         # gravação de tela que já está no vídeo (tomada "tela"): sem filtro de cor, a interface do CapCut fica como é
         tela = any(t[0] == n and len(t) > 3 and t[3] == 'tela' and t[1] - 0.05 <= s < t[2] for t in p['tomadas'])
-        cor_ = 'format=yuv420p' if tela else cor(src)
-        o = os.path.join(pasta, hashlib.md5(f'{n}{s}{e}{W}{v}{COR_PADRAO}{tela}'.encode()).hexdigest()[:12] + '.mp4')
+        # cor por tomada (índice em "tomadas"): ex. Dia 7, abertura que ela já filtrou = "nenhuma", final sem filtro = "sala_branca"
+        nome = next((p.get('cor_tomadas', {}).get(str(q)) for q, t in enumerate(p['tomadas'])
+                     if t[0] == n and t[1] - 0.05 <= s < t[2]), None) or COR_PADRAO
+        cor_ = 'format=yuv420p' if tela else cor(src, nome)
+        o = os.path.join(pasta, hashlib.md5(f'{n}{s}{e}{W}{v}{nome}{tela}'.encode()).hexdigest()[:12] + '.mp4')
         if not os.path.exists(o):
             acel = f'setpts=PTS/{v:.4f},' if v != 1.0 else ''
             ff('-threads', '4', '-ss', f'{s:.4f}', '-i', src, '-vf', f'{acel}fps={FPS},scale={W}:{H},{cor_}',
