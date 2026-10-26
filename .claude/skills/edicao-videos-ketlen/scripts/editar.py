@@ -212,8 +212,8 @@ TELA_W = 1764                              # largura útil da gravação de tela
 def celular_png(W, H, sc, out):
     """Moldura de iPhone (aro rosa, cantos bem arredondados, fundo preto) com o buraco da tela transparente."""
     from PIL import Image, ImageDraw
-    ch = int(2240 * sc) // 2 * 2; cw = int(ch * TELA_W / 3840) // 2 * 2   # cabe na zona segura com a legenda embaixo (2900)
-    x0, y0 = (W - cw) // 2, int(SEG_TOPO * sc)
+    ch = int(3240 * sc) // 2 * 2; cw = int(ch * TELA_W / 3840) // 2 * 2   # tamanho que ela aprovou no Dia 8 (menor ficou longe demais)
+    x0, y0 = (W - cw) // 2, int(300 * sc)
     b = int(52 * sc); r = int(190 * sc)
     img = Image.new('RGBA', (W, H), (0, 0, 0, 255)); d = ImageDraw.Draw(img)
     d.rounded_rectangle([x0 - b, y0 - b, x0 + cw + b, y0 + ch + b], r + b, fill=(244, 187, 206, 255))      # aro rosa bebê por fora (#F4BBCE), identidade dela
@@ -420,7 +420,7 @@ def legendas(p, T, fontes):
         ev.append(f'Dialogue: 1,{ts(qa)},{ts(qb)},Quebrada,,0,0,0,,{{\\an5\\pos({W4K // 2},{SEG_TOPO + 100})}}{quebrada(qt[0] if qt else "")}')
     if p.get('titulo'):                        # abertura do desafio: surge com fade (sem digitação)
         a, b, txt = p['titulo']
-        ev.append(f'Dialogue: 2,{ts(a)},{ts(b)},Destaque,,0,0,0,,{{\\an5\\pos({W4K // 2},{DESTAQUE_Y if p.get('titulo_corpo') else 950})\\fad(250,200)}}{txt}')
+        ev.append(f'Dialogue: 2,{ts(a)},{ts(b)},Destaque,,0,0,0,,{{\\an5\\pos({W4K // 2},{DESTAQUE_Y if p.get('titulo_corpo') else 950}){chr(92) + 'fs160' if p.get('titulo_corpo') else ''}\\fad(250,200)}}{txt}')
     fs = ImageFont.truetype(os.path.join(fontes, 'AHintofSass.ttf'), 100); a_, d_ = fs.getmetrics(); em_r = ROTULO_TAM * 100 / (a_ + d_)
     fr = ImageFont.truetype(os.path.join(fontes, 'AHintofSass.ttf'), max(1, round(em_r)))
     for c in p.get('camadas', []):             # rótulo amarelo em fundinho rosa em cima do print
