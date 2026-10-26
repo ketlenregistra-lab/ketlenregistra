@@ -22,6 +22,7 @@ LEG_Y = 2600                              # centro da legenda automática
 # zona segura do Reels (em 4K): o Instagram cobre o topo (barra Reels/câmera), a base (@, legenda, música)
 # e a direita (curtir/comentar/compartilhar). Todo texto/logo/camada importante fica dentro deste retângulo.
 SEG_TOPO, SEG_BASE, SEG_ESQ, SEG_DIR = 527, 2920, 176, 1987   # medida do template de zona segura dela (Dia 9)
+TITULO_Y_CORPO = 2450                       # título no corpo: altura do peito, longe do rosto
 TV_OFF = 0.4                                # duração do final "tela desligada" (TV antiga apagando)
 LEG_TAM, LEG_ESP, LEG_PADX, LEG_PADY = 64, 2, 40, 24
 LEG_CAIXA, LEG_CAIXA_A = '&HCEBBF4&', '&HCC&'   # rosa bebê do CapCut (#F4BBCE), 20% de opacidade
@@ -30,7 +31,7 @@ FPS = 30
 ZOOM = 0.08                                     # zoom de ênfase: 8%, leve
 CARD_W, CARD_H, CARD_Y = 1170, 2060, 720        # print em tela cheia: centralizado; legenda embaixo ainda na zona segura
 ROTULO_COR, ROTULO_A = '&HAD8FEE&', '&H26&'      # rótulo dos prints: rosa mais escuro (#EE8FAD), ~85% opaco
-DESTAQUE_TAM, DESTAQUE_Y = 230, 1850            # destaques: uma palavra por linha, por cima do corpo
+DESTAQUE_TAM, DESTAQUE_Y = 230, 2150            # destaques: uma palavra por linha, no peito (nunca no rosto/queixo)
 SUBIR = 0.18                                    # quanto o vídeo aproxima/sobe nos destaques
 LEG_Y_PRINT = CARD_Y + CARD_H + 120             # legenda automática quando há print em tela cheia
 ROTULO_TAM = 125
@@ -437,7 +438,7 @@ def legendas(p, T, fontes):
         ev.append(f'Dialogue: 1,{ts(qa)},{ts(qb)},Quebrada,,0,0,0,,{{\\an5\\pos({W4K // 2},{SEG_TOPO + 100})}}{quebrada(qt[0] if qt else "")}')
     if p.get('titulo'):                        # abertura do desafio: surge com fade (sem digitação)
         a, b, txt = p['titulo']
-        ev.append(f'Dialogue: 2,{ts(a)},{ts(b)},Destaque,,0,0,0,,{{\\an5\\pos({W4K // 2},{DESTAQUE_Y if p.get('titulo_corpo') else 950}){chr(92) + 'fs160' if p.get('titulo_corpo') else ''}\\fad(250,200)}}{txt}')
+        ev.append(f'Dialogue: 2,{ts(a)},{ts(b)},Destaque,,0,0,0,,{{\\an5\\pos({W4K // 2},{TITULO_Y_CORPO if p.get('titulo_corpo') else 950}){chr(92) + 'fs160' if p.get('titulo_corpo') else ''}\\fad(250,200)}}{txt}')
     fs = ImageFont.truetype(os.path.join(fontes, 'AHintofSass.ttf'), 100); a_, d_ = fs.getmetrics(); em_r = ROTULO_TAM * 100 / (a_ + d_)
     fr = ImageFont.truetype(os.path.join(fontes, 'AHintofSass.ttf'), max(1, round(em_r)))
     for c in p.get('camadas', []):             # rótulo amarelo em fundinho rosa em cima do print
