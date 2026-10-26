@@ -87,6 +87,8 @@ Tudo em `scripts/editar.py`. Use uma pasta de trabalho no scratchpad.
 
 ## Cuidados que já aprendemos
 
+- **Vídeo que ela já editou inteiro (ex.: Dia 7, efeito clone):** um único arquivo; não corte nada. Tomadas `"inteiro"` para o rosto e `"tela"` para a gravação de tela em tela cheia (sem cor, sem acelerar). Legenda na faixa de baixo durante a tela: `"legenda_y": [[t0, t1, 3700]]` (não cobre a timeline do CapCut). Cliques na entrada/saída da tela: `"cliques": [t, ...]`. Destaques com `"cima"` quando o rosto dela está no meio do quadro. Cenário branco/sala: `"cor": "antiga"`.
+
 - **Revise a legenda inteira antes de mandar a prévia** (liste o texto de todas as legendas): a transcrição erra ("-usear", "consegui" no lugar de "conseguia", "para me saber") e vícios como "mano" devem sair (`"correcoes": [[t, "mano", ""]]` remove a palavra). Na transcrição nova a cada `montar` os erros podem mudar.
 - Não invente camadas que ela não pediu (no Dia 5 ela pediu para tirar um vídeo atrás dela no gancho).
 

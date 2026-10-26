@@ -318,20 +318,29 @@ def legendas(p, T, fontes):
             if abs(x[0] - t) < 0.3 and x[2] == errado:
                 x[2] = certo
     w = [x for x in w if x[2]]                 # correção vazia = palavra removida (ex.: vício de linguagem)
+    janelas = [(a, b) for a, b, _ in dest(p)]
+    dentro = lambda t: any(x - 0.05 <= t < y for x, y in janelas)
     grupos, g = [], []
     for i, x in enumerate(w):
+        if dentro(x[0]):                       # palavra já aparece no destaque amarelo
+            if g: grupos.append(g); g = []
+            continue
         g.append(x); txt = ' '.join(y[2] for y in g)
-        if re.search(r'[.,?!]$', x[2]) or len(g) == 3 or len(txt) >= 16 or i == len(w) - 1:
+        prox_dentro = i + 1 < len(w) and dentro(w[i + 1][0])   # fecha o grupo antes do destaque: nenhuma palavra some
+        if re.search(r'[.,?!]$', x[2]) or len(g) == 3 or len(txt) >= 16 or i == len(w) - 1 or prox_dentro:
             grupos.append(g); g = []
     ev = []
-    janelas = [(a, b) for a, b, _ in dest(p)]
     cheias = [c for c in p.get('camadas', []) if c.get('tipo', 'tela_cheia') == 'tela_cheia']
     for i, g in enumerate(grupos):
         a = g[0][0]; b = grupos[i + 1][0][0] if i + 1 < len(grupos) else g[-1][1] + 0.4
         b = min(b, g[-1][1] + 0.5)
+        b = min([b] + [x for x, y in janelas if a < x])   # sai quando o destaque amarelo entra
         if any(a < y and b > x for x, y in janelas):   # durante o destaque amarelo, sem legenda automática
             continue
         cy = LEG_Y_PRINT if any(a < c['t1'] and b > c['t0'] for c in cheias) else LEG_Y   # com print: legenda embaixo dele
+        for x0, x1, y_ in p.get('legenda_y', []):   # ex.: gravação de tela em tela cheia -> legenda na faixa preta de baixo
+            if x0 <= a < x1:
+                cy = y_
         for c in p.get('camadas', []):         # card no peito que cobre a altura da legenda: legenda vai para baixo dele
             if c.get('tipo') == 'card' and a < c['t1'] and b > c['t0']:
                 topo = c.get('y', 300); base_ = topo + altura_card(c)
@@ -413,6 +422,8 @@ def audio_final(p, T, sfx, fim):
         ev.append(('pop', s['t0'], 0.8))
     if p.get('titulo'):                      # título: clique quando surge
         ev.append(('click_mouse', p['titulo'][0], 0.8))
+    for t in p.get('cliques', []):           # cliques avulsos: entrada/saída da gravação de tela já montada por ela
+        ev.append(('click_mouse', t, 0.8))
     for a, b in p.get('zooms', []):          # swoosh do CapCut dela: pico logo no início do zoom
         ev.append(('swoosh', a - 0.05, 1.0))
     for a, b, _ in dest(p):                  # destaque também é zoom in: swoosh
@@ -464,10 +475,13 @@ def cmd_renderizar(a):
     for i, (n, s, e, *vv) in enumerate(cortes):
         v = vv[0] if vv else 1.0
         src = [x for x in glob.glob(os.path.join(p['brutos'], n + '.*')) if x.lower().endswith(('.mov', '.mp4'))][0]
-        o = os.path.join(pasta, hashlib.md5(f'{n}{s}{e}{W}{v}{COR_PADRAO}'.encode()).hexdigest()[:12] + '.mp4')
+        # gravação de tela que já está no vídeo (tomada "tela"): sem filtro de cor, a interface do CapCut fica como é
+        tela = any(t[0] == n and len(t) > 3 and t[3] == 'tela' and t[1] - 0.05 <= s < t[2] for t in p['tomadas'])
+        cor_ = 'format=yuv420p' if tela else cor(src)
+        o = os.path.join(pasta, hashlib.md5(f'{n}{s}{e}{W}{v}{COR_PADRAO}{tela}'.encode()).hexdigest()[:12] + '.mp4')
         if not os.path.exists(o):
             acel = f'setpts=PTS/{v:.4f},' if v != 1.0 else ''
-            ff('-threads', '4', '-ss', f'{s:.4f}', '-i', src, '-vf', f'{acel}fps={FPS},scale={W}:{H},{cor(src)}',
+            ff('-threads', '4', '-ss', f'{s:.4f}', '-i', src, '-vf', f'{acel}fps={FPS},scale={W}:{H},{cor_}',
                '-frames:v', str(round((e - s) / v * FPS)), '-an', '-c:v', 'libx264', '-preset', 'fast',
                '-crf', '12' if final else '18', '-pix_fmt', 'yuv420p', o + '.tmp.mp4')
             os.rename(o + '.tmp.mp4', o)
@@ -563,7 +577,7 @@ def cmd_renderizar(a):
         f.append(f'[{k}:v]fps=30,format=rgba,setpts=PTS-STARTPTS+{t0}/TB,fade=t=in:st={t0}:d=0.15:alpha=1,'
                  f'fade=t=out:st={t1 - 0.15:.2f}:d=0.15:alpha=1[sa{j}]')
         f.append(f"[{cur}][sa{j}]overlay=0:0:enable='between(t,{t0},{t1})':eof_action=pass[s{j}]"); cur = f's{j}'; k += 1
-    f.append(f'[{cur}]format=yuv420p,ass={ass}:fontsdir={fontes},tpad=stop_mode=add:stop_duration=0.8:color=black,'
+    f.append(f'[{cur}]format=yuv420p,ass={ass}:fontsdir={fontes},setpts=N/{FPS}/TB,tpad=stop_mode=add:stop_duration=0.8:color=black,'
              f'fade=t=out:st={fim + 0.05:.2f}:d=0.08[v]')
     saida = os.path.join(T, p.get('saida', 'video') + ('_4K.mp4' if final else '_previa.mp4'))
     enc = ['-preset', 'medium', '-crf', '16', '-profile:v', 'high', '-level', '5.1'] if final else ['-preset', 'veryfast', '-crf', '20']
