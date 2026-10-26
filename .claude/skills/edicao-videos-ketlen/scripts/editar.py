@@ -508,10 +508,11 @@ def cmd_renderizar(a):
         v = vv[0] if vv else 1.0
         src = [x for x in glob.glob(os.path.join(p['brutos'], n + '.*')) if x.lower().endswith(('.mov', '.mp4'))][0]
         # gravação de tela que já está no vídeo (tomada "tela"): sem filtro de cor, a interface do CapCut fica como é
-        tela = any(t[0] == n and len(t) > 3 and t[3] == 'tela' and t[1] - 0.05 <= s < t[2] for t in p['tomadas'])
+        meio = (s + e) / 2                     # pelo meio do corte: nas emendas o início cai a 1 ms da tomada anterior
+        tela = any(t[0] == n and len(t) > 3 and t[3] == 'tela' and t[1] <= meio < t[2] for t in p['tomadas'])
         # cor por tomada (índice em "tomadas"): ex. Dia 7, abertura que ela já filtrou = "nenhuma", final sem filtro = "sala_branca"
         nome = next((p.get('cor_tomadas', {}).get(str(q)) for q, t in enumerate(p['tomadas'])
-                     if t[0] == n and t[1] - 0.05 <= s < t[2]), None) or COR_PADRAO
+                     if t[0] == n and t[1] <= meio < t[2]), None) or COR_PADRAO
         cor_ = 'format=yuv420p' if tela else cor(src, nome)
         o = os.path.join(pasta, hashlib.md5(f'{n}{s}{e}{W}{v}{nome}{tela}'.encode()).hexdigest()[:12] + '.mp4')
         if not os.path.exists(o):
