@@ -294,7 +294,15 @@ def dest(p):
 
 def cima_(p):
     """Destaques marcados "cima": ficam acima da cabeça (ela aponta pra cima) e não sobem o vídeo."""
-    return {(d[0], d[1]) for d in p.get('destaques', []) if len(d) > 3 and d[3] == 'cima'}
+    return {(d[0], d[1]) for d in p.get('destaques', []) if len(d) > 3 and (d[3] == 'cima' or isinstance(d[3], (int, float)))}
+
+
+def y_destaque(p, a, b):
+    """Altura do destaque: número no 4º campo = y fixo (ex.: em cima da gravação de tela), "cima" = 430, senão no corpo."""
+    for d in p.get('destaques', []):
+        if (d[0], d[1]) == (a, b) and len(d) > 3:
+            return d[3] if isinstance(d[3], (int, float)) else 430
+    return DESTAQUE_Y
 
 
 POS_ESPALHADOS = [(560, 640, -7), (1600, 780, 6), (430, 1680, -5), (1740, 1580, 7), (1080, 520, -3), (1080, 3000, 4)]
@@ -409,7 +417,7 @@ def legendas(p, T, fontes):
                 linhas[-1] += ' ' + x
             else:
                 linhas.append(x)
-        txt = '\\N'.join(linhas); y = 430 if (a, b) in cima_(p) else DESTAQUE_Y
+        txt = '\\N'.join(linhas); y = y_destaque(p, a, b)
         toks, tempos = digitacao(a, b, txt)
         for i, t0 in enumerate(tempos):
             t1 = tempos[i + 1] if i + 1 < len(tempos) else b
