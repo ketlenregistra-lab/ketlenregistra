@@ -141,7 +141,7 @@ def sem_pausas(x, inicio, fim, sr=16000, janela=0.02, min_pausa=0.18, folga=0.04
 
 
 def fps_do_plano(p):
-    """Quadros por segundo do vídeo final = o dos brutos dela (24 ou 30); converter 24 -> 30 duplica quadros e "trava"."""
+    """Quadros por segundo do vídeo final = o dos brutos dela (24, 25 ou 30); converter duplica quadros e "trava"."""
     if p.get('fps'):
         return int(p['fps'])
     for x in sorted(glob.glob(os.path.join(p['brutos'], '*'))):
@@ -150,7 +150,7 @@ def fps_do_plano(p):
                                 '-of', 'csv=p=0', x], capture_output=True, text=True).stdout.strip().strip(',')
             try:
                 a, b = (r.split('/') + ['1'])[:2]; v = float(a) / float(b)
-                return 24 if v < 27 else 30
+                return int(round(v))           # 23.976 -> 24, 25 -> 25, 29.97 -> 30
             except (ValueError, ZeroDivisionError):
                 pass
     return 30
