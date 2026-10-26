@@ -140,8 +140,25 @@ def sem_pausas(x, inicio, fim, sr=16000, janela=0.02, min_pausa=0.18, folga=0.04
     return [(inicio + s, inicio + e) for s, e in keep if e - s > 0.12]
 
 
+def fps_do_plano(p):
+    """Quadros por segundo do vídeo final = o dos brutos dela (24 ou 30); converter 24 -> 30 duplica quadros e "trava"."""
+    if p.get('fps'):
+        return int(p['fps'])
+    for x in sorted(glob.glob(os.path.join(p['brutos'], '*'))):
+        if x.lower().endswith(('.mov', '.mp4')):
+            r = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=avg_frame_rate',
+                                '-of', 'csv=p=0', x], capture_output=True, text=True).stdout.strip().strip(',')
+            try:
+                a, b = (r.split('/') + ['1'])[:2]; v = float(a) / float(b)
+                return 24 if v < 27 else 30
+            except (ValueError, ZeroDivisionError):
+                pass
+    return 30
+
+
 def cmd_montar(a):
     p = json.load(open(a.plano)); T = p['trabalho']
+    global FPS; FPS = fps_do_plano(p)
     cache, cortes = {}, []
     for tom in p['tomadas']:
         n, i0, i1 = tom[:3]; flag = tom[3] if len(tom) > 3 else ''
@@ -532,6 +549,7 @@ def audio_final(p, T, sfx, fim):
 
 def cmd_renderizar(a):
     p = json.load(open(a.plano)); T = p['trabalho']; final = a.modo == 'final'
+    global FPS; FPS = fps_do_plano(p)
     global COR_PADRAO; COR_PADRAO = p.get('cor', 'rosa')   # 'antiga' = cenário branco (Dias 1 e 2)
     W, H = (W4K, H4K) if final else (1080, 1920); sc = W / W4K
     fontes, sfx, mk = garantir_assets(T)
@@ -549,7 +567,7 @@ def cmd_renderizar(a):
         nome = next((p.get('cor_tomadas', {}).get(str(q)) for q, t in enumerate(p['tomadas'])
                      if t[0] == n and t[1] <= meio < t[2]), None) or COR_PADRAO
         cor_ = 'format=yuv420p' if tela else cor(src, nome)
-        o = os.path.join(pasta, hashlib.md5(f'{n}{s}{e}{W}{v}{nome}{tela}'.encode()).hexdigest()[:12] + '.mp4')
+        o = os.path.join(pasta, hashlib.md5(f'{n}{s}{e}{W}{v}{nome}{tela}{FPS}'.encode()).hexdigest()[:12] + '.mp4')
         if not os.path.exists(o):
             acel = f'setpts=PTS/{v:.4f},' if v != 1.0 else ''
             ff('-threads', '4', '-ss', f'{s:.4f}', '-i', src, '-vf', f'{acel}fps={FPS},scale={W}:{H},{cor_}',
@@ -600,7 +618,7 @@ def cmd_renderizar(a):
         f.append(f'[{k}:v]scale={W}:{H},format=gray,setpts=PTS-STARTPTS+{t0}/TB[mp{j}];[pb{j}]format=rgba[pr{j}];'
                  f'[pr{j}][mp{j}]alphamerge[pp{j}];[{cur_a}][pp{j}]overlay=0:0:enable=\'between(t,{t0},{t1})\':eof_action=pass,format=yuv420p[pre{j}]')
         pre = f'pre{j}'; k += 1
-    f.append(f"[{pre}]setpts=PTS-STARTPTS,zoompan=z='1+{ZOOM}*({zs})+{SUBIR}*({zd})':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)*(0.42+0.58*({zd}))':d=1:s={W}x{H}:fps=30,"
+    f.append(f"[{pre}]setpts=PTS-STARTPTS,zoompan=z='1+{ZOOM}*({zs})+{SUBIR}*({zd})':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)*(0.42+0.58*({zd}))':d=1:s={W}x{H}:fps={FPS},"
              f"gblur=sigma={30 * sc:.0f}:enable='{blur}',"
              f"drawbox=x=0:y=0:w=iw:h=ih:color=black@0.35:t=fill:enable='{blur}',hue=s=0:enable='{gr}'[b0]")
     cur = 'b0'
@@ -612,25 +630,25 @@ def cmd_renderizar(a):
             CW, CH = int(CARD_W * sc) // 2 * 2, int(CARD_H * sc) // 2 * 2
             if c.get('fundo'):             # vídeo pronto dela tocando desfocado atrás do print (estilo referência)
                 fu = c['fundo']; inp += ['-ss', str(fu.get('de', 0)), '-t', str(t1 - t0 + 0.5), '-i', fu['arquivo']]
-                f.append(f'[{k}:v]setpts=PTS-STARTPTS,fps=30,scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},'
+                f.append(f'[{k}:v]setpts=PTS-STARTPTS,fps={FPS},scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},'
                          f'gblur=sigma={14 * sc:.0f},eq=brightness=-0.08,format=yuv420p,setpts=PTS-STARTPTS+{t0}/TB[fu{j}]')
                 f.append(f"[{cur}][fu{j}]overlay=0:0:enable='between(t,{t0},{t1})':eof_action=pass[cf{j}]"); cur = f'cf{j}'; k += 1
             if video:
                 de, ate = c.get('de', 0), c.get('ate', dur(arq)); vel = (ate - de) / (t1 - t0)
                 inp += ['-ss', str(de), '-t', str(ate - de), '-i', arq]
-                f.append(f'[{k}:v]setpts=(PTS-STARTPTS)/{vel:.4f},fps=30,scale={CW}:{CH}:force_original_aspect_ratio=increase,crop={CW}:{CH},format=rgba[tv{j}]')
+                f.append(f'[{k}:v]setpts=(PTS-STARTPTS)/{vel:.4f},fps={FPS},scale={CW}:{CH}:force_original_aspect_ratio=increase,crop={CW}:{CH},format=rgba[tv{j}]')
             elif c.get('inteira'):   # print largo (ex.: cards de filtros): inteiro, sem cortar, cantos arredondados, no topo do card
                 lw = int(c.get('largura', 1800) * sc) // 2 * 2; png = os.path.join(T, f'inteira{j}_{W}.png'); arredondar(arq, lw, png, sc)
                 inp += ['-loop', '1', '-t', str(t1 - t0 + 0.5), '-i', png]
-                f.append(f'[{k}:v]fps=30,format=rgba,setpts=PTS-STARTPTS+{t0}/TB,{fd}[tc{j}]')
+                f.append(f'[{k}:v]fps={FPS},format=rgba,setpts=PTS-STARTPTS+{t0}/TB,{fd}[tc{j}]')
                 f.append(f"[{cur}][tc{j}]overlay={(W - lw) // 2}:{int(CARD_Y * sc)}:enable='between(t,{t0},{t1})':eof_action=pass[c{j}]")
                 k += 1; cur = f'c{j}'
                 continue
             else:
                 inp += ['-loop', '1', '-t', str(t1 - t0 + 0.5), '-i', arq]
-                f.append(f'[{k}:v]fps=30,scale={CW}:{CH}:force_original_aspect_ratio=increase,crop={CW}:{CH},format=rgba[tv{j}]')
+                f.append(f'[{k}:v]fps={FPS},scale={CW}:{CH}:force_original_aspect_ratio=increase,crop={CW}:{CH},format=rgba[tv{j}]')
             inp += ['-loop', '1', '-t', str(t1 - t0 + 1), '-i', mk]
-            f.append(f'[{k + 1}:v]fps=30,format=gray,scale={CW}:{CH},setpts=PTS-STARTPTS[tm{j}];[tv{j}][tm{j}]alphamerge,'
+            f.append(f'[{k + 1}:v]fps={FPS},format=gray,scale={CW}:{CH},setpts=PTS-STARTPTS[tm{j}];[tv{j}][tm{j}]alphamerge,'
                      f'setpts=PTS-STARTPTS+{t0}/TB,{fd}[tc{j}]')
             f.append(f"[{cur}][tc{j}]overlay={(W - CW) // 2}:{int(CARD_Y * sc)}:enable='between(t,{t0},{t1})':eof_action=pass[c{j}]")
             k += 2
@@ -639,21 +657,21 @@ def cmd_renderizar(a):
             if not arq.lower().endswith('.png'):   # print/foto sem transparência: cantos arredondados (ex.: filtros no peito, Dia 6)
                 png = os.path.join(T, f'card{j}_{W}.png'); arredondar(arq, cw, png, sc); arq = png
             inp += ['-loop', '1', '-t', str(t1 - t0 + 0.5), '-i', arq]
-            f.append(f'[{k}:v]fps=30,format=rgba,scale={cw}:-1,setpts=PTS-STARTPTS+{t0}/TB,{fd}[tc{j}]')
+            f.append(f'[{k}:v]fps={FPS},format=rgba,scale={cw}:-1,setpts=PTS-STARTPTS+{t0}/TB,{fd}[tc{j}]')
             f.append(f"[{cur}][tc{j}]overlay={(W - cw) // 2}:{int(c.get('y', 300) * sc)}:enable='between(t,{t0},{t1})':eof_action=pass[c{j}]")
             k += 1
         cur = f'c{j}'
     for j, s in enumerate(p.get('setas', [])):   # setas desenhadas
         png = os.path.join(T, f'seta{j}_{W}.png'); seta_png(s['de'], s['para'], W, H, png)
         inp += ['-loop', '1', '-t', str(s['t1'] - s['t0'] + 0.5), '-i', png]; t0, t1 = s['t0'], s['t1']
-        f.append(f'[{k}:v]fps=30,format=rgba,setpts=PTS-STARTPTS+{t0}/TB,fade=t=in:st={t0}:d=0.15:alpha=1,'
+        f.append(f'[{k}:v]fps={FPS},format=rgba,setpts=PTS-STARTPTS+{t0}/TB,fade=t=in:st={t0}:d=0.15:alpha=1,'
                  f'fade=t=out:st={t1 - 0.15:.2f}:d=0.15:alpha=1[sa{j}]')
         f.append(f"[{cur}][sa{j}]overlay=0:0:enable='between(t,{t0},{t1})':eof_action=pass[s{j}]"); cur = f's{j}'; k += 1
     for j, (c0, c1) in enumerate(p.get('celular', [])):   # gravação de tela dentro de um iPhone sobre fundo preto (referência do Dia 8)
         png = os.path.join(T, f'celular_{W}.png'); x0, y0, cw, ch = celular_png(W, H, sc, png)
         inp += ['-loop', '1', '-t', f'{c1 + 1:.2f}', '-i', png]
         f.append(f'[{cur}]split[ce{j}a][ce{j}b];[ce{j}b]crop={int(TELA_W * sc) // 2 * 2}:{H}:{(W - int(TELA_W * sc) // 2 * 2) // 2}:0,'
-                 f'scale={cw}:{ch},pad={W}:{H}:{x0}:{y0}:black[ce{j}c];[{k}:v]fps=30,format=rgba[ce{j}m];'
+                 f'scale={cw}:{ch},pad={W}:{H}:{x0}:{y0}:black[ce{j}c];[{k}:v]fps={FPS},format=rgba[ce{j}m];'
                  f"[ce{j}c][ce{j}m]overlay=0:0:eof_action=pass[ce{j}d];[ce{j}a][ce{j}d]overlay=0:0:enable='between(t,{c0},{c1})':eof_action=pass[ce{j}]")
         cur = f'ce{j}'; k += 1
     ig = p.get('instagram'); cauda = IG_CAUDA if ig else 0.8
@@ -670,7 +688,7 @@ def cmd_renderizar(a):
         m1 = os.path.join(T, f'ig_marca_{W}.png'); mw, mh = instagram_png(ig, W, sc, m1)
         m2 = os.path.join(T, f'ig_final_{W}.png'); fw, fh = instagram_png(ig, W, sc, m2, final=True)
         inp += ['-loop', '1', '-t', f'{fim + cauda:.2f}', '-i', m1, '-loop', '1', '-t', f'{fim + cauda:.2f}', '-i', m2]
-        f.append(f'[{k}:v]fps=30,format=rgba,colorchannelmixer=aa=0.85[igm];[{k + 1}:v]fps=30,format=rgba,'
+        f.append(f'[{k}:v]fps={FPS},format=rgba,colorchannelmixer=aa=0.85[igm];[{k + 1}:v]fps={FPS},format=rgba,'
                  f'fade=t=in:st={fim + IG_ENTRA:.2f}:d=0.35:alpha=1[igf]')
         f.append(f"[{cur}][igm]overlay={W - mw - int(110 * sc)}:{int(560 * sc)}:enable='lt(t,{fim:.2f})':eof_action=pass[vm];"
                  f"[vm][igf]overlay={(W - fw) // 2}:{(H - fh) // 2}:enable='gte(t,{fim + IG_ENTRA:.2f})':eof_action=pass,format=yuv420p[v]")
@@ -679,7 +697,7 @@ def cmd_renderizar(a):
         f.append(f'[{cur}]null[v]')
     saida = os.path.join(T, p.get('saida', 'video') + ('_4K.mp4' if final else '_previa.mp4'))
     enc = ['-preset', 'medium', '-crf', '16', '-profile:v', 'high', '-level', '5.1'] if final else ['-preset', 'veryfast', '-crf', '20']
-    ff('-threads', '4', *inp, '-filter_complex', ';'.join(f), '-map', '[v]', '-map', '1:a', '-c:v', 'libx264', *enc, '-r', '30',
+    ff('-threads', '4', *inp, '-filter_complex', ';'.join(f), '-map', '[v]', '-map', '1:a', '-c:v', 'libx264', *enc, '-r', str(FPS),
        '-pix_fmt', 'yuv420p', '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-c:a', 'aac', '-b:a', '192k',
        '-t', f'{fim + cauda:.2f}', '-movflags', '+faststart', saida)
     print('PRONTO', saida)
