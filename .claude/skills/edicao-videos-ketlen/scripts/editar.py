@@ -19,12 +19,15 @@ COR_PADRAO = 'rosa'
 # ---------------------------------------------------------------- estilo
 W4K, H4K = 2160, 3840                     # tudo é desenhado em coordenadas 4K
 LEG_Y = 2600                              # centro da legenda automática
+# zona segura do Reels (em 4K): o Instagram cobre o topo (barra Reels/câmera), a base (@, legenda, música)
+# e a direita (curtir/comentar/compartilhar). Todo texto/logo/camada importante fica dentro deste retângulo.
+SEG_TOPO, SEG_BASE, SEG_ESQ, SEG_DIR = 480, 3000, 130, 1880
 LEG_TAM, LEG_ESP, LEG_PADX, LEG_PADY = 64, 2, 40, 24
 LEG_CAIXA, LEG_CAIXA_A = '&HCEBBF4&', '&HCC&'   # rosa bebê do CapCut (#F4BBCE), 20% de opacidade
 DESTAQUE_COR = '&H0084FBFD'                     # amarelo manteiga da Ketlen (#FDFB84), BGR
 FPS = 30
 ZOOM = 0.08                                     # zoom de ênfase: 8%, leve
-CARD_W, CARD_H, CARD_Y = 1170, 2610, 720        # print em tela cheia: centralizado, sem cobrir tudo
+CARD_W, CARD_H, CARD_Y = 1170, 2060, 720        # print em tela cheia: centralizado; legenda embaixo ainda na zona segura
 ROTULO_COR, ROTULO_A = '&HAD8FEE&', '&H26&'      # rótulo dos prints: rosa mais escuro (#EE8FAD), ~85% opaco
 DESTAQUE_TAM, DESTAQUE_Y = 230, 1850            # destaques: uma palavra por linha, por cima do corpo
 SUBIR = 0.18                                    # quanto o vídeo aproxima/sobe nos destaques
@@ -208,8 +211,8 @@ TELA_W = 1764                              # largura útil da gravação de tela
 def celular_png(W, H, sc, out):
     """Moldura de iPhone (aro rosa, cantos bem arredondados, fundo preto) com o buraco da tela transparente."""
     from PIL import Image, ImageDraw
-    ch = int(3240 * sc) // 2 * 2; cw = int(ch * TELA_W / 3840) // 2 * 2
-    x0, y0 = (W - cw) // 2, int(300 * sc)
+    ch = int(2240 * sc) // 2 * 2; cw = int(ch * TELA_W / 3840) // 2 * 2   # cabe na zona segura com a legenda embaixo (2900)
+    x0, y0 = (W - cw) // 2, int(SEG_TOPO * sc)
     b = int(52 * sc); r = int(190 * sc)
     img = Image.new('RGBA', (W, H), (0, 0, 0, 255)); d = ImageDraw.Draw(img)
     d.rounded_rectangle([x0 - b, y0 - b, x0 + cw + b, y0 + ch + b], r + b, fill=(244, 187, 206, 255))      # aro rosa bebê por fora (#F4BBCE), identidade dela
@@ -320,7 +323,7 @@ def y_destaque(p, a, b):
     """Altura do destaque: número no 4º campo = y fixo (ex.: em cima da gravação de tela), "cima" = 430, senão no corpo."""
     for d in p.get('destaques', []):
         if (d[0], d[1]) == (a, b) and len(d) > 3:
-            return d[3] if isinstance(d[3], (int, float)) else 430
+            return max(SEG_TOPO, d[3]) if isinstance(d[3], (int, float)) else SEG_TOPO + 80
     return DESTAQUE_Y
 
 
@@ -413,7 +416,7 @@ def legendas(p, T, fontes):
         ev.append(f'Dialogue: 0,{ts(a)},{ts(b)},Caixa,,0,0,0,,{caixa(t, cy=cy)}')
         ev.append(f'Dialogue: 1,{ts(a)},{ts(b)},Leg,,0,0,0,,{{\\an5\\pos({W4K // 2},{cy})}}{t}')
     for qa, qb, *qt in p.get('legenda_quebrada', []):   # demonstração do erro do CapCut, acima da cabeça
-        ev.append(f'Dialogue: 1,{ts(qa)},{ts(qb)},Quebrada,,0,0,0,,{{\\an5\\pos({W4K // 2},560)}}{quebrada(qt[0] if qt else "")}')
+        ev.append(f'Dialogue: 1,{ts(qa)},{ts(qb)},Quebrada,,0,0,0,,{{\\an5\\pos({W4K // 2},{SEG_TOPO + 100})}}{quebrada(qt[0] if qt else "")}')
     if p.get('titulo'):                        # abertura do desafio: surge com fade (sem digitação)
         a, b, txt = p['titulo']
         ev.append(f'Dialogue: 2,{ts(a)},{ts(b)},Destaque,,0,0,0,,{{\\an5\\pos({W4K // 2},{DESTAQUE_Y if p.get('titulo_corpo') else 950})\\fad(250,200)}}{txt}')
@@ -582,7 +585,7 @@ def cmd_renderizar(a):
                 lw = int(c.get('largura', 700) * sc) // 2 * 2
                 inp += ['-loop', '1', '-t', str(t1 - t0 + 0.5), '-i', c['arquivo']]
                 f.append(f'[{k}:v]fps={FPS},format=rgba,scale={lw}:-2,{fd_a}')
-                f.append(f"[{cur_a}][ac{j}{q}]overlay={int(c.get('x', 1250) * sc)}:{int(c.get('y', 380) * sc)}:enable='between(t,{t0},{t1})':eof_action=pass[ao{j}{q}]")
+                f.append(f"[{cur_a}][ac{j}{q}]overlay={int(min(c.get('x', 1250), SEG_DIR - c.get('largura', 700)) * sc)}:{int(max(c.get('y', 380), SEG_TOPO) * sc)}:enable='between(t,{t0},{t1})':eof_action=pass[ao{j}{q}]")
                 cur_a = f'ao{j}{q}'; k += 1
                 continue
             inp += ['-ss', str(de), '-t', str(t1 - t0 + 0.5), '-an', '-i', c['arquivo']]
