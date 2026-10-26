@@ -356,7 +356,9 @@ def legendas(p, T, fontes):
             if abs(x[0] - t) < 0.3 and x[2] == errado:
                 x[2] = certo
     w = [x for x in w if x[2]]                 # correção vazia = palavra removida (ex.: vício de linguagem)
-    janelas = [(a, b) for a, b, _ in dest(p)]
+    # destaque com altura fixa (em cima da gravação de tela) não divide espaço com a legenda: ela continua
+    janelas = [(a, b) for a, b, _ in dest(p) if not isinstance(y_destaque(p, a, b), (int, float)) or y_destaque(p, a, b) == DESTAQUE_Y
+               or (a, b) in {(d[0], d[1]) for d in p.get('destaques', []) if len(d) > 3 and d[3] == 'cima'}]
     dentro = lambda t: any(x - 0.05 <= t < y for x, y in janelas)
     grupos, g = [], []
     for i, x in enumerate(w):
@@ -384,7 +386,7 @@ def legendas(p, T, fontes):
                 topo = c.get('y', 300); base_ = topo + altura_card(c)
                 if topo - 60 < cy < base_ + 60:
                     cy = base_ + 120
-        t = re.sub(r'[.,]', '', ' '.join(y[2] for y in g).upper())
+        t = re.sub(r'(?<!\d)[.,]|[.,](?!\d)', '', ' '.join(y[2] for y in g).upper())
         if any(a < y and b > x for x, y, *_ in p.get('legenda_quebrada', [])):   # na demonstração, só a legenda quebrada
             continue
         ev.append(f'Dialogue: 0,{ts(a)},{ts(b)},Caixa,,0,0,0,,{caixa(t, cy=cy)}')
