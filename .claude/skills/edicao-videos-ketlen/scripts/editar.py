@@ -22,6 +22,7 @@ LEG_Y = 2600                              # centro da legenda automática
 # zona segura do Reels (em 4K): o Instagram cobre o topo (barra Reels/câmera), a base (@, legenda, música)
 # e a direita (curtir/comentar/compartilhar). Todo texto/logo/camada importante fica dentro deste retângulo.
 SEG_TOPO, SEG_BASE, SEG_ESQ, SEG_DIR = 480, 3000, 130, 1880
+TV_OFF = 0.4                                # duração do final "tela desligada" (TV antiga apagando)
 LEG_TAM, LEG_ESP, LEG_PADX, LEG_PADY = 64, 2, 40, 24
 LEG_CAIXA, LEG_CAIXA_A = '&HCEBBF4&', '&HCC&'   # rosa bebê do CapCut (#F4BBCE), 20% de opacidade
 DESTAQUE_COR = '&H0084FBFD'                     # amarelo manteiga da Ketlen (#FDFB84), BGR
@@ -493,7 +494,7 @@ def audio_final(p, T, sfx, fim):
     for a, b, _ in dest(p):                  # destaque também é zoom in: swoosh
         if (a, b) not in cima_(p):
             ev.append(('swoosh', a - 0.05, 1.0))
-    ev.append(('click_mouse', fim - 0.15, 0.9))
+    ev.append(('click_mouse', fim - TV_OFF, 0.9))     # clique quando a tela "desliga"
     if p.get('instagram'):                   # cartão final com o @ (estilo referência do Dia 7): clique quando surge
         ev.append(('click_mouse', fim + IG_ENTRA, 0.7))
     # teclado: trecho contínuo de digitação gravado do CapCut dela, tocando enquanto as letras aparecem
@@ -656,8 +657,15 @@ def cmd_renderizar(a):
                  f"[ce{j}c][ce{j}m]overlay=0:0:eof_action=pass[ce{j}d];[ce{j}a][ce{j}d]overlay=0:0:enable='between(t,{c0},{c1})':eof_action=pass[ce{j}]")
         cur = f'ce{j}'; k += 1
     ig = p.get('instagram'); cauda = IG_CAUDA if ig else 0.8
-    f.append(f'[{cur}]format=yuv420p,ass={ass}:fontsdir={fontes},setpts=N/{FPS}/TB,tpad=stop_mode=add:stop_duration={cauda}:color=black,'
-             f'fade=t=out:st={fim + 0.05:.2f}:d=0.08[vf]'); cur = 'vf'
+    # final "tela desligada" (TV antiga): a imagem achata numa linha brilhante, vira um pontinho e apaga
+    t0 = fim - TV_OFF
+    f.append(f'[{cur}]format=yuv420p,ass={ass}:fontsdir={fontes},setpts=N/{FPS}/TB,split[tvm][tvt];'
+             f'[tvm]trim=end={t0:.3f},setpts=PTS-STARTPTS[tva];'
+             f"[tvt]trim=start={t0:.3f}:end={fim:.3f},setpts=PTS-STARTPTS,eq=brightness='min(0.45,t*1.6)':contrast=1.1:eval=frame,"
+             f"scale=w='if(lt(t,0.24),{W},max(8,2*trunc({W}*(1-(t-0.24)/0.16)/2)))':h='max(8,2*trunc({H}*pow(max(0,1-t/0.24),3)/2))':eval=frame,"
+             f'format=yuva420p[tvs];color=black:s={W}x{H}:r={FPS}:d={TV_OFF:.3f}[tvk];'
+             f"[tvk][tvs]overlay=x='(W-w)/2':y='(H-h)/2':eval=frame:eof_action=pass,setsar=1,format=yuv420p[tvb];"
+             f'[tva][tvb]concat=n=2:v=1:a=0,tpad=stop_mode=add:stop_duration={cauda}:color=black[vf]'); cur = 'vf'
     if ig:   # @ discreto no canto (marca d'água) e cartão final com logo em degradê na tela preta
         m1 = os.path.join(T, f'ig_marca_{W}.png'); mw, mh = instagram_png(ig, W, sc, m1)
         m2 = os.path.join(T, f'ig_final_{W}.png'); fw, fh = instagram_png(ig, W, sc, m2, final=True)
