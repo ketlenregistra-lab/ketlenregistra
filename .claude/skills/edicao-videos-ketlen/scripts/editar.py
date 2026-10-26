@@ -172,6 +172,34 @@ def cmd_montar(a):
 
 
 # ---------------------------------------------------------------- 3. renderizar
+IG_ENTRA, IG_CAUDA = 0.5, 2.6               # cartão final do Instagram: entra 0,5 s depois do preto, vídeo termina 2,6 s depois
+
+
+def instagram_png(handle, W, sc, out, final=False):
+    """Logo do Instagram desenhado + @ embaixo. final=True: logo grande em degradê (tela preta do fim); senão marca branca discreta."""
+    from PIL import Image, ImageDraw, ImageFont
+    L = int((330 if final else 110) * sc); fs = int((78 if final else 40) * sc)
+    fonte = ImageFont.truetype('/usr/share/fonts/opentype/inter/Inter-SemiBold.otf', max(8, fs))
+    txt = handle.upper(); tw = int(fonte.getlength(txt))
+    w, h = max(L, tw) + 20, L + int(fs * 1.9)
+    logo = Image.new('L', (L * 4, L * 4), 0); d = ImageDraw.Draw(logo); S = L * 4; e = int(S * 0.085)
+    d.rounded_rectangle([e // 2, e // 2, S - e // 2, S - e // 2], int(S * 0.28), outline=255, width=e)
+    r = int(S * 0.22); c = S // 2; d.ellipse([c - r, c - r, c + r, c + r], outline=255, width=e)
+    q = int(S * 0.055); d.ellipse([int(S * 0.74) - q, int(S * 0.26) - q, int(S * 0.74) + q, int(S * 0.26) + q], fill=255)
+    logo = logo.resize((L, L), Image.LANCZOS)
+    if final:   # degradê do Instagram (amarelo -> rosa -> roxo)
+        import numpy as np
+        y, x = np.mgrid[0:L, 0:L] / L; t = np.clip((x * 0.5 + (1 - y) * 0.5), 0, 1)[..., None]
+        cores = np.array([[254, 218, 117], [250, 126, 30], [214, 41, 118], [150, 47, 191], [79, 91, 213]], float)
+        pos = np.linspace(0, 1, len(cores)); rgb = np.stack([np.interp(t[..., 0], pos, cores[:, k]) for k in range(3)], -1)
+        cor = Image.fromarray(rgb.astype('uint8'), 'RGB')
+    else:
+        cor = Image.new('RGB', (L, L), (255, 255, 255))
+    img = Image.new('RGBA', (w, h), (0, 0, 0, 0)); cor.putalpha(logo); img.paste(cor, ((w - L) // 2, 0), cor)
+    ImageDraw.Draw(img).text((w // 2, L + int(fs * 0.45)), txt, font=fonte, fill=(255, 255, 255, 255), anchor='mt')
+    img.save(out); return w, h
+
+
 def altura_card(c):
     from PIL import Image
     im = Image.open(c['arquivo']); return round(im.height * c.get('largura', 900) / im.width)
@@ -430,9 +458,11 @@ def audio_final(p, T, sfx, fim):
         if (a, b) not in cima_(p):
             ev.append(('swoosh', a - 0.05, 1.0))
     ev.append(('click_mouse', fim - 0.15, 0.9))
+    if p.get('instagram'):                   # cartão final com o @ (estilo referência do Dia 7): clique quando surge
+        ev.append(('click_mouse', fim + IG_ENTRA, 0.7))
     # teclado: trecho contínuo de digitação gravado do CapCut dela, tocando enquanto as letras aparecem
     sr = 48000; tec = wav16_st(os.path.join(sfx, 'teclado.wav'))
-    trilha = np.zeros(int((fim + 2) * sr))
+    trilha = np.zeros(int((fim + 4) * sr))
     for a, b, txt in dest(p) + [(a, bd, txt) for a, bd, _, txt, *_ in espalhados(p)]:
         toks, tempos = digitacao(a, b, txt)
         n = int((tempos[-1] - a + 0.12) * sr)
@@ -444,7 +474,7 @@ def audio_final(p, T, sfx, fim):
     gr = p.get('gracas', [])
     inp = ['-i', voz]; f = []
     mute = '+'.join(f'between(t,{a},{b})' for a, b in gr) or '0'
-    f.append(f"[0]aresample=48000,volume=0:enable='{mute}',apad=pad_dur=1[m]")
+    f.append(f"[0]aresample=48000,volume=0:enable='{mute}',apad=pad_dur=3[m]")   # sobra para o preto/cartão final
     inp += ['-i', tw]; f.append('[1]aresample=48000[tk]')
     k = 2; mix = ['[m]', '[tk]']
     for j, (a, b) in enumerate(gr):          # voz de fonógrafo nos momentos de graça
@@ -577,13 +607,25 @@ def cmd_renderizar(a):
         f.append(f'[{k}:v]fps=30,format=rgba,setpts=PTS-STARTPTS+{t0}/TB,fade=t=in:st={t0}:d=0.15:alpha=1,'
                  f'fade=t=out:st={t1 - 0.15:.2f}:d=0.15:alpha=1[sa{j}]')
         f.append(f"[{cur}][sa{j}]overlay=0:0:enable='between(t,{t0},{t1})':eof_action=pass[s{j}]"); cur = f's{j}'; k += 1
-    f.append(f'[{cur}]format=yuv420p,ass={ass}:fontsdir={fontes},setpts=N/{FPS}/TB,tpad=stop_mode=add:stop_duration=0.8:color=black,'
-             f'fade=t=out:st={fim + 0.05:.2f}:d=0.08[v]')
+    ig = p.get('instagram'); cauda = IG_CAUDA if ig else 0.8
+    f.append(f'[{cur}]format=yuv420p,ass={ass}:fontsdir={fontes},setpts=N/{FPS}/TB,tpad=stop_mode=add:stop_duration={cauda}:color=black,'
+             f'fade=t=out:st={fim + 0.05:.2f}:d=0.08[vf]'); cur = 'vf'
+    if ig:   # @ discreto no canto (marca d'água) e cartão final com logo em degradê na tela preta
+        m1 = os.path.join(T, f'ig_marca_{W}.png'); mw, mh = instagram_png(ig, W, sc, m1)
+        m2 = os.path.join(T, f'ig_final_{W}.png'); fw, fh = instagram_png(ig, W, sc, m2, final=True)
+        inp += ['-loop', '1', '-t', f'{fim + cauda:.2f}', '-i', m1, '-loop', '1', '-t', f'{fim + cauda:.2f}', '-i', m2]
+        f.append(f'[{k}:v]fps=30,format=rgba,colorchannelmixer=aa=0.85[igm];[{k + 1}:v]fps=30,format=rgba,'
+                 f'fade=t=in:st={fim + IG_ENTRA:.2f}:d=0.35:alpha=1[igf]')
+        f.append(f"[{cur}][igm]overlay={W - mw - int(110 * sc)}:{int(560 * sc)}:enable='lt(t,{fim:.2f})':eof_action=pass[vm];"
+                 f"[vm][igf]overlay={(W - fw) // 2}:{(H - fh) // 2}:enable='gte(t,{fim + IG_ENTRA:.2f})':eof_action=pass,format=yuv420p[v]")
+        k += 2
+    else:
+        f.append(f'[{cur}]null[v]')
     saida = os.path.join(T, p.get('saida', 'video') + ('_4K.mp4' if final else '_previa.mp4'))
     enc = ['-preset', 'medium', '-crf', '16', '-profile:v', 'high', '-level', '5.1'] if final else ['-preset', 'veryfast', '-crf', '20']
     ff('-threads', '4', *inp, '-filter_complex', ';'.join(f), '-map', '[v]', '-map', '1:a', '-c:v', 'libx264', *enc, '-r', '30',
        '-pix_fmt', 'yuv420p', '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-c:a', 'aac', '-b:a', '192k',
-       '-t', f'{fim + 0.8:.2f}', '-movflags', '+faststart', saida)
+       '-t', f'{fim + cauda:.2f}', '-movflags', '+faststart', saida)
     print('PRONTO', saida)
 
 

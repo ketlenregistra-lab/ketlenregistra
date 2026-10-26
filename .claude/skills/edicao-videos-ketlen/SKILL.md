@@ -86,6 +86,7 @@ Tudo em `scripts/editar.py`. Use uma pasta de trabalho no scratchpad.
    Regras da skill `legenda-instagram`: gancho sem pergunta óbvia nem "você sabia que"; CTA direto (salvar); 5 hashtags do nicho em CamelCase. Explique em 1–2 linhas o porquê das escolhas.
 
 ## Cuidados que já aprendemos
+- **Instagram dela: @ketlen_crs** (está no site dela). `"instagram": "@ketlen_crs"` no plano põe o logo + @ discreto no canto superior direito e, depois do preto final, um cartão com o logo em degradê e o @ (estilo da inspiração do Dia 7). Confirme com ela se quer em todos os vídeos.
 
 - **Vídeo que ela já editou inteiro (ex.: Dia 7, efeito clone):** um único arquivo; não corte nada. Tomadas `"inteiro"` para o rosto e `"tela"` para a gravação de tela em tela cheia (sem cor, sem acelerar). Legenda na faixa de baixo durante a tela: `"legenda_y": [[t0, t1, 3700]]` (não cobre a timeline do CapCut). Cliques na entrada/saída da tela: `"cliques": [t, ...]`. Destaques com `"cima"` quando o rosto dela está no meio do quadro. Cenário branco/sala: `"cor": "antiga"`.
 
