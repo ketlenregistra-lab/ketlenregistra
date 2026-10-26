@@ -57,11 +57,12 @@ def cor(path, nome=None):
     nome = nome or COR_PADRAO
     if nome == 'nenhuma':                  # ela já tratou a cor no CapCut: não mexe
         return 'format=yuv420p'
-    lut = os.path.join(ASSETS, f'cor_{nome}.cube')   # 'rosa', 'rosa_roupa', 'sala_branca' ...
-    if nome != 'antiga' and os.path.exists(lut):
+    luts = [os.path.join(ASSETS, f'cor_{x}.cube') for x in nome.split('+')]   # 'rosa', 'rosa_roupa', 'sala_branca+ketlen_sdr' (em sequência)
+    if nome != 'antiga' and all(os.path.exists(x) for x in luts):
         pre = 'zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=gbrp' \
             if hdr(path) else 'format=gbrp'
-        return f'{pre},lut3d={os.path.abspath(lut)}:interp=tetrahedral,{NITIDEZ},format=yuv420p'
+        cadeia = ','.join(f'lut3d={os.path.abspath(x)}:interp=tetrahedral' for x in luts)
+        return f'{pre},{cadeia},{NITIDEZ},format=yuv420p'
     if hdr(path):
         return f'zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=hable:desat=0,zscale=t=bt709:m=bt709:r=tv,format=gbrp,' \
                f'lut3d={LUT}:interp=tetrahedral,{NITIDEZ},format=yuv420p'
