@@ -21,7 +21,7 @@ W4K, H4K = 2160, 3840                     # tudo é desenhado em coordenadas 4K
 LEG_Y = 2600                              # centro da legenda automática
 # zona segura do Reels (em 4K): o Instagram cobre o topo (barra Reels/câmera), a base (@, legenda, música)
 # e a direita (curtir/comentar/compartilhar). Todo texto/logo/camada importante fica dentro deste retângulo.
-SEG_TOPO, SEG_BASE, SEG_ESQ, SEG_DIR = 480, 3000, 130, 1880
+SEG_TOPO, SEG_BASE, SEG_ESQ, SEG_DIR = 527, 2920, 176, 1987   # medida do template de zona segura dela (Dia 9)
 TV_OFF = 0.4                                # duração do final "tela desligada" (TV antiga apagando)
 LEG_TAM, LEG_ESP, LEG_PADX, LEG_PADY = 64, 2, 40, 24
 LEG_CAIXA, LEG_CAIXA_A = '&HCEBBF4&', '&HCC&'   # rosa bebê do CapCut (#F4BBCE), 20% de opacidade
@@ -212,8 +212,8 @@ TELA_W = 1764                              # largura útil da gravação de tela
 def celular_png(W, H, sc, out):
     """Moldura de iPhone (aro rosa, cantos bem arredondados, fundo preto) com o buraco da tela transparente."""
     from PIL import Image, ImageDraw
-    ch = int(3240 * sc) // 2 * 2; cw = int(ch * TELA_W / 3840) // 2 * 2   # tamanho que ela aprovou no Dia 8 (menor ficou longe demais)
-    x0, y0 = (W - cw) // 2, int(300 * sc)
+    ch = int(3000 * sc) // 2 * 2; cw = int(ch * TELA_W / 3840) // 2 * 2   # grande (menor ficou "longe demais"); a legenda vai por cima da base dele, dentro da zona segura
+    x0, y0 = (W - cw) // 2, int(440 * sc)
     b = int(52 * sc); r = int(190 * sc)
     img = Image.new('RGBA', (W, H), (0, 0, 0, 255)); d = ImageDraw.Draw(img)
     d.rounded_rectangle([x0 - b, y0 - b, x0 + cw + b, y0 + ch + b], r + b, fill=(244, 187, 206, 255))      # aro rosa bebê por fora (#F4BBCE), identidade dela
