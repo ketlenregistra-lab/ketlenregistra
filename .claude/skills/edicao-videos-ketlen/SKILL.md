@@ -86,6 +86,7 @@ Tudo em `scripts/editar.py`. Use uma pasta de trabalho no scratchpad.
    Regras da skill `legenda-instagram`: gancho sem pergunta óbvia nem "você sabia que"; CTA direto (salvar); 5 hashtags do nicho em CamelCase. Explique em 1–2 linhas o porquê das escolhas.
 
 ## Cuidados que já aprendemos
+- **Gravação de tela dentro de um iPhone** (referência do Dia 8): `"celular": [[t0, t1]]` — a tela vai para uma moldura de iPhone prateada sobre fundo preto; legenda fica embaixo do celular (`legenda_y` 3740) e destaques amarelos a 720.
 - **Destaque amarelo na gravação de tela em tela cheia:** 4º campo numérico = altura fixa, sem subir o vídeo nem swoosh: `[a, b, "mascarar", 720]` (no topo da prévia do CapCut, em cima da parede). Janela do destaque = **só as palavras escritas nele** — palavras faladas dentro da janela somem da legenda.
   Destaque com altura fixa NÃO esconde a legenda de baixo (lugares diferentes), então pode durar ~1,3 s para dar tempo de ler. Destaques no corpo/`"cima"`: janela só com as palavras escritas (as outras sumiriam da legenda). Em enquadramento fechado (rosto grande), use `"cima"` para o amarelo não cobrir a boca. Números como 0,5 mantêm a vírgula na legenda.
 - **Não colocar o @ dela** (`"instagram"`): no Dia 7 ela disse que não precisa. A opção existe no script, mas só use se ela pedir.

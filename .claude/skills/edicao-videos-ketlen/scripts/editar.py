@@ -202,6 +202,25 @@ def instagram_png(handle, W, sc, out, final=False):
     img.save(out); return w, h
 
 
+TELA_W = 1764                              # largura útil da gravação de tela do iPhone dela dentro do quadro 2160 (o resto é faixa preta)
+
+
+def celular_png(W, H, sc, out):
+    """Moldura de iPhone (aro prateado, cantos bem arredondados, fundo preto) com o buraco da tela transparente."""
+    from PIL import Image, ImageDraw
+    ch = int(3240 * sc) // 2 * 2; cw = int(ch * TELA_W / 3840) // 2 * 2
+    x0, y0 = (W - cw) // 2, int(300 * sc)
+    b = int(34 * sc); r = int(190 * sc)
+    img = Image.new('RGBA', (W, H), (0, 0, 0, 255)); d = ImageDraw.Draw(img)
+    d.rounded_rectangle([x0 - b, y0 - b, x0 + cw + b, y0 + ch + b], r + b, fill=(214, 214, 218, 255))      # aro
+    d.rounded_rectangle([x0 - b + int(6 * sc), y0 - b + int(6 * sc), x0 + cw + b - int(6 * sc), y0 + ch + b - int(6 * sc)],
+                        r + b - int(6 * sc), fill=(150, 150, 156, 255))                                          # brilho interno do aro
+    d.rounded_rectangle([x0 - int(10 * sc), y0 - int(10 * sc), x0 + cw + int(10 * sc), y0 + ch + int(10 * sc)], r + int(10 * sc), fill=(8, 8, 8, 255))
+    m = Image.new('L', (W, H), 0); ImageDraw.Draw(m).rounded_rectangle([x0, y0, x0 + cw, y0 + ch], r, fill=255)
+    a = img.getchannel('A').point(lambda v: v); import PIL.ImageChops as C
+    img.putalpha(C.subtract(a, m)); img.save(out); return x0, y0, cw, ch
+
+
 def altura_card(c):
     from PIL import Image
     im = Image.open(c['arquivo']); return round(im.height * c.get('largura', 900) / im.width)
@@ -623,6 +642,13 @@ def cmd_renderizar(a):
         f.append(f'[{k}:v]fps=30,format=rgba,setpts=PTS-STARTPTS+{t0}/TB,fade=t=in:st={t0}:d=0.15:alpha=1,'
                  f'fade=t=out:st={t1 - 0.15:.2f}:d=0.15:alpha=1[sa{j}]')
         f.append(f"[{cur}][sa{j}]overlay=0:0:enable='between(t,{t0},{t1})':eof_action=pass[s{j}]"); cur = f's{j}'; k += 1
+    for j, (c0, c1) in enumerate(p.get('celular', [])):   # gravação de tela dentro de um iPhone sobre fundo preto (referência do Dia 8)
+        png = os.path.join(T, f'celular_{W}.png'); x0, y0, cw, ch = celular_png(W, H, sc, png)
+        inp += ['-loop', '1', '-t', f'{c1 + 1:.2f}', '-i', png]
+        f.append(f'[{cur}]split[ce{j}a][ce{j}b];[ce{j}b]crop={int(TELA_W * sc) // 2 * 2}:{H}:{(W - int(TELA_W * sc) // 2 * 2) // 2}:0,'
+                 f'scale={cw}:{ch},pad={W}:{H}:{x0}:{y0}:black[ce{j}c];[{k}:v]fps=30,format=rgba[ce{j}m];'
+                 f"[ce{j}c][ce{j}m]overlay=0:0:eof_action=pass[ce{j}d];[ce{j}a][ce{j}d]overlay=0:0:enable='between(t,{c0},{c1})':eof_action=pass[ce{j}]")
+        cur = f'ce{j}'; k += 1
     ig = p.get('instagram'); cauda = IG_CAUDA if ig else 0.8
     f.append(f'[{cur}]format=yuv420p,ass={ass}:fontsdir={fontes},setpts=N/{FPS}/TB,tpad=stop_mode=add:stop_duration={cauda}:color=black,'
              f'fade=t=out:st={fim + 0.05:.2f}:d=0.08[vf]'); cur = 'vf'
