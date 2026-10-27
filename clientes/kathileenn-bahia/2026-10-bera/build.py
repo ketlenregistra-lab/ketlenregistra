@@ -246,7 +246,7 @@ fc.append("".join(mix) + f"amix=inputs={len(mix)}:normalize=0:duration=first[a]"
 
 cmd = ["ffmpeg", "-y", "-v", "error", *inputs, "-filter_complex", ";".join(fc),
        "-map", "[v]", "-map", "[a]", "-t", str(DUR + END),
-       "-c:v", "libx264", "-preset", "medium", "-crf", CRF, "-profile:v", "high", "-pix_fmt", "yuv420p",
+       "-c:v", "libx264", "-preset", "slow", "-crf", CRF, "-profile:v", "high", "-pix_fmt", "yuv420p",
        "-r", "30", "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-movflags", "+faststart", OUT]
 print(f"{len(groups)} grupos de legenda, {len(sfx)} efeitos sonoros")
 subprocess.run(cmd, check=True)

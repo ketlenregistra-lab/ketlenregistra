@@ -73,9 +73,15 @@ perguntando só o que falta.
 
 ### Exportação (Instagram Reels)
 - 1080x1920, 30 fps, H.264 (High), `yuv420p`, `-movflags +faststart`.
-- Vídeo com qualidade alta (CRF ~18 / ~15–20 Mbps), áudio AAC 48 kHz 192 kbps.
+- Prévias: CRF 21, preset medium (rápidas para revisar).
+- Final aprovado: CRF 17, preset slow (~9–10 Mbps), áudio AAC 48 kHz 192 kbps.
 - Redução de 4K para 1080 com scaler `lanczos`.
 - Nome do arquivo: `<cliente>_<tema>_<AAAA-MM-DD>.mp4`.
+
+## Referência pronta
+- Primeiro vídeo aprovado: `clientes/kathileenn-bahia/2026-10-bera/build.py` — monta legenda (ASS),
+  zooms (zoompan), efeitos sonoros e card final num comando só. Copiar como ponto de partida para
+  o próximo vídeo e trocar transcrição, título, ênfases e zooms.
 
 ## Fluxo de trabalho
 
