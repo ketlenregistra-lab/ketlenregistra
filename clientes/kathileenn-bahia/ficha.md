@@ -25,10 +25,11 @@
   **fundo claro semitransparente** (ex.: `90 decibéis`), com **borda fina** (pouca folga em
   cima/embaixo, ~22 px nas laterais). Não usar texto branco em caixa roxa sólida.
 - **Texto acompanha o gesto:** se ela aponta/levanta a mão ao falar o termo, a caixa vai em cima
-  da mão (ex.: PEATE). Termos-chave do tema (ex.: teste da orelhinha) vão acima da cabeça.
+  da mão (ex.: PEATE), na altura da ponta do dedo e **ao lado do rosto, nunca sobre ele**. Termos-chave do tema (ex.: teste da orelhinha) vão acima da cabeça.
 - **Listas** ("Não tem agulhas / Não dói / Não incomoda"): caixas roxas empilhadas acima da cabeça.
 - **Maiúscula na primeira letra** em todo texto de destaque (fica mais elegante).
-- **Palavra gigante roxa** (ex.: DICA): entra com efeito de digitação, letra por letra.
+- **Palavra gigante roxa** (ex.: DICA): entra com efeito de digitação, letra por letra, com
+  **som de teclado** (nunca swish nesse momento, mesmo que tenha zoom junto).
 - **Tempo:** caixa some no instante em que a próxima legenda entra (nunca uma por cima da outra);
   o card do logo só entra **depois** da última palavra dela.
 - **Título:** duas linhas **escalonadas e coladas** — linha fina em cima começando à esquerda

@@ -44,7 +44,7 @@ def clean(t):
 # ---------- ênfases ----------
 # caixas roxas: substituem a legenda corrida naquele trecho
 boxes = [
-    (13.04, 14.16, "PEATE", (735, 990)),        # junto da mão levantada, abaixo dos olhos
+    (13.04, 14.16, "PEATE", (895, 790)),        # onde a Ketlen marcou: na ponta do dedo, fora do rosto
     (28.54, 29.26, "testa"),
     (29.58, 31.02, "atrás dos ouvidos"),
     (33.64, 35.28, "fone pequenininho"),
@@ -88,12 +88,15 @@ for b in boxes:
 for t0, _ in stack:
     sfx.append(("clique_caneta", t0))
 for t0, _, _ in mega:
-    sfx.append(("teclado", t0))
+    sfx.append(("teclado", t0 - 0.075))   # 1ª tecla do arquivo cai junto com a 1ª letra
 sfx.sort(key=lambda x: x[1])
 # evita dois efeitos colados
+# digitação manda: tira o swish de zoom que cair junto do teclado
+teclas = [t for n, t in sfx if n == "teclado"]
+sfx = [(n, t) for n, t in sfx if n == "teclado" or not any(abs(t - k) < 0.4 for k in teclas)]
 dedup = []
 for name, t in sfx:
-    if dedup and t - dedup[-1][1] < 0.25:
+    if dedup and t - dedup[-1][1] < 0.25 and name != "teclado":
         continue
     dedup.append((name, t))
 sfx = dedup
