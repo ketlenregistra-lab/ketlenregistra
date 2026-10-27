@@ -7,7 +7,7 @@ import json, subprocess, sys
 
 W, H = 1080, 1920
 SRC = "bruto.mov"
-DUR = 89.30          # termina logo após "pra você" (o "E aí" do final fica de fora)
+DUR = 89.76          # vídeo inteiro: ela fala até ~89.4 s
 END = 2.2            # card do logo
 OUT = sys.argv[1] if len(sys.argv) > 1 else "previa.mp4"
 CRF = sys.argv[2] if len(sys.argv) > 2 else "21"
@@ -151,8 +151,8 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Leg,KB Cormorant SemiBold,74,&H00FFFFFF,&H000000FF,&H00000000,&H90000000,0,0,0,0,100,100,0,0,1,0,0,2,153,153,0,1
-Style: Big,KB Poppins Bold,100,&H00FFFFFF,&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,0,0,1,0,0,2,153,153,0,1
+Style: Leg,KB Cormorant SemiBold,74,&H00FFFFFF,&H000000FF,&H00000000,&H90000000,0,0,0,0,100,100,0,0,1,0,2,2,153,153,0,1
+Style: Big,KB Poppins Bold,100,&H00FFFFFF,&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,0,0,1,0,3,2,153,153,0,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -166,7 +166,7 @@ fc = [
     f"[1:v]fps=30,scale={W}:{H},format=yuv420p,settb=1/30,setpts=N/TB/30[logo]",
     f"[base]tpad=stop_mode=clone:stop_duration=0.4[basep]",
     f"[basep][logo]xfade=transition=fade:duration=0.35:offset={DUR + 0.05}[v]",
-    f"[0:a]atrim=0:{DUR},asetpts=PTS-STARTPTS,aresample=48000,afade=out:st={DUR - 0.15}:d=0.15,apad=pad_dur={END}[a]",
+    f"[0:a]atrim=0:{DUR},asetpts=PTS-STARTPTS,aresample=48000,afade=out:st={DUR - 0.03}:d=0.03,apad=pad_dur={END}[a]",
 ]
 cmd = ["ffmpeg", "-y", "-v", "error", "-i", SRC, "-loop", "1", "-t", str(END + 0.5), "-i", "logo_card.png",
        "-filter_complex", ";".join(fc), "-map", "[v]", "-map", "[a]", "-t", str(DUR + END),

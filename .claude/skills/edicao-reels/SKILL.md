@@ -85,6 +85,8 @@ perguntando só o que falta.
   **Nunca dois sons juntos** no mesmo momento (ex.: zoom + digitação → só o teclado).
   Usar os arquivos de SFX da Ketlen quando houver; senão, `scripts/make_sfx.py` gera substitutos.
 - O encerramento (logo/card final) só entra depois que a pessoa termina a última palavra.
+  Conferir o nível do áudio no fim do clipe antes de definir o corte: transcrição pode marcar o
+  fim da palavra cedo demais (no Dúvidas parte 2 a fala ia até 89,4 s e a transcrição dizia 89,26).
 - Música de fundo: quase nunca. Só quando a Ketlen mandar a música; aí fica bem baixa sob a voz.
 - **Não** aplicar redução de ruído (áudio vem de microfone).
 - **Sincronia boca × voz:** o microfone sem fio pode chegar alguns quadros atrasado. Antes de

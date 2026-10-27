@@ -20,7 +20,8 @@
 - **Regra de posição:** textos só no vazio acima da cabeça ou na altura do peito — nunca no rosto.
 - **Dois modelos de legenda corrida** (a Ketlen escolhe por vídeo):
   1. **Russolo + Poppins** — legenda fina, 1–3 palavras por vez (vídeo BERA).
-  2. **Destino Verdadeiro** — serifada branca, frase inteira em até 2 linhas bem coladas,
+  2. **Destino Verdadeiro** (fonte exclusiva do CapCut, não dá para baixar; uso sempre a mesma
+     substituta, Cormorant Garamond SemiBold) — serifada branca, frase inteira em até 2 linhas bem coladas,
      minúscula e sem pontuação (substituta: Cormorant Garamond SemiBold 74). Ênfases continuam em
      Poppins/Modern (vídeo aparelho auditivo). Letras bem juntinhas (`\fsp-3`) e linhas a 50 px.
      Título nesse modelo: serifada grande em cima ("Como colocar") + Poppins Bold colada logo
@@ -32,7 +33,8 @@
   - **Legendar só a Dra. Kathileenn.** A fala da Ketlen (abertura "Dúvidas com sua fono" e as
     perguntas) não ganha legenda: o título roxo e os cards já mostram.
   - Com card na tela, nada de legenda. Sem card (ela respondendo), legenda no vazio de cima.
-  - Legenda **só branca**, sem contorno nem sombra.
+  - Legenda branca **sem contorno preto**, mas com a mesma sombra leve dos outros vídeos
+    Destino (sem ela a fonte parece outra).
 - **Cores de lado da orelha:** vermelho = direito, azul = esquerdo (texto da caixa nessas cores).
 - **Posição da legenda corrida:** centro horizontal, na altura do peito, **longe do rosto**
   (termina em ~69% da altura, y≈1330 em 1080x1920).
