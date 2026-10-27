@@ -67,6 +67,10 @@
 - **Swish** em todo zoom no rosto e na entrada do título.
 - Sem música, salvo pedido.
 
+## Sincronia
+- O áudio do microfone dela chegou ~100 ms (3 quadros) atrasado no vídeo do aparelho auditivo.
+  Conferir sempre e adiantar o áudio se precisar.
+
 ## Entrega
 - **Material chega em:** pasta do Google Drive da cliente.
 - Bruto: 4K (2160x3840), 30 fps, HEVC.

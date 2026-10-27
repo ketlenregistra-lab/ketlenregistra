@@ -22,12 +22,13 @@ PEITO = 1360             # base das ênfases (caixas) na altura do peito; zona s
 CABECA_MIN = 500         # legenda em cima só se o topo da cabeça (com cabelo) estiver abaixo disso
 cabeca = json.load(open("cabeca_previa2.json"))   # (t, topo da cabeça em px) medido na prévia com os mesmos zooms
 TOPO_Y = 400             # textos no vazio acima da cabeça
+AV = 0.10                # o áudio do microfone chega ~3 quadros depois da boca: adianta o áudio
 
 # ---------- transcrição corrigida ----------
 words = []
 for s in json.load(open("transcricao.json")):
     for w in s["words"]:
-        words.append([w["w"].strip(), w["s"], w["e"]])
+        words.append([w["w"].strip(), w["s"] - AV, w["e"] - AV])
 fix = {"flamela,": "flanela,", "-auricular": "auricular", "está": "estar"}
 fixed = []
 for t, s, e in words:
@@ -80,6 +81,11 @@ zooms = [
     ("seco", 115.08, 116.90, 1.18),
     ("suave", 127.4, 131.2, 1.12),
 ]
+
+# ênfases foram marcadas no tempo do áudio original: acompanham o adiantamento
+boxes = [(t0 - AV, t1 - AV, *r) for t0, t1, *r in boxes]
+big = [(t0 - AV, t1 - AV, x) for t0, t1, x in big]
+mega = [(t0 - AV, t1 - AV, x) for t0, t1, x in mega]
 
 sfx = [("clique_caneta", 0.0), ("clique_caneta", 0.25)]   # as duas linhas do título
 for kind, t0, t1, z in zooms:
@@ -275,7 +281,7 @@ for n in names:
     fc.append(f"[{idx[n]}:a]asplit={cnt}" + "".join(f"[{n}{k}]" for k in range(cnt)))
     splits[n] = 0
 mix = ["[voz]"]
-fc.append(f"[0:a]atrim=0:{DUR},asetpts=PTS-STARTPTS,aresample=48000,afade=out:st={DUR - 0.03}:d=0.03,apad=pad_dur={END}[voz]")
+fc.append(f"[0:a]atrim={AV}:{DUR + AV},asetpts=PTS-STARTPTS,aresample=48000,afade=out:st={DUR - 0.03}:d=0.03,apad=pad_dur={END}[voz]")
 for k, (n, t) in enumerate(sfx):
     lab = f"{n}{splits[n]}"; splits[n] += 1
     ms = int(t * 1000)

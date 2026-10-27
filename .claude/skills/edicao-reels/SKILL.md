@@ -72,6 +72,11 @@ perguntando só o que falta.
 - O encerramento (logo/card final) só entra depois que a pessoa termina a última palavra.
 - Música de fundo: quase nunca. Só quando a Ketlen mandar a música; aí fica bem baixa sob a voz.
 - **Não** aplicar redução de ruído (áudio vem de microfone).
+- **Sincronia boca × voz:** o microfone sem fio pode chegar alguns quadros atrasado. Antes de
+  exportar, conferir com um evento visível com som (tampa fechando, palma, objeto batendo):
+  achar o quadro do impacto e o pico do som. Se a voz vier depois, adiantar o áudio
+  (`atrim=AV:...`) e deslocar legendas/ênfases/efeitos pelo mesmo valor. No vídeo do aparelho
+  auditivo foram 100 ms (3 quadros).
 
 ### Cor
 - **Não** mexer em cor/filtro. A Ketlen faz isso.
