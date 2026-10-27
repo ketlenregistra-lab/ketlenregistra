@@ -29,8 +29,11 @@
 - **Listas** ("Não tem agulhas / Não dói / Não incomoda"): caixas roxas empilhadas acima da cabeça.
 - **Maiúscula na primeira letra** em todo texto de destaque (fica mais elegante).
 - **Palavra gigante roxa** (ex.: DICA): entra com efeito de digitação, letra por letra.
-- **Título:** duas linhas **coladas e alinhadas à esquerda** — palavra pequena fina em cima
-  (Russolo/Jost) + palavra grande em Poppins Bold embaixo, branco, no terço superior (ex.: `Perdeu` / `audição`,
+- **Tempo:** caixa some no instante em que a próxima legenda entra (nunca uma por cima da outra);
+  o card do logo só entra **depois** da última palavra dela.
+- **Título:** duas linhas **escalonadas e coladas** — linha fina em cima começando à esquerda
+  (Russolo/Jost, letras bem juntas) e linha grande em Poppins Bold logo embaixo, deslocada para
+  a direita (ex.: "Você conhece o" / "exame BERA?"), branco, no terço superior (ex.: `Perdeu` / `audição`,
   `Baseado em` / `fatos reais`, `Efeito inibidor de` / `fixação ocular`). Às vezes entra com
   efeito de digitação. Aparece logo no início (≈3 s).
 - **Recursos extras usados:**
@@ -46,8 +49,10 @@
   A Ketlen avisa quando o vídeo vier sem tratamento.
 
 ## Áudio
-- Arquivos em `clientes/kathileenn-bahia/sfx/`, extraídos do vídeo "Efeito sonoro" do Drive.
-- **Clique** (`clique_capcut.wav` = "Click, click sound" do CapCut) quando entra caixa/texto.
+- Arquivos em `clientes/kathileenn-bahia/sfx/`, extraídos dos vídeos "Efeito sonoro" e
+  "Efeito sonoro/ legenda" do Drive.
+- **Clique** (`clique_caneta.wav` = "Click! ballpoint pen" do CapCut) quando texto/caixa aparece.
+- **Swish** (`swish_capcut.wav` = "Swish" do CapCut) em todo zoom.
 - **Teclado** (`teclado.wav` = "Keyboard (word processing)") no efeito de digitação.
 - **Swish** em todo zoom no rosto e na entrada do título.
 - Sem música, salvo pedido.

@@ -3,7 +3,7 @@ import json, re, subprocess, sys
 
 W, H = 1080, 1920
 SRC = "../drive/para_editar.mov"
-DUR = 92.95          # fim da fala
+DUR = 92.96          # fim do clipe: ela fala até o último quadro
 END = 2.2            # card do logo
 OUT = sys.argv[1] if len(sys.argv) > 1 else "previa.mp4"
 CRF = sys.argv[2] if len(sys.argv) > 2 else "20"
@@ -44,7 +44,7 @@ def clean(t):
 # ---------- ênfases ----------
 # caixas roxas: substituem a legenda corrida naquele trecho
 boxes = [
-    (13.04, 14.16, "PEATE", (820, 800)),        # em cima da mão levantada
+    (13.04, 14.16, "PEATE", (735, 990)),        # junto da mão levantada, abaixo dos olhos
     (28.54, 29.26, "testa"),
     (29.58, 31.02, "atrás dos ouvidos"),
     (33.64, 35.28, "fone pequenininho"),
@@ -80,13 +80,13 @@ zooms = [
     ("suave", 89.2, 92.9, 1.12),
 ]
 
-sfx = [("swish", 0.25)]
+sfx = [("clique_caneta", 0.0), ("clique_caneta", 0.25)]   # as duas linhas do título
 for kind, t0, t1, z in zooms:
-    sfx.append(("swish", max(t0 - (0.12 if kind == "suave" else 0.05), 0)))
+    sfx.append(("swish_capcut", max(t0 - (0.12 if kind == "suave" else 0.05), 0)))
 for b in boxes:
-    sfx.append(("clique_capcut", b[0]))
+    sfx.append(("clique_caneta", b[0]))
 for t0, _ in stack:
-    sfx.append(("clique_capcut", t0))
+    sfx.append(("clique_caneta", t0))
 for t0, _, _ in mega:
     sfx.append(("teclado", t0))
 sfx.sort(key=lambda x: x[1])
@@ -134,9 +134,10 @@ for gi, g in enumerate(groups):
     ev.append(f"Dialogue: 0,{ts(s)},{ts(e)},Leg,,0,0,0,,{{\\fad(60,60)}}{txt}")
 
 # título: linha fina + linha grande
-TIT_X = 540 + 40 - text_width("../fonts3/KBPoppinsBold.ttf", 150, "exame BERA?", -6) / 2
-ev.append(f"Dialogue: 2,{ts(0)},{ts(3.0)},Tit1,,0,0,0,,{{\\an1\\pos({TIT_X + 8:.0f},{TIT_Y - 112})\\fad(150,200)}}Você conhece o")
-ev.append(f"Dialogue: 2,{ts(0.25)},{ts(3.0)},Tit2,,0,0,0,,{{\\an1\\pos({TIT_X:.0f},{TIT_Y})\\fad(80,200)}}exame BERA?")
+# título escalonado como no exemplo da Ketlen: linha fina à esquerda, linha grossa deslocada
+# para a direita e colada logo embaixo (medidas tiradas renderizando o texto)
+ev.append(f"Dialogue: 2,{ts(0)},{ts(3.0)},Tit1,,0,0,0,,{{\\an1\\pos(100,452)\\fad(120,200)}}Você conhece o")
+ev.append(f"Dialogue: 2,{ts(0.25)},{ts(3.0)},Tit2,,0,0,0,,{{\\an1\\pos(308,568)\\fad(80,200)}}exame BERA?")
 # legenda corrida durante o título fica embaixo, como no resto
 for g in groups:
     if g[0][1] < 3.0:
@@ -149,7 +150,7 @@ BORDA = "\\xbord22\\ybord3"   # borda fina da caixa, como no '90 decibéis'
 for b in boxes:
     t0, t1, txt = b[:3]
     pos = f"\\an5\\pos({b[3][0]},{b[3][1]})" if len(b) == 4 else ""
-    ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1 + 0.25)},Box,,0,0,0,,{{{pos}{BORDA}\\fad(0,80){pop_in}}}{txt}")
+    ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Box,,0,0,0,,{{{pos}{BORDA}\\fad(0,80){pop_in}}}{txt}")
 for t0, t1, txt in chest:
     ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1 + 0.2)},Big,,0,0,0,,{{\\an2\\pos(540,1330)\\fad(0,80){pop_in}}}{txt}")
 for t0, t1, txt in big:
@@ -175,8 +176,8 @@ ScaledBorderAndShadow: yes
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Leg,KB Jost Light,90,&H10FFFFFF,&H000000FF,&H00000000,&H90000000,0,0,0,0,100,100,-3,0,1,0,2,2,90,140,{LEG_MV},1
-Style: Tit1,KB Jost Light,88,{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,-3,0,1,0,2,5,40,40,0,1
-Style: Tit2,KB Poppins Bold,150,{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,-6,0,1,0,3,5,40,40,0,1
+Style: Tit1,KB Jost Light,125,{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,-3,0,1,0,2,5,40,40,0,1
+Style: Tit2,KB Poppins Bold,185,{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,-6,0,1,0,3,5,40,40,0,1
 Style: Big,KB Poppins Bold,128,{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,-5,0,1,0,3,5,40,40,0,1
 Style: Box,KB Poppins Bold,88,{ROXO},&H000000FF,{CAIXA},{CAIXA},0,0,0,0,100,100,-4,0,3,4,0,2,90,140,{LEG_MV},1
 Style: Mega,KB Poppins Black,320,{ROXO},&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,-4,0,1,0,0,5,20,20,0,1
@@ -184,6 +185,17 @@ Style: Mega,KB Poppins Black,320,{ROXO},&H000000FF,&H00000000,&H00000000,0,0,0,0
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """ + "\n".join(ev) + "\n"
+# o libass ignora o Spacing do estilo, então o espaçamento (letras juntinhas) vai como \\fsp
+SP = {"Leg": -3, "Tit1": -6, "Tit2": -4, "Big": -4, "Box": -3, "Mega": -8}
+def junta(line):
+    if not line.startswith("Dialogue:"):
+        return line
+    st = line.split(",")[3]
+    head, txt = line.split(",,0,0,0,,", 1)
+    tag = f"\\fsp{SP[st]}"
+    txt = "{" + tag + txt[1:] if txt.startswith("{") else "{" + tag + "}" + txt
+    return head + ",,0,0,0,," + txt
+ass = "\n".join(junta(l) for l in ass.split("\n"))
 open("legendas.ass", "w").write(ass)
 
 # ---------- zoom (expressão do zoompan) ----------
@@ -205,14 +217,15 @@ inputs = ["-i", SRC, "-loop", "1", "-t", str(END + 0.5), "-i", "logo_card.png"]
 for n in names:
     inputs += ["-i", f"sfx/{n}.wav"]
 idx = {n: 2 + k for k, n in enumerate(names)}
-vol = {"swish": 0.5, "clique_capcut": 0.4, "teclado": 0.45}
+vol = {"swish_capcut": 0.45, "clique_caneta": 0.45, "teclado": 0.45}
 
 fc = [
     f"[0:v]trim=0:{DUR},setpts=PTS-STARTPTS,"
     f"zoompan=z='{zexpr}':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)*0.22':d=1:s={W}x{H}:fps=30,"
     f"ass=legendas.ass:fontsdir=../fonts3,format=yuv420p,settb=1/30,setpts=N/TB/30[base]",
     f"[1:v]fps=30,scale={W}:{H},format=yuv420p,settb=1/30,setpts=N/TB/30[logo]",
-    f"[base][logo]xfade=transition=fade:duration=0.35:offset={DUR - 0.4}[v]",
+    f"[base]tpad=stop_mode=clone:stop_duration=0.4[basep]",
+    f"[basep][logo]xfade=transition=fade:duration=0.35:offset={DUR + 0.05}[v]",   # logo só depois da última palavra
 ]
 splits = {}
 for n in names:
@@ -220,7 +233,7 @@ for n in names:
     fc.append(f"[{idx[n]}:a]asplit={cnt}" + "".join(f"[{n}{k}]" for k in range(cnt)))
     splits[n] = 0
 mix = ["[voz]"]
-fc.append(f"[0:a]atrim=0:{DUR},asetpts=PTS-STARTPTS,aresample=48000,afade=out:st={DUR - 0.15}:d=0.15,apad=pad_dur={END}[voz]")
+fc.append(f"[0:a]atrim=0:{DUR},asetpts=PTS-STARTPTS,aresample=48000,afade=out:st={DUR - 0.03}:d=0.03,apad=pad_dur={END}[voz]")
 for k, (n, t) in enumerate(sfx):
     lab = f"{n}{splits[n]}"; splits[n] += 1
     ms = int(t * 1000)

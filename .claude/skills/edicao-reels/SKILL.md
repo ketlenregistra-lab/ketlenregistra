@@ -40,6 +40,8 @@ perguntando só o que falta.
 - Acompanha a fala, sincronizada palavra a palavra / trecho a trecho (transcrição com
   timestamps por palavra).
 - Texto corrido na fonte **base** da cliente, letras juntinhas (espaçamento negativo), longe do rosto.
+  Atenção: o libass ignora o `Spacing` do estilo — aplicar o espaçamento com a tag `\fsp` em cada linha.
+- Uma legenda/caixa nunca aparece por cima da outra: cada uma termina quando a próxima começa.
 - Frases de extrema importância ganham **ênfase**: fonte diferente (fonte de destaque
   da cliente), maior e mais chamativa. Marcar poucas por vídeo para não perder o efeito.
 - Antes de renderizar, listar as frases escolhidas para ênfase para a Ketlen aprovar.
@@ -62,6 +64,7 @@ perguntando só o que falta.
 - **Efeito sonoro em todo zoom/movimento marcado**. É o recurso mais usado:
   **swish** nos zooms e no título, **clique** quando entra caixa de ênfase.
   Usar os arquivos de SFX da Ketlen quando houver; senão, `scripts/make_sfx.py` gera substitutos.
+- O encerramento (logo/card final) só entra depois que a pessoa termina a última palavra.
 - Música de fundo: quase nunca. Só quando a Ketlen mandar a música; aí fica bem baixa sob a voz.
 - **Não** aplicar redução de ruído (áudio vem de microfone).
 
