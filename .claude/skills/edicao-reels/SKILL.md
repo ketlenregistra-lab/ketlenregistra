@@ -65,6 +65,8 @@ perguntando só o que falta.
 
 ### Título-gancho
 - Título atrativo logo no início, visível nos 3 primeiros segundos, para prender quem está rolando o feed.
+- **Exceção:** se o vídeo abre com um gancho de som/ação (ex.: barulho do papel), os primeiros
+  segundos ficam livres para ele e o título entra junto com a fala que faz a pergunta.
 - Curto e direto sobre o tema (ex.: fonoaudióloga falando do teste da orelhinha → "O TESTE DO OUVIDO").
 - Sugerir 2–3 opções de título para a Ketlen escolher.
 
@@ -77,9 +79,9 @@ perguntando só o que falta.
   então não perde qualidade até ~2x.
 
 ### Áudio
-- **Efeito sonoro só em momentos estratégicos** (~1 a cada 10 s). Som em tudo fica carregado e
-  sem sentido. Boa regra: swish só nos zooms repentinos de frase forte; clique no título, no
-  início de uma lista e em 2–3 caixas-chave; teclado na palavra digitando. Zoom suave = sem som.
+- **Efeito sonoro só em momentos estratégicos.** Som em tudo fica carregado e sem sentido.
+  Regra da Ketlen: **toda caixinha roxa entra com clique** (chama atenção); swish só nos zooms
+  repentinos de frase forte; teclado na palavra digitando; zoom suave = sem som.
   **Nunca dois sons juntos** no mesmo momento (ex.: zoom + digitação → só o teclado).
   Usar os arquivos de SFX da Ketlen quando houver; senão, `scripts/make_sfx.py` gera substitutos.
 - O encerramento (logo/card final) só entra depois que a pessoa termina a última palavra.

@@ -88,17 +88,15 @@ zooms = [
 
 # efeitos sonoros só em momentos estratégicos (a Ketlen achou carregado com som em tudo)
 sfx = [
-    ("clique_caneta", 0.25),    # título
+    ("clique_caneta", 3.40),    # título entra em "no primeiro dia"
     ("teclado", 7.86 - 0.075),  # TROVÃO digitando (único som nesse momento)
-    ("clique_caneta", 9.46),    # ótimo sinal
     ("swish_capcut", 17.59),    # zoom no "Cérebro"
-    ("clique_caneta", 22.16),   # a lista começa
     ("swish_capcut", 41.13),    # zoom no "bastante natural"
     ("swish_capcut", 58.91),    # zoom no "O que ajuda?"
-    ("clique_caneta", 60.74),   # usar todos os dias
     ("swish_capcut", 85.29),    # zoom no "Nada de gaveta"
-    ("clique_caneta", 91.16),   # manda esse vídeo
-]
+][:]
+# toda caixinha roxa entra com clique (a Ketlen quer chamar atenção nelas)
+sfx += [("clique_caneta", b[0]) for b in boxes] + [("clique_caneta", t0) for t0, _ in stack]
 sfx.sort(key=lambda x: x[1])
 # evita dois efeitos colados
 # digitação manda: tira o swish de zoom que cair junto do teclado
@@ -151,8 +149,10 @@ for gi, g in enumerate(groups):
 # título escalonado como no exemplo da Ketlen: linha fina à esquerda, linha grossa deslocada
 # para a direita e colada logo embaixo (medidas tiradas renderizando o texto)
 TIT1, TIT2 = "Primeiro dia com", "aparelho auditivo"
-ev.append(f"Dialogue: 2,{ts(0)},{ts(3.0)},Tit1,,0,0,0,,{{\\an1\\pos({{T1X}},{{T1Y}})\\fad(120,200)}}{TIT1}")
-ev.append(f"Dialogue: 2,{ts(0.25)},{ts(3.0)},Tit2,,0,0,0,,{{\\an1\\pos({{T2X}},{{T2Y}})\\fad(80,200)}}{TIT2}")
+# título entra junto com "no primeiro dia" (os 3 primeiros segundos são do barulho do papel)
+TIT_T0, TIT_T1 = 3.40, 7.80
+ev.append(f"Dialogue: 2,{ts(TIT_T0)},{ts(TIT_T1)},Tit1,,0,0,0,,{{\\an1\\pos({{T1X}},{{T1Y}})\\fad(120,200)}}{TIT1}")
+ev.append(f"Dialogue: 2,{ts(TIT_T0 + 0.25)},{ts(TIT_T1)},Tit2,,0,0,0,,{{\\an1\\pos({{T2X}},{{T2Y}})\\fad(80,200)}}{TIT2}")
 # legenda corrida durante o título fica embaixo, como no resto
 for g in groups:
     if g[0][1] < 3.0:
