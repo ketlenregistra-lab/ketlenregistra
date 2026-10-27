@@ -18,6 +18,12 @@
   - **Destino Verdadeiro** — serifada; usada na legenda dos vídeos estilo bate-papo/bate-bola e
     nos cards de pergunta. Substituta: Cormorant Garamond / Libre Caslon.
 - **Regra de posição:** textos só no vazio acima da cabeça ou na altura do peito — nunca no rosto.
+- **Dois modelos de legenda corrida** (a Ketlen escolhe por vídeo):
+  1. **Russolo + Poppins** — legenda fina, 1–3 palavras por vez (vídeo BERA).
+  2. **Destino Verdadeiro** — serifada branca, frase inteira em até 2 linhas bem coladas,
+     minúscula e sem pontuação (substituta: Cormorant Garamond SemiBold 74). Ênfases continuam em
+     Poppins/Modern; a linha fina do título passa a ser serifada também (vídeo aparelho auditivo).
+- **Cores de lado da orelha:** vermelho = direito, azul = esquerdo (texto da caixa nessas cores).
 - **Posição da legenda corrida:** centro horizontal, na altura do peito, **longe do rosto**
   (termina em ~69% da altura, y≈1330 em 1080x1920).
 - **Espaçamento:** letras **juntinhas** (espaçamento negativo), nunca espaçadas.
