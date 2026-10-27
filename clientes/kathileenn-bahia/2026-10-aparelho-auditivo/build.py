@@ -2,7 +2,7 @@
 import json, subprocess, sys
 
 W, H = 1080, 1920
-SRC = "bruto.mov"
+SRC = "novo.mov"         # versão que a Ketlen ressincronizou no CapCut
 DUR = 131.44         # fim do clipe (última palavra termina em ~131.1)
 END = 2.2            # card do logo
 OUT = sys.argv[1] if len(sys.argv) > 1 else "previa.mp4"
@@ -22,11 +22,11 @@ PEITO = 1360             # base das ênfases (caixas) na altura do peito; zona s
 CABECA_MIN = 500         # legenda em cima só se o topo da cabeça (com cabelo) estiver abaixo disso
 cabeca = json.load(open("cabeca_previa2.json"))   # (t, topo da cabeça em px) medido na prévia com os mesmos zooms
 TOPO_Y = 400             # textos no vazio acima da cabeça
-AV = 0.10                # o áudio do microfone chega ~3 quadros depois da boca: adianta o áudio
+AV = 0.0                 # sincronia já corrigida pela Ketlen no CapCut (vídeo novo)
 
 # ---------- transcrição corrigida ----------
 words = []
-for s in json.load(open("transcricao.json")):
+for s in json.load(open("transcricao_novo.json")):
     for w in s["words"]:
         words.append([w["w"].strip(), w["s"] - AV, w["e"] - AV])
 fix = {"flamela,": "flanela,", "-auricular": "auricular", "está": "estar"}
@@ -83,9 +83,14 @@ zooms = [
 ]
 
 # ênfases foram marcadas no tempo do áudio original: acompanham o adiantamento
-boxes = [(t0 - AV, t1 - AV, *r) for t0, t1, *r in boxes]
-big = [(t0 - AV, t1 - AV, x) for t0, t1, x in big]
-mega = [(t0 - AV, t1 - AV, x) for t0, t1, x in mega]
+# as ênfases foram marcadas no áudio antigo; no vídeo novo o áudio foi deslocado por trechos.
+# mapa_audio.json = (tempo no áudio antigo, deslocamento até o áudio novo), medido por correlação
+mapa = json.load(open("mapa_audio.json"))
+def novo_t(t):
+    return t + min(mapa, key=lambda m: abs(m[0] + 0.75 - t))[1]
+boxes = [(novo_t(t0), novo_t(t0) + (t1 - t0), *r) for t0, t1, *r in boxes]
+big = [(novo_t(t0), novo_t(t0) + (t1 - t0), x) for t0, t1, x in big]
+mega = [(novo_t(t0), novo_t(t0) + (t1 - t0), x) for t0, t1, x in mega]
 
 sfx = [("clique_caneta", 0.0), ("clique_caneta", 0.25)]   # as duas linhas do título
 for kind, t0, t1, z in zooms:

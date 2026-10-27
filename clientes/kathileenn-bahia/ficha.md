@@ -68,8 +68,9 @@
 - Sem música, salvo pedido.
 
 ## Sincronia
-- O áudio do microfone dela chegou ~100 ms (3 quadros) atrasado no vídeo do aparelho auditivo.
-  Conferir sempre e adiantar o áudio se precisar.
+- O áudio do microfone dela chegou atrasado no vídeo do aparelho auditivo. A Ketlen preferiu
+  corrigir no CapCut e mandar o vídeo de novo: quando ela fizer isso, só trocar a fonte,
+  retranscrever o áudio novo e manter legendas/ênfases (ajustando os tempos ao áudio novo).
 
 ## Entrega
 - **Material chega em:** pasta do Google Drive da cliente.
