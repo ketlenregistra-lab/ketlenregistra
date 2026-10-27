@@ -61,7 +61,7 @@ boxes = [
     (108.32, 109.64, "agende sua avaliação", "peito", ROXO),
 ]
 big = [(30.54, 32.20, "Debaixo d'água")]          # Poppins branca grande
-mega = [(99.74, 101.40, "JUNTOS")]                # roxo gigante, digitando
+mega = [(99.74, 101.40, "JUNTOS")]                # roxo gigante, digitando, no vazio de cima
 imagem_dela = (-1, -1)
 
 zooms = [
@@ -146,8 +146,8 @@ for gi, g in enumerate(groups):
     if not txt:
         continue
     embaixo = s < 3.0 or cabeca_alta(s, e)      # título ocupa o topo nos 3 primeiros segundos
-    if embaixo and in_box(s):
-        continue                                # embaixo, a ênfase do peito ocupa o lugar
+    if in_box(s):
+        continue                                # palavra com ênfase aparece só uma vez (sem legenda repetida)
     y = LEG_BAIXO if embaixo else LEG_TOPO
     linhas = quebra(txt)
     for k, ln in enumerate(linhas):
@@ -176,7 +176,7 @@ for t0, t1, txt in mega:
     for k in range(1, len(txt) + 1):
         a = t0 + (k - 1) * LETRA
         b = t0 + k * LETRA if k < len(txt) else t1
-        ev.append(f"Dialogue: 1,{ts(a)},{ts(b)},Mega,,0,0,0,,{{\\an2\\pos(540,{PEITO + 40})}}{txt[:k]}{{\\alpha&HFF&}}{txt[k:]}")
+        ev.append(f"Dialogue: 1,{ts(a)},{ts(b)},Mega,,0,0,0,,{{\\an5\\pos(540,{TOPO_Y + 20})}}{txt[:k]}{{\\alpha&HFF&}}{txt[k:]}")
 
 TIT1_FS, TIT2_FS = 120, 140
 def styles():

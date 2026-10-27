@@ -47,6 +47,9 @@ perguntando só o que falta.
 - Texto corrido na fonte **base** da cliente, letras juntinhas (espaçamento negativo), longe do rosto.
   Atenção: o libass ignora o `Spacing` do estilo — aplicar o espaçamento com a tag `\fsp` em cada linha.
 - Uma legenda/caixa nunca aparece por cima da outra: cada uma termina quando a próxima começa.
+- **Palavra com ênfase aparece uma vez só:** enquanto a caixa roxa / palavra grande / palavra
+  digitando estiver na tela, a legenda corrida daquele trecho some (nem em cima, nem embaixo).
+  Duas versões da mesma palavra confundem quem assiste.
 - Frases de extrema importância ganham **ênfase**: fonte diferente (fonte de destaque
   da cliente), maior e mais chamativa. Marcar poucas por vídeo para não perder o efeito.
 - Antes de renderizar, listar as frases escolhidas para ênfase para a Ketlen aprovar.

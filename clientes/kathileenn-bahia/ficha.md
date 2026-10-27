@@ -37,7 +37,8 @@
   da mão (ex.: PEATE), na altura da ponta do dedo e **ao lado do rosto, nunca sobre ele**. Termos-chave do tema (ex.: teste da orelhinha) vão acima da cabeça.
 - **Listas** ("Não tem agulhas / Não dói / Não incomoda"): caixas roxas empilhadas acima da cabeça.
 - **Maiúscula na primeira letra** em todo texto de destaque (fica mais elegante).
-- **Palavra gigante roxa** (ex.: DICA): entra com efeito de digitação, letra por letra, com
+- **Sem legenda repetida:** quando a ênfase está na tela, a legenda daquele trecho não aparece.
+- **Palavra gigante roxa** (ex.: DICA, JUNTOS): fica no vazio de cima; entra com efeito de digitação, letra por letra, com
   **som de teclado** (nunca swish nesse momento, mesmo que tenha zoom junto).
 - **Tempo:** caixa some no instante em que a próxima legenda entra (nunca uma por cima da outra);
   o card do logo só entra **depois** da última palavra dela.
