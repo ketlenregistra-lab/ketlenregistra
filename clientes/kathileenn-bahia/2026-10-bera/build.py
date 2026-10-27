@@ -9,6 +9,15 @@ OUT = sys.argv[1] if len(sys.argv) > 1 else "previa.mp4"
 CRF = sys.argv[2] if len(sys.argv) > 2 else "20"
 
 ROXO = "&H00BF227F"  # #7F22BF em BGR
+CAIXA = "&H50F2EEF0"  # fundo claro semitransparente das caixas
+LEG_MV = 590          # legenda termina em y=1330; zona segura do Reels: x 88-992, y 261-1461
+TIT_Y = 560           # base do título (fica abaixo da faixa superior de 14%)
+
+from PIL import ImageFont
+def text_width(font, fs, txt, spacing):
+    # libass: tamanho = altura da linha (ascent+descent); Poppins tem 1.4 em
+    f = ImageFont.truetype(font, round(fs / 1.4))
+    return f.getlength(txt) + spacing * (len(txt) - 1)
 BRANCO = "&H00FFFFFF"
 
 # ---------- transcrição corrigida ----------
@@ -72,15 +81,15 @@ zooms = [
     ("suave", 89.2, 92.9, 1.12),
 ]
 
-sfx = [("whoosh", 0.0), ("pop", 0.35)]
+sfx = [("swish", 0.25)]
 for kind, t0, t1, z in zooms:
-    sfx.append(("whoosh" if kind == "suave" else "impacto", max(t0 - (0.15 if kind == "suave" else 0.02), 0)))
+    sfx.append(("swish", max(t0 - (0.12 if kind == "suave" else 0.05), 0)))
 for t0, _, _ in boxes:
-    sfx.append(("pop", t0))
+    sfx.append(("clique", t0))
 for t0, _ in stack:
     sfx.append(("pop", t0))
 for t0, _, _ in mega:
-    sfx.append(("whoosh", t0 - 0.2))
+    sfx.append(("swish", t0 - 0.1))
 sfx.sort(key=lambda x: x[1])
 # evita dois efeitos colados
 dedup = []
@@ -122,8 +131,9 @@ for gi, g in enumerate(groups):
     ev.append(f"Dialogue: 0,{ts(s)},{ts(e)},Leg,,0,0,0,,{{\\fad(60,60)}}{txt}")
 
 # título: linha fina + linha grande
-ev.append(f"Dialogue: 2,{ts(0)},{ts(3.0)},Tit1,,0,0,0,,{{\\pos(540,330)\\fad(150,200)}}Você conhece o")
-ev.append(f"Dialogue: 2,{ts(0.3)},{ts(3.0)},Tit2,,0,0,0,,{{\\pos(540,470)\\fad(80,200)\\fscx80\\fscy80\\t(0,180,\\fscx100\\fscy100)}}exame BERA?")
+TIT_X = 540 + 40 - text_width("../fonts3/KBPoppinsBold.ttf", 150, "exame BERA?", -6) / 2
+ev.append(f"Dialogue: 2,{ts(0)},{ts(3.0)},Tit1,,0,0,0,,{{\\an1\\pos({TIT_X + 8:.0f},{TIT_Y - 112})\\fad(150,200)}}Você conhece o")
+ev.append(f"Dialogue: 2,{ts(0.25)},{ts(3.0)},Tit2,,0,0,0,,{{\\an1\\pos({TIT_X:.0f},{TIT_Y})\\fad(80,200)}}exame BERA?")
 # legenda corrida durante o título fica embaixo, como no resto
 for g in groups:
     if g[0][1] < 3.0:
@@ -137,9 +147,9 @@ for t0, t1, txt in boxes:
 for t0, t1, txt in big:
     ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Big,,0,0,0,,{{\\pos(540,430)\\fad(0,80){pop_in}}}{txt}")
 for n, (t0, txt) in enumerate(stack):
-    ev.append(f"Dialogue: 1,{ts(t0)},{ts(stack_end)},Big,,0,0,0,,{{\\pos(540,{290 + n * 145})\\fad(0,100){pop_in}}}{txt}")
+    ev.append(f"Dialogue: 1,{ts(t0)},{ts(stack_end)},Big,,0,0,0,,{{\\pos(540,{350 + n * 140})\\fad(0,100){pop_in}}}{txt}")
 for t0, t1, txt in mega:
-    ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Mega,,0,0,0,,{{\\pos(540,1430)\\fad(0,120)\\fscx60\\fscy60\\t(0,160,\\fscx100\\fscy100)}}{txt}")
+    ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Mega,,0,0,0,,{{\\pos(540,430)\\fad(0,120)\\fscx60\\fscy60\\t(0,160,\\fscx100\\fscy100)}}{txt}")
 
 ass = f"""[Script Info]
 ScriptType: v4.00+
@@ -150,11 +160,11 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Leg,KB Jost Light,92,&H10FFFFFF,&H000000FF,&H00000000,&H90000000,0,0,0,0,100,100,0.5,0,1,0,2,2,60,60,700,1
-Style: Tit1,KB Jost Light,84,{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,0,0,1,0,2,5,40,40,0,1
-Style: Tit2,KB Poppins Bold,150,{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,-2,0,1,0,3,5,40,40,0,1
-Style: Big,KB Poppins Bold,128,{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,-2,0,1,0,3,5,40,40,0,1
-Style: Box,KB Poppins Bold,80,{BRANCO},&H000000FF,{ROXO},{ROXO},0,0,0,0,100,100,-1,0,3,20,0,2,60,60,710,1
+Style: Leg,KB Jost Light,90,&H10FFFFFF,&H000000FF,&H00000000,&H90000000,0,0,0,0,100,100,-3,0,1,0,2,2,90,140,{LEG_MV},1
+Style: Tit1,KB Jost Light,88,{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,-3,0,1,0,2,5,40,40,0,1
+Style: Tit2,KB Poppins Bold,150,{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,-6,0,1,0,3,5,40,40,0,1
+Style: Big,KB Poppins Bold,128,{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,-5,0,1,0,3,5,40,40,0,1
+Style: Box,KB Poppins Bold,88,{ROXO},&H000000FF,{CAIXA},{CAIXA},0,0,0,0,100,100,-4,0,3,14,0,2,90,140,{LEG_MV},1
 Style: Mega,KB Poppins Black,320,{ROXO},&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,-4,0,1,0,0,5,20,20,0,1
 
 [Events]
@@ -181,7 +191,7 @@ inputs = ["-i", SRC, "-loop", "1", "-t", str(END + 0.5), "-i", "logo_card.png"]
 for n in names:
     inputs += ["-i", f"sfx/{n}.wav"]
 idx = {n: 2 + k for k, n in enumerate(names)}
-vol = {"whoosh": 0.45, "pop": 0.5, "impacto": 0.55}
+vol = {"swish": 0.5, "pop": 0.45, "clique": 0.6}
 
 fc = [
     f"[0:v]trim=0:{DUR},setpts=PTS-STARTPTS,"

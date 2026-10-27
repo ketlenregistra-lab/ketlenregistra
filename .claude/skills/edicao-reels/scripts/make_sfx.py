@@ -26,3 +26,19 @@ f=110*np.exp(-t*6)+45
 low=np.sin(2*np.pi*np.cumsum(f)/SR)*np.exp(-t*7)
 hit=rng.standard_normal(n)*np.exp(-t*60)*0.5
 save("impacto",low+hit)
+# swish: ar rápido e brilhante (zoom)
+d=0.32; n=int(SR*d); t=np.arange(n)/SR
+noise=rng.standard_normal(n)
+cut=1500+9000*np.sin(np.pi*(t/d)**0.8)**2
+lp=np.zeros(n); a=0
+for i in range(n):
+    k=1-np.exp(-2*np.pi*cut[i]/SR); a+=k*(noise[i]-a); lp[i]=a
+hp=np.diff(lp,prepend=0)*6+lp*0.3
+env=np.clip(t/0.06,0,1)*np.exp(-np.clip(t-0.06,0,None)*14)
+save("swish",hp*env)
+# clique: dois toques curtos, tipo botão/mouse
+d=0.09; n=int(SR*d); t=np.arange(n)/SR
+def tick(t0,f,amp):
+    tt=np.clip(t-t0,0,None); on=(t>=t0)
+    return on*amp*(np.sin(2*np.pi*f*tt)*np.exp(-tt*900)+rng.standard_normal(n)*np.exp(-tt*1500)*0.6)
+save("clique",tick(0,3200,1.0)+tick(0.035,2500,0.55))

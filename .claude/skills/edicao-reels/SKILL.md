@@ -22,10 +22,15 @@ perguntando só o que falta.
 - Corte seco (jump cut), sem transição.
 - Se a Ketlen avisar que o vídeo já veio cortado, pular esta etapa.
 
+### Zona segura do Instagram (obrigatório)
+- Todo texto/elemento fica **dentro da caixa segura**: em 1080x1920, x de 88 a 992 e y de 261 a 1461
+  (~8% de cada lado, ~14% em cima, ~24% embaixo). Fora disso o Reels corta e perde credibilidade.
+- Conferir quadros com a caixa desenhada (`drawbox=x=88:y=261:w=904:h=1200`) antes de entregar.
+
 ### Legenda
 - Acompanha a fala, sincronizada palavra a palavra / trecho a trecho (transcrição com
   timestamps por palavra).
-- Texto corrido na fonte **base** da cliente.
+- Texto corrido na fonte **base** da cliente, letras juntinhas (espaçamento negativo), longe do rosto.
 - Frases de extrema importância ganham **ênfase**: fonte diferente (fonte de destaque
   da cliente), maior e mais chamativa. Marcar poucas por vídeo para não perder o efeito.
 - Antes de renderizar, listar as frases escolhidas para ênfase para a Ketlen aprovar.
@@ -45,8 +50,9 @@ perguntando só o que falta.
   então não perde qualidade até ~2x.
 
 ### Áudio
-- **Efeito sonoro em todo zoom/movimento marcado** (whoosh, pop, impacto…). É o recurso
-  mais usado — usar os arquivos de SFX da pasta da cliente/Ketlen.
+- **Efeito sonoro em todo zoom/movimento marcado**. É o recurso mais usado:
+  **swish** nos zooms e no título, **clique** quando entra caixa de ênfase.
+  Usar os arquivos de SFX da Ketlen quando houver; senão, `scripts/make_sfx.py` gera substitutos.
 - Música de fundo: quase nunca. Só quando a Ketlen mandar a música; aí fica bem baixa sob a voz.
 - **Não** aplicar redução de ruído (áudio vem de microfone).
 

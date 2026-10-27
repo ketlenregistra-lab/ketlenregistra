@@ -17,9 +17,13 @@
     Substituta: Poppins Black.
   - **Destino Verdadeiro** — serifada; usada na legenda dos vídeos estilo bate-papo/bate-bola e
     nos cards de pergunta. Substituta: Cormorant Garamond / Libre Caslon.
-- **Posição da legenda corrida:** centro horizontal, altura do peito (~60–65% da tela).
-- **Título:** duas linhas — palavra pequena fina em cima (Russolo/Jost) + palavra grande em
-  Poppins Bold embaixo, branco, no terço superior (ex.: `Perdeu` / `audição`,
+- **Posição da legenda corrida:** centro horizontal, na altura do peito, **longe do rosto**
+  (termina em ~69% da altura, y≈1330 em 1080x1920).
+- **Espaçamento:** letras **juntinhas** (espaçamento negativo), nunca espaçadas.
+- **Caixa de ênfase (padrão aprovado):** texto **roxo** `#7F22BF` em Poppins Bold sobre
+  **fundo claro semitransparente** (ex.: `90 decibéis`). Não usar texto branco em caixa roxa sólida.
+- **Título:** duas linhas **coladas e alinhadas à esquerda** — palavra pequena fina em cima
+  (Russolo/Jost) + palavra grande em Poppins Bold embaixo, branco, no terço superior (ex.: `Perdeu` / `audição`,
   `Baseado em` / `fatos reais`, `Efeito inibidor de` / `fixação ocular`). Às vezes entra com
   efeito de digitação. Aparece logo no início (≈3 s).
 - **Recursos extras usados:**
@@ -35,7 +39,9 @@
   A Ketlen avisa quando o vídeo vier sem tratamento.
 
 ## Áudio
-- Efeitos sonoros em todo zoom/entrada de texto de ênfase. Sem música, salvo pedido.
+- **Clique** quando entra uma caixa de ênfase.
+- **Swish** em todo zoom no rosto e na entrada do título.
+- Sem música, salvo pedido.
 
 ## Entrega
 - **Material chega em:** pasta do Google Drive da cliente.
