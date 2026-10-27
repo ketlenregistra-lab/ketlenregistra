@@ -1,0 +1,212 @@
+"""Monta a prévia do Reels (BERA) no padrão Kathileenn Bahia."""
+import json, re, subprocess, sys
+
+W, H = 1080, 1920
+SRC = "../drive/para_editar.mov"
+DUR = 92.95          # fim da fala
+END = 2.2            # card do logo
+OUT = sys.argv[1] if len(sys.argv) > 1 else "previa.mp4"
+CRF = sys.argv[2] if len(sys.argv) > 2 else "20"
+
+ROXO = "&H00BF227F"  # #7F22BF em BGR
+BRANCO = "&H00FFFFFF"
+
+# ---------- transcrição corrigida ----------
+words = []
+for s in json.load(open("transcricao.json")):
+    for w in s["words"]:
+        words.append([w["w"].strip(), w["s"], w["e"]])
+fixed = []
+i = 0
+while i < len(words):
+    t, s, e = words[i]
+    if t == "Música":
+        i += 1; continue
+    if t == "P" and words[i + 1][0].startswith(".A"):
+        fixed.append(["PEATE,", s, words[i + 2][2]]); i += 3; continue
+    t = {"Bera,": "BERA,", "Revocados": "Evocados"}.get(t, t)
+    fixed.append([t, s, e]); i += 1
+words = fixed
+
+def clean(t):
+    keep = t.strip(".,?!")
+    return keep if keep.isupper() and len(keep) > 1 else keep.lower()
+
+# ---------- ênfases ----------
+# caixas roxas: substituem a legenda corrida naquele trecho
+boxes = [
+    (13.04, 14.16, "PEATE"),
+    (28.54, 29.26, "testa"),
+    (29.58, 31.02, "atrás dos ouvidos"),
+    (33.64, 35.28, "fone pequenininho"),
+    (49.72, 51.64, "cansado e com fome"),
+    (69.70, 70.98, "teste da orelhinha"),
+    (74.42, 75.90, "internações na UTI"),
+    (76.02, 77.70, "infecções ou vírus"),
+    (89.34, 90.56, "me chama no direct"),
+]
+# palavra grande branca (Poppins) acima da cabeça
+big = [
+    (18.86, 20.0, "eletrodos"),
+    (24.96, 25.92, "não dói"),
+    (86.74, 87.62, "até em adultos"),
+]
+# lista que entra item a item
+stack = [(41.50, "não tem agulhas"), (42.78, "não dói"), (43.76, "não incomoda")]
+stack_end = 45.0
+# palavra gigante roxa (Modern -> Poppins Black)
+mega = [(45.00, 46.50, "DICA")]
+
+# zoom: (tipo, início, fim, intensidade). suave = keyframe in/out; seco = corte para frente
+zooms = [
+    ("suave", 12.9, 17.6, 1.18),
+    ("seco", 18.86, 20.0, 1.15),
+    ("seco", 24.96, 25.92, 1.30),
+    ("suave", 33.5, 39.8, 1.15),
+    ("seco", 41.50, 45.0, 1.22),
+    ("suave", 45.0, 54.6, 1.12),
+    ("suave", 57.6, 62.5, 1.14),
+    ("seco", 69.70, 72.7, 1.25),
+    ("suave", 73.3, 83.4, 1.14),
+    ("seco", 86.74, 87.62, 1.22),
+    ("suave", 89.2, 92.9, 1.12),
+]
+
+sfx = [("whoosh", 0.0), ("pop", 0.35)]
+for kind, t0, t1, z in zooms:
+    sfx.append(("whoosh" if kind == "suave" else "impacto", max(t0 - (0.15 if kind == "suave" else 0.02), 0)))
+for t0, _, _ in boxes:
+    sfx.append(("pop", t0))
+for t0, _ in stack:
+    sfx.append(("pop", t0))
+for t0, _, _ in mega:
+    sfx.append(("whoosh", t0 - 0.2))
+sfx.sort(key=lambda x: x[1])
+# evita dois efeitos colados
+dedup = []
+for name, t in sfx:
+    if dedup and t - dedup[-1][1] < 0.25:
+        continue
+    dedup.append((name, t))
+sfx = dedup
+
+# ---------- legenda corrida ----------
+breaks = sorted({b[0] for b in boxes} | {b[1] for b in boxes})
+def in_box(t):
+    return any(b0 - 0.01 <= t < b1 - 0.01 for b0, b1, _ in boxes)
+
+groups, cur = [], []
+for k, (t, s, e) in enumerate(words):
+    if cur and (len(cur) >= 3 or sum(len(x[0]) for x in cur) + len(t) > 16
+                or any(cur[0][1] < b <= s + 0.001 for b in breaks)
+                or in_box(s) != in_box(cur[0][1])):
+        groups.append(cur); cur = []
+    cur.append([t, s, e])
+    if t[-1] in ".,?!":
+        groups.append(cur); cur = []
+if cur:
+    groups.append(cur)
+
+def ts(t):
+    t = max(t, 0)
+    return f"{int(t // 3600)}:{int(t % 3600 // 60):02d}:{t % 60:05.2f}"
+
+ev = []
+for gi, g in enumerate(groups):
+    s = g[0][1]
+    nxt = groups[gi + 1][0][1] if gi + 1 < len(groups) else DUR
+    e = min(nxt, g[-1][2] + 0.6)
+    if in_box(s) or s < 3.0:   # título ocupa os 3 primeiros segundos
+        continue
+    txt = " ".join(clean(x[0]) for x in g)
+    ev.append(f"Dialogue: 0,{ts(s)},{ts(e)},Leg,,0,0,0,,{{\\fad(60,60)}}{txt}")
+
+# título: linha fina + linha grande
+ev.append(f"Dialogue: 2,{ts(0)},{ts(3.0)},Tit1,,0,0,0,,{{\\pos(540,330)\\fad(150,200)}}Você conhece o")
+ev.append(f"Dialogue: 2,{ts(0.3)},{ts(3.0)},Tit2,,0,0,0,,{{\\pos(540,470)\\fad(80,200)\\fscx80\\fscy80\\t(0,180,\\fscx100\\fscy100)}}exame BERA?")
+# legenda corrida durante o título fica embaixo, como no resto
+for g in groups:
+    if g[0][1] < 3.0:
+        nxt = next((h[0][1] for h in groups if h[0][1] > g[0][1]), DUR)
+        ev.append(f"Dialogue: 0,{ts(g[0][1])},{ts(min(nxt, g[-1][2] + 0.6))},Leg,,0,0,0,,{{\\fad(60,60)}}"
+                  + " ".join(clean(x[0]) for x in g))
+
+pop_in = "\\fscx70\\fscy70\\t(0,140,\\fscx100\\fscy100)"
+for t0, t1, txt in boxes:
+    ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1 + 0.25)},Box,,0,0,0,,{{\\fad(0,80){pop_in}}}{txt}")
+for t0, t1, txt in big:
+    ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Big,,0,0,0,,{{\\pos(540,430)\\fad(0,80){pop_in}}}{txt}")
+for n, (t0, txt) in enumerate(stack):
+    ev.append(f"Dialogue: 1,{ts(t0)},{ts(stack_end)},Big,,0,0,0,,{{\\pos(540,{290 + n * 145})\\fad(0,100){pop_in}}}{txt}")
+for t0, t1, txt in mega:
+    ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Mega,,0,0,0,,{{\\pos(540,1430)\\fad(0,120)\\fscx60\\fscy60\\t(0,160,\\fscx100\\fscy100)}}{txt}")
+
+ass = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: {W}
+PlayResY: {H}
+WrapStyle: 0
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Leg,KB Jost Light,92,&H10FFFFFF,&H000000FF,&H00000000,&H90000000,0,0,0,0,100,100,0.5,0,1,0,2,2,60,60,700,1
+Style: Tit1,KB Jost Light,84,{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,0,0,1,0,2,5,40,40,0,1
+Style: Tit2,KB Poppins Bold,150,{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,-2,0,1,0,3,5,40,40,0,1
+Style: Big,KB Poppins Bold,128,{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,-2,0,1,0,3,5,40,40,0,1
+Style: Box,KB Poppins Bold,80,{BRANCO},&H000000FF,{ROXO},{ROXO},0,0,0,0,100,100,-1,0,3,20,0,2,60,60,710,1
+Style: Mega,KB Poppins Black,320,{ROXO},&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,-4,0,1,0,0,5,20,20,0,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+""" + "\n".join(ev) + "\n"
+open("legendas.ass", "w").write(ass)
+
+# ---------- zoom (expressão do zoompan) ----------
+R = 0.35
+terms = []
+for kind, t0, t1, z in zooms:
+    a = z - 1
+    if kind == "seco":
+        terms.append(f"{a}*between(it,{t0},{t1})")
+    else:
+        u = f"clip((it-{t0})/{R},0,1)"
+        v = f"clip(({t1}-it)/{R},0,1)"
+        terms.append(f"{a}*min({u}*{u}*(3-2*{u}),{v}*{v}*(3-2*{v}))")
+zexpr = "1+" + "+".join(terms)
+
+# ---------- ffmpeg ----------
+names = sorted({n for n, _ in sfx})
+inputs = ["-i", SRC, "-loop", "1", "-t", str(END + 0.5), "-i", "logo_card.png"]
+for n in names:
+    inputs += ["-i", f"sfx/{n}.wav"]
+idx = {n: 2 + k for k, n in enumerate(names)}
+vol = {"whoosh": 0.45, "pop": 0.5, "impacto": 0.55}
+
+fc = [
+    f"[0:v]trim=0:{DUR},setpts=PTS-STARTPTS,"
+    f"zoompan=z='{zexpr}':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)*0.32':d=1:s={W}x{H}:fps=30,"
+    f"ass=legendas.ass:fontsdir=../fonts3,format=yuv420p,settb=1/30,setpts=N/TB/30[base]",
+    f"[1:v]fps=30,scale={W}:{H},format=yuv420p,settb=1/30,setpts=N/TB/30[logo]",
+    f"[base][logo]xfade=transition=fade:duration=0.35:offset={DUR - 0.4}[v]",
+]
+splits = {}
+for n in names:
+    cnt = sum(1 for m, _ in sfx if m == n)
+    fc.append(f"[{idx[n]}:a]asplit={cnt}" + "".join(f"[{n}{k}]" for k in range(cnt)))
+    splits[n] = 0
+mix = ["[voz]"]
+fc.append(f"[0:a]atrim=0:{DUR},asetpts=PTS-STARTPTS,aresample=48000,afade=out:st={DUR - 0.15}:d=0.15,apad=pad_dur={END}[voz]")
+for k, (n, t) in enumerate(sfx):
+    lab = f"{n}{splits[n]}"; splits[n] += 1
+    ms = int(t * 1000)
+    fc.append(f"[{lab}]adelay={ms}|{ms},volume={vol[n]}[s{k}]")
+    mix.append(f"[s{k}]")
+fc.append("".join(mix) + f"amix=inputs={len(mix)}:normalize=0:duration=first[a]")
+
+cmd = ["ffmpeg", "-y", "-v", "error", *inputs, "-filter_complex", ";".join(fc),
+       "-map", "[v]", "-map", "[a]", "-t", str(DUR + END),
+       "-c:v", "libx264", "-preset", "medium", "-crf", CRF, "-profile:v", "high", "-pix_fmt", "yuv420p",
+       "-r", "30", "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-movflags", "+faststart", OUT]
+print(f"{len(groups)} grupos de legenda, {len(sfx)} efeitos sonoros")
+subprocess.run(cmd, check=True)
