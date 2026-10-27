@@ -33,6 +33,11 @@ perguntando só o que falta.
 - Título, palavras grandes e colagens: em cima. Legenda corrida e caixas de ênfase: no peito.
 - Se a pessoa subir no quadro (se inclinar, zoom forte) e o cabelo/rosto encostar no texto de
   cima, levar aquela ênfase para a altura do peito no lugar da legenda.
+- **Variação (cena com mesa carregada):** legenda corrida branca vai **acima da cabeça** e só as
+  ênfases (caixas, palavras diferentes) ficam no peito. Quando a cabeça sobe (zoom/close), a
+  legenda desce automaticamente para abaixo do peito: `scripts/cabeca.py` mede o topo da cabeça
+  quadro a quadro numa prévia (detector de rosto MediaPipe; precisa de `libegl1` e do modelo
+  `blaze_face_short_range.tflite`) e o build escolhe a posição por frase.
 - Zoom ancorado no alto do quadro (`y=(ih-ih/zoom)*0.22`): assim a cabeça desce ao aproximar
   e o espaço de cima continua livre para os textos.
 

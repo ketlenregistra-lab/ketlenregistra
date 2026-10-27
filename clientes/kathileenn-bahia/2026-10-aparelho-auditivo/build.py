@@ -16,8 +16,11 @@ ROXO = "&H00BF227F"      # #7F22BF
 VERMELHO = "&H002A2AD6"  # #D62A2A
 AZUL = "&H00C85A1E"      # #1E5AC8
 CAIXA = "&H50F2EEF0"     # fundo claro semitransparente das caixas
-LEG_Y = 1360             # base da legenda (altura do peito); zona segura: x 88-992, y 261-1461
-LEG_Y_ALTA = 1110        # quando a imagem da orelha ocupa a parte de baixo
+LEG_TOPO = 480           # legenda branca: base no vazio acima da cabeça (mesa já é carregada)
+LEG_BAIXO = 1420         # quando a cabeça sobe (zoom/close): desce para abaixo do peito
+PEITO = 1360             # base das ênfases (caixas) na altura do peito; zona segura: x 88-992, y 261-1461
+CABECA_MIN = 500         # legenda em cima só se o topo da cabeça (com cabelo) estiver abaixo disso
+cabeca = json.load(open("cabeca_previa2.json"))   # (t, topo da cabeça em px) medido na prévia com os mesmos zooms
 TOPO_Y = 400             # textos no vazio acima da cabeça
 
 # ---------- transcrição corrigida ----------
@@ -40,12 +43,12 @@ def clean(t):
 # ---------- ênfases ----------
 # caixa: (início, fim, texto, onde, cor). onde = "peito" (no lugar da legenda), "topo" ou (x, y)
 boxes = [
-    (12.20, 13.20, "Qual orelha?", "topo", ROXO),
+    (12.20, 13.20, "Qual orelha?", "peito", ROXO),
     (16.52, 17.50, "Vermelha", "peito", VERMELHO),
     (17.86, 18.80, "Azul", "peito", AZUL),
-    (30.54, 32.30, "Vermelho = lado direito", "topo", VERMELHO),
-    (32.96, 34.74, "Azul = lado esquerdo", "topo", AZUL),
-    (39.12, 40.50, "Retroauricular", "topo", ROXO),
+    (30.54, 32.30, "Vermelho = lado direito", "peito", VERMELHO),
+    (32.96, 34.74, "Azul = lado esquerdo", "peito", AZUL),
+    (39.12, 40.50, "Retroauricular", "peito", ROXO),
     (49.72, 51.46, "parte de cima da orelha", "peito", ROXO),
     (55.12, 56.90, "até o fundo", "peito", ROXO),
     (58.28, 58.98, "Fica discreto", "peito", ROXO),
@@ -55,7 +58,7 @@ boxes = [
     (85.14, 86.90, "abrir o compartimento", "peito", ROXO),
     (93.52, 94.52, "recarregável", "peito", ROXO),
     (95.20, 97.20, "no carregador", "peito", ROXO),
-    (101.96, 103.50, "Longe do banheiro", "topo", ROXO),
+    (101.96, 103.50, "Longe do banheiro", "peito", ROXO),
     (105.62, 106.90, "evitar a umidade", "peito", ROXO),
     (111.42, 112.70, "animais de estimação", "peito", ROXO),
     (115.08, 116.90, "roendo o seu investimento", "peito", ROXO),
@@ -98,10 +101,12 @@ for name, t in sfx:
 sfx = dedup
 
 # ---------- legenda corrida (frases, até 2 linhas, como no vídeo de referência) ----------
-replace = [b for b in boxes if b[3] == "peito"]
+replace = [b for b in boxes if b[3] == "peito"] + [(t0, t1) for t0, t1, _ in big + mega]
 breaks = sorted({b[0] for b in replace} | {b[1] for b in replace} | {3.0})
 def in_box(t):
     return any(b[0] - 0.01 <= t < b[1] - 0.01 for b in replace)
+def cabeca_alta(s, e):
+    return any(top is not None and top < CABECA_MIN for t, top in cabeca if s - 0.2 <= t <= e)
 
 LINHA = 32   # caracteres por linha
 groups, cur = [], []
@@ -133,12 +138,13 @@ for gi, g in enumerate(groups):
     s = g[0][1]
     nxt = groups[gi + 1][0][1] if gi + 1 < len(groups) else DUR
     e = min(nxt, g[-1][2] + 0.5)
-    if in_box(s):
-        continue
     txt = " ".join(clean(x[0]) for x in g).strip()
     if not txt:
         continue
-    y = LEG_Y_ALTA if imagem_dela[0] - 0.3 <= s <= imagem_dela[1] else LEG_Y
+    embaixo = s < 3.0 or cabeca_alta(s, e)      # título ocupa o topo nos 3 primeiros segundos
+    if embaixo and in_box(s):
+        continue                                # embaixo, a ênfase do peito ocupa o lugar
+    y = LEG_BAIXO if embaixo else LEG_TOPO
     linhas = quebra(txt)
     for k, ln in enumerate(linhas):
         ly = y - (len(linhas) - 1 - k) * 50   # linhas bem coladas, como na referência
@@ -153,20 +159,20 @@ pop_in = "\\fscx70\\fscy70\\t(0,140,\\fscx100\\fscy100)"
 BORDA = "\\xbord22\\ybord3"
 for t0, t1, txt, onde, cor in boxes:
     if onde == "peito":
-        pos = f"\\an2\\pos(540,{LEG_Y})"
+        pos = f"\\an2\\pos(540,{PEITO})"
     elif onde == "topo":
         pos = f"\\an5\\pos(540,{TOPO_Y})"
     else:
         pos = f"\\an5\\pos({onde[0]},{onde[1]})"
     ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Box,,0,0,0,,{{{pos}\\1c{cor}{BORDA}\\fad(0,80){pop_in}}}{txt}")
 for t0, t1, txt in big:
-    ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Big,,0,0,0,,{{\\pos(540,{TOPO_Y - 20})\\fad(0,80){pop_in}}}{txt}")
+    ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Big,,0,0,0,,{{\\an2\\pos(540,{PEITO})\\fad(0,80){pop_in}}}{txt}")
 LETRA = 0.11
 for t0, t1, txt in mega:
     for k in range(1, len(txt) + 1):
         a = t0 + (k - 1) * LETRA
         b = t0 + k * LETRA if k < len(txt) else t1
-        ev.append(f"Dialogue: 1,{ts(a)},{ts(b)},Mega,,0,0,0,,{{\\pos(540,{TOPO_Y})}}{txt[:k]}{{\\alpha&HFF&}}{txt[k:]}")
+        ev.append(f"Dialogue: 1,{ts(a)},{ts(b)},Mega,,0,0,0,,{{\\an2\\pos(540,{PEITO + 40})}}{txt[:k]}{{\\alpha&HFF&}}{txt[k:]}")
 
 TIT1_FS, TIT2_FS = 120, 140
 def styles():
