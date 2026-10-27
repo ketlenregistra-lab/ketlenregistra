@@ -457,6 +457,8 @@ def legendas(p, T, fontes):
                       + (f'{{\\alpha&HFF&}}{resto}' if resto else ''))
     for a, b, txt in dest(p):   # uma palavra por linha, por cima do corpo, digitando
         pal, linhas = txt.replace('\\N', ' ').split(), []
+        if '\\N' in txt:                      # quebra escolhida no plano (frase longa: menos linhas, cabe na zona segura)
+            pal, linhas = [], [x.strip() for x in txt.split('\\N')]
         for x in pal:                          # junta palavrinhas curtas ("pra não", "um")
             if linhas and len(linhas[-1]) + 1 + len(x) <= 7:
                 linhas[-1] += ' ' + x
