@@ -141,11 +141,11 @@ for gi, g in enumerate(groups):
     y = LEG_Y_ALTA if imagem_dela[0] - 0.3 <= s <= imagem_dela[1] else LEG_Y
     linhas = quebra(txt)
     for k, ln in enumerate(linhas):
-        ly = y - (len(linhas) - 1 - k) * 56   # linhas bem coladas, como na referência
+        ly = y - (len(linhas) - 1 - k) * 50   # linhas bem coladas, como na referência
         ev.append(f"Dialogue: 0,{ts(s)},{ts(e)},Leg,,0,0,0,,{{\\an2\\pos(540,{ly})\\fad(60,60)}}{ln}")
 
 # título escalonado: linha fina (serifada) à esquerda + linha grossa (Poppins) deslocada à direita
-TIT1, TIT2 = "Como colocar o", "aparelho auditivo"
+TIT1, TIT2 = "Como colocar", "aparelho auditivo?"   # como na referência "Fonte aparelho auditivo"
 ev.append(f"Dialogue: 2,{ts(0)},{ts(3.0)},Tit1,,0,0,0,,{{\\an1\\pos(100,{{T1Y}})\\fad(120,200)}}{TIT1}")
 ev.append(f"Dialogue: 2,{ts(0.25)},{ts(3.0)},Tit2,,0,0,0,,{{\\an1\\pos({{T2X}},{{T2Y}})\\fad(80,200)}}{TIT2}")
 
@@ -168,14 +168,16 @@ for t0, t1, txt in mega:
         b = t0 + k * LETRA if k < len(txt) else t1
         ev.append(f"Dialogue: 1,{ts(a)},{ts(b)},Mega,,0,0,0,,{{\\pos(540,{TOPO_Y})}}{txt[:k]}{{\\alpha&HFF&}}{txt[k:]}")
 
-STYLES = f"""Style: Leg,KB Cormorant SemiBold,74,{BRANCO},&H000000FF,&H00000000,&H90000000,0,0,0,0,100,100,0,0,1,0,2,2,60,60,0,1
-Style: Tit1,KB Cormorant SemiBold,120,{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,0,0,1,0,2,5,40,40,0,1
-Style: Tit2,KB Poppins Bold,140,{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,0,0,1,0,3,5,40,40,0,1
+TIT1_FS, TIT2_FS = 120, 140
+def styles():
+    return f"""Style: Leg,KB Cormorant SemiBold,74,{BRANCO},&H000000FF,&H00000000,&H90000000,0,0,0,0,100,100,0,0,1,0,2,2,60,60,0,1
+Style: Tit1,KB Cormorant SemiBold,{TIT1_FS},{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,0,0,1,0,2,5,40,40,0,1
+Style: Tit2,KB Poppins Bold,{TIT2_FS},{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,0,0,1,0,3,5,40,40,0,1
 Style: Big,KB Poppins Bold,120,{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,0,0,1,0,3,5,40,40,0,1
 Style: Box,KB Poppins Bold,80,{ROXO},&H000000FF,{CAIXA},{CAIXA},0,0,0,0,100,100,0,0,3,4,0,2,60,60,0,1
 Style: Mega,KB Poppins Black,240,{ROXO},&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,0,0,5,20,20,0,1"""
 # o libass ignora o Spacing do estilo: letras juntinhas via \fsp
-SP = {"Leg": -1, "Tit1": -4, "Tit2": -4, "Big": -4, "Box": -3, "Mega": -8}
+SP = {"Leg": -3, "Tit1": -5, "Tit2": -6, "Big": -4, "Box": -3, "Mega": -8}
 
 def ass_doc(events):
     def junta(line):
@@ -192,7 +194,7 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-{STYLES}
+{styles()}
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -210,15 +212,26 @@ def medir(style, txt):
     ys, xs = np.where(a > 100)
     return xs.min(), xs.max(), ys.min() - 1500, ys.max() - 1500
 
-# posiciona o título: linha fina começa em x=100; linha grossa termina em x=988 (margem segura)
+# título como na referência: serifada grande à esquerda (x 100-750) e Poppins colada logo abaixo,
+# deslocada para a direita até a margem (x ~272-988); ascendentes da Poppins sobem até a serifada
+def ajusta(style, txt, alvo):
+    global TIT1_FS, TIT2_FS
+    for _ in range(3):
+        x0, x1, _, _ = medir(style, txt)
+        fator = alvo / (x1 - x0)
+        if style == "Tit1": TIT1_FS = round(TIT1_FS * fator)
+        else: TIT2_FS = round(TIT2_FS * fator)
+ajusta("Tit1", TIT1, 650)
+ajusta("Tit2", TIT2, 716)
 a0, a1, atop, abot = medir("Tit1", TIT1)
 b0, b1, btop, bbot = medir("Tit2", TIT2)
-T1_BASE = 300 - atop + 40          # topo da tinta da linha fina em y≈340
-T1Y = T1_BASE
+_, _, xtop, _ = medir("Tit2", "a")          # topo da altura-x da Poppins
+T1Y = 340 - atop                            # topo da serifada em y=340
+T1X = 100 - a0
 T2X = 988 - b1
-T2Y = (T1Y + abot) + 6 - btop       # topo das maiúsculas logo abaixo da linha fina
-ev = [l.replace("{T1Y}", str(T1Y)).replace("{T2X}", str(T2X)).replace("{T2Y}", str(T2Y)) for l in ev]
-print(f"título: fina x {a0}-{a1}, grossa x {T2X + b0}-{T2X + b1}, y {T1Y + atop}-{T2Y + bbot}")
+T2Y = (T1Y + abot) + 22 - xtop              # altura-x da Poppins começa 22 px abaixo da base da serifada
+ev = [l.replace("pos(100,{T1Y})", f"pos({T1X},{T1Y})").replace("{T1Y}", str(T1Y)).replace("{T2X}", str(T2X)).replace("{T2Y}", str(T2Y)) for l in ev]
+print(f"título: fs {TIT1_FS}/{TIT2_FS}; serifada x {T1X + a0}-{T1X + a1}, Poppins x {T2X + b0}-{T2X + b1}, y {T1Y + atop}-{T2Y + bbot}")
 open("legendas.ass", "w").write(ass_doc(ev))
 
 # ---------- zoom ----------

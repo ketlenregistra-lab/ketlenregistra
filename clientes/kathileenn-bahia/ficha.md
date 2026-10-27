@@ -22,7 +22,10 @@
   1. **Russolo + Poppins** — legenda fina, 1–3 palavras por vez (vídeo BERA).
   2. **Destino Verdadeiro** — serifada branca, frase inteira em até 2 linhas bem coladas,
      minúscula e sem pontuação (substituta: Cormorant Garamond SemiBold 74). Ênfases continuam em
-     Poppins/Modern; a linha fina do título passa a ser serifada também (vídeo aparelho auditivo).
+     Poppins/Modern (vídeo aparelho auditivo). Letras bem juntinhas (`\fsp-3`) e linhas a 50 px.
+     Título nesse modelo: serifada grande em cima ("Como colocar") + Poppins Bold colada logo
+     abaixo, deslocada à direita ("aparelho auditivo?"), as ascendentes da Poppins quase tocando a
+     linha de cima.
 - **Cores de lado da orelha:** vermelho = direito, azul = esquerdo (texto da caixa nessas cores).
 - **Posição da legenda corrida:** centro horizontal, na altura do peito, **longe do rosto**
   (termina em ~69% da altura, y≈1330 em 1080x1920).
