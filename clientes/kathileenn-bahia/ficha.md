@@ -28,9 +28,11 @@
      linha de cima.
 - **Formato bate-bola ("Dúvidas com sua fono"):** a Ketlen já coloca o título roxo, os cards de
   pergunta (Notas) e o som de escrita. Aqui só entra legenda Destino + ênfases em Poppins branca,
-  **sem caixinha roxa** e sem efeitos novos. Card na tela → legenda embaixo (altura do corpo);
-  sem card (ela respondendo) → legenda em cima. Os cards são detectados no vídeo (retângulo branco).
-  Camisa branca: legenda com contorno escuro suave para continuar legível.
+  **sem caixinha roxa** e sem efeitos novos.
+  - **Legendar só a Dra. Kathileenn.** A fala da Ketlen (abertura "Dúvidas com sua fono" e as
+    perguntas) não ganha legenda: o título roxo e os cards já mostram.
+  - Com card na tela, nada de legenda. Sem card (ela respondendo), legenda no vazio de cima.
+  - Legenda **só branca**, sem contorno nem sombra.
 - **Cores de lado da orelha:** vermelho = direito, azul = esquerdo (texto da caixa nessas cores).
 - **Posição da legenda corrida:** centro horizontal, na altura do peito, **longe do rosto**
   (termina em ~69% da altura, y≈1330 em 1080x1920).

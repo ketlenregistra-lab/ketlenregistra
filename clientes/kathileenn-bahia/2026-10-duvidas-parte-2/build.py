@@ -39,6 +39,10 @@ for t, s, e in words:
     fixed.append([t, s, e])
 words = fixed
 
+# falas da Ketlen (abertura e perguntas): não legendar — o título roxo e os cards já mostram
+fala_ketlen = [(0.0, 4.20), (6.05, 8.70), (17.40, 19.90), (30.05, 33.75), (45.80, 48.20), (60.25, 63.50)]
+words = [w for w in words if not any(a <= w[1] < b for a, b in fala_ketlen)]
+
 NOMES = {"kathileenn": "Kathileenn", "ket": "Ket", "doutora": "doutora"}
 def clean(t):
     w = t.strip(".,?!…").lower()
@@ -103,6 +107,8 @@ for gi, g in enumerate(groups):
     e = min(nxt, g[-1][2] + 0.5)
     if in_enfase(s):
         continue                       # a ênfase aparece no lugar (sem palavra repetida)
+    if any(a <= (s + e) / 2 <= b for a, b in cards):
+        continue                       # card de pergunta na tela: sem legenda
     txt = " ".join(clean(x[0]) for x in g).strip()
     if not txt:
         continue
@@ -127,7 +133,7 @@ for t0, t1, txt in enfases:
     ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Big,,0,0,0,,{{\\an2\\pos(540,{y})\\fad(0,80){pop_in}}}{txt}")
 
 # contorno escuro suave: a camisa dela é branca, sem isso a legenda some embaixo
-SOMBRA = "\\3c&H000000&\\3a&H50&\\bord3\\blur5"
+SOMBRA = ""   # a Ketlen prefere só o branco, sem contorno
 SP = {"Leg": -3, "Big": -4}
 def junta(line):
     st = line.split(",")[3]
@@ -145,8 +151,8 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Leg,KB Cormorant SemiBold,74,&H00FFFFFF,&H000000FF,&H00000000,&H90000000,0,0,0,0,100,100,0,0,1,0,2,2,153,153,0,1
-Style: Big,KB Poppins Bold,100,&H00FFFFFF,&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,0,0,1,0,3,2,153,153,0,1
+Style: Leg,KB Cormorant SemiBold,74,&H00FFFFFF,&H000000FF,&H00000000,&H90000000,0,0,0,0,100,100,0,0,1,0,0,2,153,153,0,1
+Style: Big,KB Poppins Bold,100,&H00FFFFFF,&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,0,0,1,0,0,2,153,153,0,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
