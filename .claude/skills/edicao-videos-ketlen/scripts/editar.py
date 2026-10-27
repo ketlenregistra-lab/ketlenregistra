@@ -438,7 +438,7 @@ def legendas(p, T, fontes):
         ev.append(f'Dialogue: 1,{ts(qa)},{ts(qb)},Quebrada,,0,0,0,,{{\\an5\\pos({W4K // 2},{SEG_TOPO + 100})}}{quebrada(qt[0] if qt else "")}')
     if p.get('titulo'):                        # abertura do desafio: surge com fade (sem digitação)
         a, b, txt = p['titulo']
-        ev.append(f'Dialogue: 2,{ts(a)},{ts(b)},Destaque,,0,0,0,,{{\\an5\\pos({W4K // 2},{TITULO_Y_CORPO if p.get('titulo_corpo') else 950}){chr(92) + 'fs160' if p.get('titulo_corpo') else ''}\\fad(250,200)}}{txt}')
+        ev.append(f'Dialogue: 2,{ts(a)},{ts(b)},Destaque,,0,0,0,,{{\\an5\\pos({W4K // 2},{p.get('titulo_y', TITULO_Y_CORPO if p.get('titulo_corpo') else 950)}){chr(92) + 'fs160' if p.get('titulo_corpo') else ''}\\fad(250,200)}}{txt}')
     fs = ImageFont.truetype(os.path.join(fontes, 'AHintofSass.ttf'), 100); a_, d_ = fs.getmetrics(); em_r = ROTULO_TAM * 100 / (a_ + d_)
     fr = ImageFont.truetype(os.path.join(fontes, 'AHintofSass.ttf'), max(1, round(em_r)))
     for c in p.get('camadas', []):             # rótulo amarelo em fundinho rosa em cima do print
