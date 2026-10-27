@@ -44,23 +44,23 @@ def clean(t):
 # ---------- ênfases ----------
 # caixas roxas: substituem a legenda corrida naquele trecho
 boxes = [
-    (13.04, 14.16, "PEATE"),
+    (13.04, 14.16, "PEATE", (820, 800)),        # em cima da mão levantada
     (28.54, 29.26, "testa"),
     (29.58, 31.02, "atrás dos ouvidos"),
     (33.64, 35.28, "fone pequenininho"),
     (49.72, 51.64, "cansado e com fome"),
-    (69.70, 70.98, "teste da orelhinha"),
+    (69.70, 70.98, "teste da orelhinha", (540, 400)),  # acima da cabeça
     (74.42, 75.90, "internações na UTI"),
     (76.02, 77.70, "infecções ou vírus"),
     (89.34, 90.56, "me chama no direct"),
 ]
 # palavra grande branca (Poppins) acima da cabeça
 big = [
-    (18.86, 20.0, "eletrodos"),
-    (86.74, 87.62, "até em adultos"),
+    (18.86, 20.0, "Eletrodos"),
+    (86.74, 87.62, "Até em adultos"),
 ]
 # lista que entra item a item
-stack = [(41.50, "não tem agulhas"), (42.78, "não dói"), (43.76, "não incomoda")]
+stack = [(41.50, "Não tem agulhas"), (42.78, "Não dói"), (43.76, "Não incomoda")]  # caixas roxas acima da cabeça
 stack_end = 45.0
 # palavra gigante roxa (Modern -> Poppins Black)
 mega = [(45.00, 46.50, "DICA")]
@@ -83,12 +83,12 @@ zooms = [
 sfx = [("swish", 0.25)]
 for kind, t0, t1, z in zooms:
     sfx.append(("swish", max(t0 - (0.12 if kind == "suave" else 0.05), 0)))
-for t0, _, _ in boxes:
-    sfx.append(("clique", t0))
+for b in boxes:
+    sfx.append(("clique_capcut", b[0]))
 for t0, _ in stack:
-    sfx.append(("pop", t0))
+    sfx.append(("clique_capcut", t0))
 for t0, _, _ in mega:
-    sfx.append(("swish", t0 - 0.1))
+    sfx.append(("teclado", t0))
 sfx.sort(key=lambda x: x[1])
 # evita dois efeitos colados
 dedup = []
@@ -100,10 +100,12 @@ sfx = dedup
 
 # ---------- legenda corrida ----------
 # palavra grande na altura do peito (quando a pessoa sobe no quadro e não sobra espaço em cima)
-chest = [(24.96, 25.92, "não dói")]
-breaks = sorted({b[0] for b in boxes + chest} | {b[1] for b in boxes + chest})
+chest = [(24.96, 25.92, "Não dói")]
+# só as caixas sem posição própria ficam no lugar da legenda
+replace = [b[:3] for b in boxes if len(b) == 3] + chest
+breaks = sorted({b[0] for b in replace} | {b[1] for b in replace})
 def in_box(t):
-    return any(b0 - 0.01 <= t < b1 - 0.01 for b0, b1, _ in boxes + chest)
+    return any(b0 - 0.01 <= t < b1 - 0.01 for b0, b1, _ in replace)
 
 groups, cur = [], []
 for k, (t, s, e) in enumerate(words):
@@ -143,16 +145,25 @@ for g in groups:
                   + " ".join(clean(x[0]) for x in g))
 
 pop_in = "\\fscx70\\fscy70\\t(0,140,\\fscx100\\fscy100)"
-for t0, t1, txt in boxes:
-    ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1 + 0.25)},Box,,0,0,0,,{{\\fad(0,80){pop_in}}}{txt}")
+BORDA = "\\xbord22\\ybord3"   # borda fina da caixa, como no '90 decibéis'
+for b in boxes:
+    t0, t1, txt = b[:3]
+    pos = f"\\an5\\pos({b[3][0]},{b[3][1]})" if len(b) == 4 else ""
+    ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1 + 0.25)},Box,,0,0,0,,{{{pos}{BORDA}\\fad(0,80){pop_in}}}{txt}")
 for t0, t1, txt in chest:
     ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1 + 0.2)},Big,,0,0,0,,{{\\an2\\pos(540,1330)\\fad(0,80){pop_in}}}{txt}")
 for t0, t1, txt in big:
     ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Big,,0,0,0,,{{\\pos(540,380)\\fad(0,80){pop_in}}}{txt}")
 for n, (t0, txt) in enumerate(stack):
-    ev.append(f"Dialogue: 1,{ts(t0)},{ts(stack_end)},Big,,0,0,0,,{{\\pos(540,{325 + n * 120})\\fad(0,100){pop_in}}}{txt}")
+    ev.append(f"Dialogue: 1,{ts(t0)},{ts(stack_end)},Box,,0,0,0,,{{\\an5\\pos(540,{340 + n * 112}){BORDA}\\fad(0,100){pop_in}}}{txt}")
+# efeito de digitação: uma letra por vez (as que faltam ficam invisíveis para não pular de lugar)
+LETRA = 0.13
 for t0, t1, txt in mega:
-    ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Mega,,0,0,0,,{{\\pos(540,400)\\fad(0,120)\\fscx60\\fscy60\\t(0,160,\\fscx100\\fscy100)}}{txt}")
+    for k in range(1, len(txt) + 1):
+        a = t0 + (k - 1) * LETRA
+        b = t0 + k * LETRA if k < len(txt) else t1
+        vis, inv = txt[:k], txt[k:]
+        ev.append(f"Dialogue: 1,{ts(a)},{ts(b)},Mega,,0,0,0,,{{\\pos(540,400)}}{vis}{{\\alpha&HFF&}}{inv}")
 
 ass = f"""[Script Info]
 ScriptType: v4.00+
@@ -167,7 +178,7 @@ Style: Leg,KB Jost Light,90,&H10FFFFFF,&H000000FF,&H00000000,&H90000000,0,0,0,0,
 Style: Tit1,KB Jost Light,88,{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,-3,0,1,0,2,5,40,40,0,1
 Style: Tit2,KB Poppins Bold,150,{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,-6,0,1,0,3,5,40,40,0,1
 Style: Big,KB Poppins Bold,128,{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,-5,0,1,0,3,5,40,40,0,1
-Style: Box,KB Poppins Bold,88,{ROXO},&H000000FF,{CAIXA},{CAIXA},0,0,0,0,100,100,-4,0,3,14,0,2,90,140,{LEG_MV},1
+Style: Box,KB Poppins Bold,88,{ROXO},&H000000FF,{CAIXA},{CAIXA},0,0,0,0,100,100,-4,0,3,4,0,2,90,140,{LEG_MV},1
 Style: Mega,KB Poppins Black,320,{ROXO},&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,-4,0,1,0,0,5,20,20,0,1
 
 [Events]
@@ -194,7 +205,7 @@ inputs = ["-i", SRC, "-loop", "1", "-t", str(END + 0.5), "-i", "logo_card.png"]
 for n in names:
     inputs += ["-i", f"sfx/{n}.wav"]
 idx = {n: 2 + k for k, n in enumerate(names)}
-vol = {"swish": 0.5, "pop": 0.45, "clique": 0.6}
+vol = {"swish": 0.5, "clique_capcut": 0.4, "teclado": 0.45}
 
 fc = [
     f"[0:v]trim=0:{DUR},setpts=PTS-STARTPTS,"

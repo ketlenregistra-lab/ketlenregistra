@@ -22,7 +22,13 @@
   (termina em ~69% da altura, y≈1330 em 1080x1920).
 - **Espaçamento:** letras **juntinhas** (espaçamento negativo), nunca espaçadas.
 - **Caixa de ênfase (padrão aprovado):** texto **roxo** `#7F22BF` em Poppins Bold sobre
-  **fundo claro semitransparente** (ex.: `90 decibéis`). Não usar texto branco em caixa roxa sólida.
+  **fundo claro semitransparente** (ex.: `90 decibéis`), com **borda fina** (pouca folga em
+  cima/embaixo, ~22 px nas laterais). Não usar texto branco em caixa roxa sólida.
+- **Texto acompanha o gesto:** se ela aponta/levanta a mão ao falar o termo, a caixa vai em cima
+  da mão (ex.: PEATE). Termos-chave do tema (ex.: teste da orelhinha) vão acima da cabeça.
+- **Listas** ("Não tem agulhas / Não dói / Não incomoda"): caixas roxas empilhadas acima da cabeça.
+- **Maiúscula na primeira letra** em todo texto de destaque (fica mais elegante).
+- **Palavra gigante roxa** (ex.: DICA): entra com efeito de digitação, letra por letra.
 - **Título:** duas linhas **coladas e alinhadas à esquerda** — palavra pequena fina em cima
   (Russolo/Jost) + palavra grande em Poppins Bold embaixo, branco, no terço superior (ex.: `Perdeu` / `audição`,
   `Baseado em` / `fatos reais`, `Efeito inibidor de` / `fixação ocular`). Às vezes entra com
@@ -40,7 +46,9 @@
   A Ketlen avisa quando o vídeo vier sem tratamento.
 
 ## Áudio
-- **Clique** quando entra uma caixa de ênfase.
+- Arquivos em `clientes/kathileenn-bahia/sfx/`, extraídos do vídeo "Efeito sonoro" do Drive.
+- **Clique** (`clique_capcut.wav` = "Click, click sound" do CapCut) quando entra caixa/texto.
+- **Teclado** (`teclado.wav` = "Keyboard (word processing)") no efeito de digitação.
 - **Swish** em todo zoom no rosto e na entrada do título.
 - Sem música, salvo pedido.
 
