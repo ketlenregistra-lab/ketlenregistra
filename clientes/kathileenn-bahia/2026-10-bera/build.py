@@ -11,7 +11,7 @@ CRF = sys.argv[2] if len(sys.argv) > 2 else "20"
 ROXO = "&H00BF227F"  # #7F22BF em BGR
 CAIXA = "&H50F2EEF0"  # fundo claro semitransparente das caixas
 LEG_MV = 590          # legenda termina em y=1330; zona segura do Reels: x 88-992, y 261-1461
-TIT_Y = 560           # base do título (fica abaixo da faixa superior de 14%)
+TIT_Y = 500           # base do título: no vazio acima da cabeça, dentro da zona segura
 
 from PIL import ImageFont
 def text_width(font, fs, txt, spacing):
@@ -57,7 +57,6 @@ boxes = [
 # palavra grande branca (Poppins) acima da cabeça
 big = [
     (18.86, 20.0, "eletrodos"),
-    (24.96, 25.92, "não dói"),
     (86.74, 87.62, "até em adultos"),
 ]
 # lista que entra item a item
@@ -70,7 +69,7 @@ mega = [(45.00, 46.50, "DICA")]
 zooms = [
     ("suave", 12.9, 17.6, 1.18),
     ("seco", 18.86, 20.0, 1.15),
-    ("seco", 24.96, 25.92, 1.30),
+    ("seco", 24.96, 25.92, 1.18),
     ("suave", 33.5, 39.8, 1.15),
     ("seco", 41.50, 45.0, 1.22),
     ("suave", 45.0, 54.6, 1.12),
@@ -100,9 +99,11 @@ for name, t in sfx:
 sfx = dedup
 
 # ---------- legenda corrida ----------
-breaks = sorted({b[0] for b in boxes} | {b[1] for b in boxes})
+# palavra grande na altura do peito (quando a pessoa sobe no quadro e não sobra espaço em cima)
+chest = [(24.96, 25.92, "não dói")]
+breaks = sorted({b[0] for b in boxes + chest} | {b[1] for b in boxes + chest})
 def in_box(t):
-    return any(b0 - 0.01 <= t < b1 - 0.01 for b0, b1, _ in boxes)
+    return any(b0 - 0.01 <= t < b1 - 0.01 for b0, b1, _ in boxes + chest)
 
 groups, cur = [], []
 for k, (t, s, e) in enumerate(words):
@@ -144,12 +145,14 @@ for g in groups:
 pop_in = "\\fscx70\\fscy70\\t(0,140,\\fscx100\\fscy100)"
 for t0, t1, txt in boxes:
     ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1 + 0.25)},Box,,0,0,0,,{{\\fad(0,80){pop_in}}}{txt}")
+for t0, t1, txt in chest:
+    ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1 + 0.2)},Big,,0,0,0,,{{\\an2\\pos(540,1330)\\fad(0,80){pop_in}}}{txt}")
 for t0, t1, txt in big:
-    ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Big,,0,0,0,,{{\\pos(540,430)\\fad(0,80){pop_in}}}{txt}")
+    ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Big,,0,0,0,,{{\\pos(540,380)\\fad(0,80){pop_in}}}{txt}")
 for n, (t0, txt) in enumerate(stack):
-    ev.append(f"Dialogue: 1,{ts(t0)},{ts(stack_end)},Big,,0,0,0,,{{\\pos(540,{350 + n * 140})\\fad(0,100){pop_in}}}{txt}")
+    ev.append(f"Dialogue: 1,{ts(t0)},{ts(stack_end)},Big,,0,0,0,,{{\\pos(540,{325 + n * 120})\\fad(0,100){pop_in}}}{txt}")
 for t0, t1, txt in mega:
-    ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Mega,,0,0,0,,{{\\pos(540,430)\\fad(0,120)\\fscx60\\fscy60\\t(0,160,\\fscx100\\fscy100)}}{txt}")
+    ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Mega,,0,0,0,,{{\\pos(540,400)\\fad(0,120)\\fscx60\\fscy60\\t(0,160,\\fscx100\\fscy100)}}{txt}")
 
 ass = f"""[Script Info]
 ScriptType: v4.00+
@@ -195,7 +198,7 @@ vol = {"swish": 0.5, "pop": 0.45, "clique": 0.6}
 
 fc = [
     f"[0:v]trim=0:{DUR},setpts=PTS-STARTPTS,"
-    f"zoompan=z='{zexpr}':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)*0.32':d=1:s={W}x{H}:fps=30,"
+    f"zoompan=z='{zexpr}':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)*0.22':d=1:s={W}x{H}:fps=30,"
     f"ass=legendas.ass:fontsdir=../fonts3,format=yuv420p,settb=1/30,setpts=N/TB/30[base]",
     f"[1:v]fps=30,scale={W}:{H},format=yuv420p,settb=1/30,setpts=N/TB/30[logo]",
     f"[base][logo]xfade=transition=fade:duration=0.35:offset={DUR - 0.4}[v]",

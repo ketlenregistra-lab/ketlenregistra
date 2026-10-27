@@ -17,6 +17,7 @@
     Substituta: Poppins Black.
   - **Destino Verdadeiro** — serifada; usada na legenda dos vídeos estilo bate-papo/bate-bola e
     nos cards de pergunta. Substituta: Cormorant Garamond / Libre Caslon.
+- **Regra de posição:** textos só no vazio acima da cabeça ou na altura do peito — nunca no rosto.
 - **Posição da legenda corrida:** centro horizontal, na altura do peito, **longe do rosto**
   (termina em ~69% da altura, y≈1330 em 1080x1920).
 - **Espaçamento:** letras **juntinhas** (espaçamento negativo), nunca espaçadas.

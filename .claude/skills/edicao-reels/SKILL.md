@@ -27,6 +27,15 @@ perguntando só o que falta.
   (~8% de cada lado, ~14% em cima, ~24% embaixo). Fora disso o Reels corta e perde credibilidade.
 - Conferir quadros com a caixa desenhada (`drawbox=x=88:y=261:w=904:h=1200`) antes de entregar.
 
+### Onde os textos podem ficar (nunca em cima do rosto)
+- Só **duas posições**: no **espaço vazio de cima** (acima da cabeça, onde também entram as
+  colagens/imagens) ou na **altura do peito**. Sempre deixar o rosto livre.
+- Título, palavras grandes e colagens: em cima. Legenda corrida e caixas de ênfase: no peito.
+- Se a pessoa subir no quadro (se inclinar, zoom forte) e o cabelo/rosto encostar no texto de
+  cima, levar aquela ênfase para a altura do peito no lugar da legenda.
+- Zoom ancorado no alto do quadro (`y=(ih-ih/zoom)*0.22`): assim a cabeça desce ao aproximar
+  e o espaço de cima continua livre para os textos.
+
 ### Legenda
 - Acompanha a fala, sincronizada palavra a palavra / trecho a trecho (transcrição com
   timestamps por palavra).
