@@ -41,7 +41,7 @@ def clean(t):
     return keep if keep.isupper() and len(keep) > 1 else keep.lower()
 
 # ---------- ênfases ----------
-# caixas roxas: substituem a legenda corrida naquele trecho (com posição própria: ficam onde indicado)
+# caixas roxas: neste vídeo todas acima da cabeça (o vazio de cima fica feio sem nada)
 boxes = [
     (9.46, 10.50, "ótimo sinal"),
     (12.24, 13.06, "frequências"),
@@ -68,7 +68,7 @@ big = [
 stack = [(22.16, "Ar-condicionado"), (23.52, "Geladeira"), (24.72, "Passos no chão"), (28.00, "Pássaros")]
 stack_end = 29.40
 # palavra gigante roxa digitando (som de teclado), no vazio de cima
-mega = [(7.86, 8.40, "TROVÃO")]   # deslocado à direita para não cair sobre o logo roxo da parede
+mega = [(7.86, 8.40, "TROVÃO")]   # centralizado, logo acima da cabeça
 
 # zoom: (tipo, início, fim, intensidade). suave = keyframe in/out; seco = corte para frente
 zooms = [
@@ -86,15 +86,19 @@ zooms = [
     ("suave", 87.9, 94.3, 1.10),
 ]
 
-sfx = [("clique_caneta", 0.0), ("clique_caneta", 0.25)]   # as duas linhas do título
-for kind, t0, t1, z in zooms:
-    sfx.append(("swish_capcut", max(t0 - (0.12 if kind == "suave" else 0.05), 0)))
-for b in boxes:
-    sfx.append(("clique_caneta", b[0]))
-for t0, _ in stack:
-    sfx.append(("clique_caneta", t0))
-for t0, _, _ in mega:
-    sfx.append(("teclado", t0 - 0.075))   # 1ª tecla do arquivo cai junto com a 1ª letra
+# efeitos sonoros só em momentos estratégicos (a Ketlen achou carregado com som em tudo)
+sfx = [
+    ("clique_caneta", 0.25),    # título
+    ("teclado", 7.86 - 0.075),  # TROVÃO digitando (único som nesse momento)
+    ("clique_caneta", 9.46),    # ótimo sinal
+    ("swish_capcut", 17.59),    # zoom no "Cérebro"
+    ("clique_caneta", 22.16),   # a lista começa
+    ("swish_capcut", 41.13),    # zoom no "bastante natural"
+    ("swish_capcut", 58.91),    # zoom no "O que ajuda?"
+    ("clique_caneta", 60.74),   # usar todos os dias
+    ("swish_capcut", 85.29),    # zoom no "Nada de gaveta"
+    ("clique_caneta", 91.16),   # manda esse vídeo
+]
 sfx.sort(key=lambda x: x[1])
 # evita dois efeitos colados
 # digitação manda: tira o swish de zoom que cair junto do teclado
@@ -157,17 +161,27 @@ for g in groups:
                   + " ".join(clean(x[0]) for x in g))
 
 pop_in = "\\fscx70\\fscy70\\t(0,140,\\fscx100\\fscy100)"
+cabeca = json.load(open("cabeca.json"))   # topo da cabeça (com cabelo) medido na prévia com os mesmos zooms
+def topo_y(t0, t1, h):
+    """Centro do texto de cima: logo acima da cabeça, sem subir demais (zona segura começa em 261)."""
+    tops = [y for t, y in cabeca if t0 - 0.2 <= t <= t1 + 0.2 and y]
+    ht = min(tops) if tops else 700
+    return int(max(261 + 40 + h / 2, min(560, ht - 40 - h / 2)))
 BORDA = "\\xbord22\\ybord3"   # borda fina da caixa, como no '90 decibéis'
 for b in boxes:
     t0, t1, txt = b[:3]
-    pos = f"\\an5\\pos({b[3][0]},{b[3][1]})" if len(b) == 4 else ""
+    pos = f"\\an5\\pos(540,{topo_y(t0, t1, 90)})"
     ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Box,,0,0,0,,{{{pos}{BORDA}\\fad(0,80){pop_in}}}{txt}")
 for t0, t1, txt in chest:
     ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1 + 0.2)},Big,,0,0,0,,{{\\an2\\pos(540,1330)\\fad(0,80){pop_in}}}{txt}")
 for t0, t1, txt in big:
-    ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Big,,0,0,0,,{{\\pos(540,380)\\fad(0,80){pop_in}}}{txt}")
+    ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Big,,0,0,0,,{{\\an5\\pos(540,{topo_y(t0, t1, 120)})\\fad(0,80){pop_in}}}{txt}")
+# lista em grade 2x2 logo acima da cabeça (4 caixas empilhadas subiriam demais)
+gy = topo_y(stack[0][0], stack_end, 200)
 for n, (t0, txt) in enumerate(stack):
-    ev.append(f"Dialogue: 1,{ts(t0)},{ts(stack_end)},Box,,0,0,0,,{{\\an5\\pos(540,{330 + n * 108}){BORDA}\\fad(0,100){pop_in}}}{txt}")
+    x = 330 if n % 2 == 0 else 750
+    y = gy - 50 if n < 2 else gy + 50
+    ev.append(f"Dialogue: 1,{ts(t0)},{ts(stack_end)},Box,,0,0,0,,{{\\an5\\pos({x},{y}){BORDA}\\fad(0,100){pop_in}}}{txt}")
 # efeito de digitação: uma letra por vez (as que faltam ficam invisíveis para não pular de lugar)
 LETRA = 0.09
 for t0, t1, txt in mega:
@@ -175,7 +189,7 @@ for t0, t1, txt in mega:
         a = t0 + (k - 1) * LETRA
         b = t0 + k * LETRA if k < len(txt) else t1
         vis, inv = txt[:k], txt[k:]
-        ev.append(f"Dialogue: 1,{ts(a)},{ts(b)},Mega,,0,0,0,,{{\\pos(650,420)}}{vis}{{\\alpha&HFF&}}{inv}")
+        ev.append(f"Dialogue: 1,{ts(a)},{ts(b)},Mega,,0,0,0,,{{\\an5\\pos(540,{topo_y(t0, t1, 180)})}}{vis}{{\\alpha&HFF&}}{inv}")
 
 TIT1_FS, TIT2_FS = 125, 150
 def monta(evs):
@@ -188,11 +202,11 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Leg,KB Jost Light,90,&H10FFFFFF,&H000000FF,&H00000000,&H90000000,0,0,0,0,100,100,-3,0,1,0,2,2,90,140,{LEG_MV},1
+Style: Leg,KB Jost Light,90,&H10FFFFFF,&H000000FF,&H00000000,&H90000000,0,0,0,0,100,100,-3,0,1,0,2,2,153,153,{LEG_MV},1
 Style: Tit1,KB Jost Light,{TIT1_FS},{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,-3,0,1,0,2,5,40,40,0,1
 Style: Tit2,KB Poppins Bold,{TIT2_FS},{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,-6,0,1,0,3,5,40,40,0,1
 Style: Big,KB Poppins Bold,128,{BRANCO},&H000000FF,&H00000000,&HA0000000,0,0,0,0,100,100,-5,0,1,0,3,5,40,40,0,1
-Style: Box,KB Poppins Bold,88,{ROXO},&H000000FF,{CAIXA},{CAIXA},0,0,0,0,100,100,-4,0,3,4,0,2,90,140,{LEG_MV},1
+Style: Box,KB Poppins Bold,88,{ROXO},&H000000FF,{CAIXA},{CAIXA},0,0,0,0,100,100,-4,0,3,4,0,2,153,153,{LEG_MV},1
 Style: Mega,KB Poppins Black,240,{ROXO},&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,-4,0,1,0,0,5,20,20,0,1
 
 [Events]

@@ -22,10 +22,15 @@ perguntando só o que falta.
 - Corte seco (jump cut), sem transição.
 - Se a Ketlen avisar que o vídeo já veio cortado, pular esta etapa.
 
-### Zona segura do Instagram (obrigatório)
-- Todo texto/elemento fica **dentro da caixa segura**: em 1080x1920, x de 88 a 992 e y de 261 a 1461
-  (~8% de cada lado, ~14% em cima, ~24% embaixo). Fora disso o Reels corta e perde credibilidade.
-- Conferir quadros com a caixa desenhada (`drawbox=x=88:y=261:w=904:h=1200`) antes de entregar.
+### Zona segura do Instagram (obrigatório — guia da Ketlen)
+- Guia oficial: `referencias/guia-zona-segura-instagram.jpg` (área preta = onde pode ter elemento).
+- Em 1080x1920: **x 88–994, y 263–1459**, com recorte embaixo à direita: **abaixo de y 1070 o
+  limite direito é x 927** (botões do Reels). Nada pode passar para cima, baixo ou lados.
+- Legenda/caixas do peito ficam abaixo de y 1070, então usam margens **153/153** (centralizadas
+  em x=540 e nunca passam de 927). Margens sempre iguais dos dois lados — margem desigual
+  deixa o texto torto (fora do centro).
+- Antes de entregar, rodar `scripts/confere_guia.py <duração>` na pasta do vídeo: renderiza só os
+  textos (legendas.ass) a 10 quadros/s e lista qualquer pixel fora da guia. Tem que dar 0.
 
 ### Onde os textos podem ficar (nunca em cima do rosto)
 - Só **duas posições**: no **espaço vazio de cima** (acima da cabeça, onde também entram as
@@ -38,6 +43,9 @@ perguntando só o que falta.
   legenda desce automaticamente para abaixo do peito: `scripts/cabeca.py` mede o topo da cabeça
   quadro a quadro numa prévia (detector de rosto MediaPipe; precisa de `libegl1` e do modelo
   `blaze_face_short_range.tflite`) e o build escolhe a posição por frase.
+- Texto do vazio de cima fica **logo acima da cabeça** (não colado no limite de cima): a posição
+  vem do topo da cabeça medido por `scripts/cabeca.py`, centro em no máximo y=560.
+- Listas de 4 itens em cima: grade 2x2 (empilhar 4 caixas sobe demais).
 - Zoom ancorado no alto do quadro (`y=(ih-ih/zoom)*0.22`): assim a cabeça desce ao aproximar
   e o espaço de cima continua livre para os textos.
 
@@ -69,8 +77,10 @@ perguntando só o que falta.
   então não perde qualidade até ~2x.
 
 ### Áudio
-- **Efeito sonoro em todo zoom/movimento marcado**. É o recurso mais usado:
-  **swish** nos zooms e no título, **clique** quando entra caixa de ênfase.
+- **Efeito sonoro só em momentos estratégicos** (~1 a cada 10 s). Som em tudo fica carregado e
+  sem sentido. Boa regra: swish só nos zooms repentinos de frase forte; clique no título, no
+  início de uma lista e em 2–3 caixas-chave; teclado na palavra digitando. Zoom suave = sem som.
+  **Nunca dois sons juntos** no mesmo momento (ex.: zoom + digitação → só o teclado).
   Usar os arquivos de SFX da Ketlen quando houver; senão, `scripts/make_sfx.py` gera substitutos.
 - O encerramento (logo/card final) só entra depois que a pessoa termina a última palavra.
 - Música de fundo: quase nunca. Só quando a Ketlen mandar a música; aí fica bem baixa sob a voz.

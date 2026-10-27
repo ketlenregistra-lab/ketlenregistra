@@ -62,6 +62,7 @@
 ## Áudio
 - Arquivos em `clientes/kathileenn-bahia/sfx/`, extraídos dos vídeos "Efeito sonoro" e
   "Efeito sonoro/ legenda" do Drive.
+- **Poucos efeitos, só nos momentos estratégicos** (ver skill). Nunca dois sons juntos.
 - **Clique** (`clique_caneta.wav` = "Click! ballpoint pen" do CapCut) quando texto/caixa aparece.
 - **Swish** (`swish_capcut.wav` = "Swish" do CapCut) em todo zoom.
 - **Teclado** (`teclado.wav` = "Keyboard (word processing)") no efeito de digitação.
