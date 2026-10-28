@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Black Secreta Bem Popular</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800;900&display=block" rel="stylesheet">
+<style>
+  :root {
+    --red: #d3131b;
+    --deep: #a50e0f;
+    --yellow: #ffd200;
+    --black: #0d0d0d;
+    --white: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #333; font-family: 'Montserrat', sans-serif; }
+  .slide {
+    width: 1080px; height: 1350px; position: relative; overflow: hidden;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    text-align: center; padding: 0 90px 150px; margin-bottom: 40px;
+    background:
+      radial-gradient(ellipse 70% 40% at 50% 30%, rgba(211,19,27,.28), transparent 70%),
+      linear-gradient(180deg, #0d0d0d 0%, #160909 38%, #6e0a0b 62%, var(--deep) 78%, var(--red) 100%);
+  }
+  .slide.center { justify-content: center; padding-bottom: 90px; }
+
+  /* tipografia no padrão das artes da Bem Popular */
+  .h { color: var(--yellow); font-weight: 900; text-transform: uppercase; letter-spacing: -0.035em; line-height: .95; font-size: 92px; }
+  .h.xl { font-size: 300px; line-height: .85; letter-spacing: -0.05em; }
+  .h.l { font-size: 150px; }
+  .h.white { color: var(--white); }
+  .s { color: var(--white); font-weight: 500; letter-spacing: -0.035em; line-height: 1.12; font-size: 52px; margin-top: 30px; }
+  .s.small { font-size: 42px; }
+  .box { background: var(--red); color: var(--yellow); padding: 0 .14em; display: inline-block; line-height: 1.08; margin: 4px 0; }
+  .box.y { background: var(--yellow); color: var(--black); }
+  .swipe { position: absolute; bottom: 70px; left: 0; right: 0; font-size: 22px; letter-spacing: .38em; color: var(--white); font-weight: 400; }
+  .swipe b { color: var(--yellow); font-weight: 800; }
+  .emoji { font-size: 170px; line-height: 1; margin-bottom: 40px; }
+  .logo-space { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); width: 260px; height: 130px; }
+
+  /* fitas de "lacrado" */
+  .tape {
+    position: absolute; left: -120px; width: 1320px; height: 88px; background: var(--yellow);
+    display: flex; align-items: center; white-space: nowrap; overflow: hidden;
+    font-weight: 900; font-size: 40px; color: var(--black); letter-spacing: .04em;
+    box-shadow: 0 14px 40px rgba(0,0,0,.55);
+    border-top: 8px solid var(--black); border-bottom: 8px solid var(--black);
+  }
+  .tape span { padding: 0 28px; }
+  .tape.t1 { top: 300px; transform: rotate(-9deg); }
+  .tape.t2 { top: 420px; transform: rotate(7deg); background: var(--white); }
+
+  .list { margin-top: 50px; display: flex; flex-direction: column; gap: 26px; align-items: stretch; width: 100%; }
+  .item { display: flex; align-items: center; gap: 28px; background: rgba(0,0,0,.35); border-left: 12px solid var(--yellow); padding: 26px 34px; text-align: left; }
+  .item .i { font-size: 64px; }
+  .item .t { color: var(--white); font-weight: 800; font-size: 46px; letter-spacing: -0.03em; text-transform: uppercase; line-height: 1; }
+  .item .t small { display: block; font-weight: 500; text-transform: none; font-size: 32px; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<!-- ========== FIXADO 1 · Carrossel "Vem aí" ========== -->
+<section class="slide" id="f1-01">
+  <div class="logo-space"></div>
+  <div class="tape t1"><span>CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO</span></div>
+  <div class="tape t2"><span>BLACK SECRETA • NÃO ABRIR • BLACK SECRETA • NÃO ABRIR • BLACK SECRETA</span></div>
+  <div class="h xl">A MAIOR</div>
+  <div class="s">black do ano está chegando</div>
+  <div class="swipe"><b>ARRASTA</b> PARA O LADO</div>
+</section>
+
+<section class="slide center" id="f1-02">
+  <div class="emoji">🔒</div>
+  <div class="h">E a gente não<br>pode te contar</div>
+  <div class="h"><span class="box">nada.</span></div>
+</section>
+
+<section class="slide center" id="f1-03">
+  <div class="h white">Os preços?</div>
+  <div class="h l" style="margin-top:20px"><span class="box">SEGREDO.</span></div>
+  <div class="emoji" style="margin:50px 0 0">🤐</div>
+</section>
+
+<section class="slide center" id="f1-04">
+  <div class="h white">Os produtos?</div>
+  <div class="h l" style="margin-top:20px"><span class="box">LACRADOS.</span></div>
+  <div class="s">tem coisa que você <b style="color:var(--yellow);font-weight:800">nem imagina</b><br>que vai estar nessa Black</div>
+</section>
+
+<section class="slide center" id="f1-05">
+  <div class="emoji">🤫</div>
+  <div class="h">Nem o concorrente<br>sabe.</div>
+  <div class="s">e vai continuar sem saber<br>até a hora certa</div>
+</section>
+
+<section class="slide center" id="f1-06">
+  <div class="s" style="margin:0 0 20px">tudo será revelado em</div>
+  <div class="h xl" style="font-size:260px">05/11</div>
+  <div class="h l" style="margin-top:20px"><span class="box y">ÀS 17H</span></div>
+  <div class="s">e você já pode comprar na hora</div>
+</section>
+
+<section class="slide center" id="f1-07">
+  <div class="emoji">🔔</div>
+  <div class="h">Ativa o sininho</div>
+  <div class="s">e <b style="color:var(--yellow);font-weight:800">salva esse post</b><br>pra não perder</div>
+  <div class="h white" style="font-size:56px;margin-top:70px"><span class="box">05/11 • 17H</span></div>
+</section>
+
+<!-- ========== FIXADO 2 · Capa do Reels ========== -->
+<section class="slide" id="f2-capa-reels">
+  <div class="logo-space"></div>
+  <div class="tape t1"><span>CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO</span></div>
+  <div class="tape t2"><span>BLACK SECRETA • NÃO ABRIR • BLACK SECRETA • NÃO ABRIR • BLACK SECRETA</span></div>
+  <div class="h xl white">BLACK</div>
+  <div class="h" style="font-size:80px;margin-top:30px">Fui <span class="box">proibida</span><br>de contar 🤐</div>
+  <div class="swipe"><b>05/11</b> ÀS 17H</div>
+</section>
+
+<!-- ========== FIXADO 3 · Carrossel "Como vai funcionar" ========== -->
+<section class="slide" id="f3-01">
+  <div class="logo-space"></div>
+  <div class="tape t1"><span>CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO</span></div>
+  <div class="tape t2"><span>BLACK SECRETA • NÃO ABRIR • BLACK SECRETA • NÃO ABRIR • BLACK SECRETA</span></div>
+  <div class="h xl">DO ANO</div>
+  <div class="s">tudo que você precisa saber<br>(sem estragar a surpresa)</div>
+  <div class="swipe"><b>ARRASTA</b> PARA O LADO</div>
+</section>
+
+<section class="slide center" id="f3-02">
+  <div class="emoji">⏰</div>
+  <div class="h white">Quando?</div>
+  <div class="h l" style="margin-top:20px"><span class="box">05/11</span></div>
+  <div class="h" style="margin-top:10px">às 17h em ponto</div>
+</section>
+
+<section class="slide center" id="f3-03">
+  <div class="emoji">👀</div>
+  <div class="h white">O que vai ter?</div>
+  <div class="h" style="margin-top:30px;font-size:84px">Produtos que<br>você <span class="box">nem imagina</span></div>
+  <div class="s small">só isso que a gente pode falar 🤐</div>
+</section>
+
+<section class="slide center" id="f3-04">
+  <div class="emoji">🛒</div>
+  <div class="h white">Como comprar?</div>
+  <div class="h" style="margin-top:30px">Na loja ou<br><span class="box">pelo WhatsApp</span></div>
+  <div class="s small">as compras começam na hora da revelação</div>
+</section>
+
+<section class="slide center" id="f3-05">
+  <div class="emoji">⚡</div>
+  <div class="h white">Dica de ouro</div>
+  <div class="h l" style="margin-top:20px"><span class="box">ESTOQUE<br>LIMITADO</span></div>
+  <div class="s">quem vê primeiro,<br>compra primeiro</div>
+</section>
+
+<section class="slide center" id="f3-06">
+  <div class="h">Como não perder?</div>
+  <div class="list">
+    <div class="item"><div class="i">🔔</div><div class="t">Ativa o sininho<small>e recebe o aviso na hora</small></div></div>
+    <div class="item"><div class="i">📌</div><div class="t">Salva esse post<small>ele é o seu guia da Black</small></div></div>
+    <div class="item"><div class="i">💬</div><div class="t">Comenta "EU QUERO"<small>e marca quem não pode perder</small></div></div>
+  </div>
+  <div class="h white" style="font-size:56px;margin-top:60px"><span class="box">05/11 • 17H</span></div>
+</section>
+
+</body>
+</html>
