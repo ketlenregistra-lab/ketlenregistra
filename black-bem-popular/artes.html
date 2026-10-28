@@ -55,18 +55,68 @@
   .item .i { font-size: 64px; }
   .item .t { color: var(--white); font-weight: 800; font-size: 46px; letter-spacing: -0.03em; text-transform: uppercase; line-height: 1; }
   .item .t small { display: block; font-weight: 500; text-transform: none; font-size: 32px; margin-top: 6px; }
+
+  /* capas dos fixados */
+  .slide.cover { padding-bottom: 110px; }
+  .cover .logo { position: absolute; top: 48px; left: 50%; transform: translateX(-50%); width: 270px; filter: drop-shadow(0 8px 18px rgba(0,0,0,.5)); z-index: 2; }
+  .cover .hero { position: absolute; top: 200px; left: 0; }
+  .h.xl.one { font-size: 196px; white-space: nowrap; letter-spacing: -0.055em; position: relative; text-shadow: 0 10px 30px rgba(0,0,0,.35); }
+  .cover .s { position: relative; }
+  .chip { display: inline-block; margin-top: 34px; background: var(--yellow); color: var(--black); font-weight: 900; font-size: 46px; letter-spacing: -0.02em; padding: 10px 30px; position: relative; }
+  .chip span { color: var(--red); }
+  .chips { display: flex; gap: 18px; justify-content: center; position: relative; }
+  .chips .chip { font-size: 34px; padding: 10px 22px; }
 </style>
 </head>
 <body>
 
 <!-- ========== FIXADO 1 · Carrossel "Vem aí" ========== -->
-<section class="slide" id="f1-01">
-  <div class="logo-space"></div>
-  <div class="tape t1"><span>CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO</span></div>
-  <div class="tape t2"><span>BLACK SECRETA • NÃO ABRIR • BLACK SECRETA • NÃO ABRIR • BLACK SECRETA</span></div>
-  <div class="h xl">A MAIOR</div>
+<section class="slide cover" id="f1-01">
+  <img class="logo" src="logo.png" alt="Drogarias Bem Popular"><svg class="hero" width="1080" height="660" viewBox="0 0 1080 660"><defs>
+  <filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#000" flood-opacity=".55"/></filter>
+  <linearGradient id="bag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3171f"/><stop offset="1" stop-color="#9c0c0d"/></linearGradient>
+  <linearGradient id="foil" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f4f4"/><stop offset=".5" stop-color="#c9ccd1"/><stop offset="1" stop-color="#eef0f2"/></linearGradient>
+  <linearGradient id="boxf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#232323"/><stop offset="1" stop-color="#0b0b0b"/></linearGradient>
+  <radialGradient id="glow"><stop offset="0" stop-color="#ffd200" stop-opacity=".35"/><stop offset="1" stop-color="#ffd200" stop-opacity="0"/></radialGradient>
+</defs><ellipse cx="540" cy="360" rx="420" ry="300" fill="url(#glow)"/><g transform="translate(150 150) rotate(-30) scale(1.0)" filter="url(#sh)">
+  <rect x="-110" y="-42" width="220" height="84" rx="42" fill="#ffd200"/>
+  <path d="M0 -42 H-68 A42 42 0 0 0 -68 42 H0 Z" fill="#d3131b"/>
+  <rect x="-96" y="-30" width="180" height="16" rx="8" fill="#fff" opacity=".35"/>
+</g><g transform="translate(930 120) rotate(28) scale(0.8)" filter="url(#sh)">
+  <rect x="-110" y="-42" width="220" height="84" rx="42" fill="#d3131b"/>
+  <path d="M0 -42 H-68 A42 42 0 0 0 -68 42 H0 Z" fill="#ffffff"/>
+  <rect x="-96" y="-30" width="180" height="16" rx="8" fill="#fff" opacity=".35"/>
+</g><g transform="translate(960 500) rotate(-18) scale(0.75)" filter="url(#sh)">
+  <rect x="-110" y="-42" width="220" height="84" rx="42" fill="#ffffff"/>
+  <path d="M0 -42 H-68 A42 42 0 0 0 -68 42 H0 Z" fill="#ffd200"/>
+  <rect x="-96" y="-30" width="180" height="16" rx="8" fill="#fff" opacity=".35"/>
+</g><g transform="translate(120 520) rotate(40) scale(0.7)" filter="url(#sh)">
+  <rect x="-110" y="-42" width="220" height="84" rx="42" fill="#ffffff"/>
+  <path d="M0 -42 H-68 A42 42 0 0 0 -68 42 H0 Z" fill="#d3131b"/>
+  <rect x="-96" y="-30" width="180" height="16" rx="8" fill="#fff" opacity=".35"/>
+</g><g filter="url(#sh)"><circle cx="250" cy="330" r="30" fill="#ffd200"/><rect x="232.0" y="327" width="36.0" height="6" rx="3" fill="#000" opacity=".15"/></g><g filter="url(#sh)"><circle cx="840" cy="330" r="26" fill="#fff"/><rect x="824.4" y="327" width="31.2" height="6" rx="3" fill="#000" opacity=".15"/></g><g transform="translate(240 60) scale(0.8)" opacity="0.9"><rect x="-12" y="-36" width="24" height="72" rx="5" fill="#ffd200"/><rect x="-36" y="-12" width="72" height="24" rx="5" fill="#ffd200"/></g><g transform="translate(860 610) scale(0.7)" opacity="0.6"><rect x="-12" y="-36" width="24" height="72" rx="5" fill="#fff"/><rect x="-36" y="-12" width="72" height="24" rx="5" fill="#fff"/></g><g filter="url(#sh)">
+  <!-- produtos espiando pra fora da sacola -->
+  <rect x="395" y="130" width="125" height="170" rx="8" fill="#151515"/><text x="457" y="250" text-anchor="middle" font-family="Montserrat" font-weight="900" font-size="100" fill="#ffd200">?</text>
+  <rect x="545" y="95" width="80" height="205" rx="30" fill="#f2f2f2"/><rect x="560" y="60" width="50" height="50" rx="8" fill="#ffd200"/>
+  <text x="585" y="230" text-anchor="middle" font-family="Montserrat" font-weight="900" font-size="80" fill="#d3131b">?</text>
+  <path d="M640 300 L655 140 Q690 120 715 140 L700 300 Z" fill="#ffd200"/>
+  <path d="M435 280 C430 170 650 170 645 280" fill="none" stroke="#7a0909" stroke-width="22" stroke-linecap="round"/>
+  <polygon points="340,270 740,270 775,610 305,610" fill="url(#bag)"/>
+  <polygon points="340,270 740,270 744,310 336,310" fill="#7a0909" opacity=".55"/>
+  <circle cx="540" cy="455" r="88" fill="#fff"/>
+  <rect x="520" y="395" width="40" height="120" rx="6" fill="#d3131b"/><rect x="480" y="435" width="120" height="40" rx="6" fill="#d3131b"/>
+</g><g transform="rotate(-8 540 400)" filter="url(#sh)">
+  <rect x="-200" y="354" width="1480" height="92" fill="#ffd200"/>
+  <rect x="-200" y="354" width="1480" height="9" fill="#0d0d0d"/><rect x="-200" y="437" width="1480" height="9" fill="#0d0d0d"/>
+  <text x="-160" y="414" font-family="Montserrat" font-weight="900" font-size="40" letter-spacing="1.5" fill="#0d0d0d">CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO</text>
+</g><g transform="rotate(6 540 520)" filter="url(#sh)">
+  <rect x="-200" y="474" width="1480" height="92" fill="#ffffff"/>
+  <rect x="-200" y="474" width="1480" height="9" fill="#0d0d0d"/><rect x="-200" y="557" width="1480" height="9" fill="#0d0d0d"/>
+  <text x="-160" y="534" font-family="Montserrat" font-weight="900" font-size="40" letter-spacing="1.5" fill="#0d0d0d">BLACK SECRETA • NÃO ABRIR • BLACK SECRETA • NÃO ABRIR • BLACK SECRETA • NÃO ABRIR • BLACK SECRETA • NÃO ABRIR • BLACK SECRETA • NÃO ABRIR • BLACK SECRETA • NÃO ABRIR</text>
+</g></svg>
+  <div class="h xl one">A MAIOR</div>
   <div class="s">black do ano está chegando</div>
-  <div class="swipe"><b>ARRASTA</b> PARA O LADO</div>
+  <div class="chip">05/11 <span>•</span> ÀS 17H</div>
 </section>
 
 <section class="slide center" id="f1-02">
@@ -108,23 +158,108 @@
 </section>
 
 <!-- ========== FIXADO 2 · Capa do Reels ========== -->
-<section class="slide" id="f2-capa-reels">
-  <div class="logo-space"></div>
-  <div class="tape t1"><span>CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO</span></div>
-  <div class="tape t2"><span>BLACK SECRETA • NÃO ABRIR • BLACK SECRETA • NÃO ABRIR • BLACK SECRETA</span></div>
-  <div class="h xl white">BLACK</div>
-  <div class="h" style="font-size:80px;margin-top:30px">Fui <span class="box">proibida</span><br>de contar 🤐</div>
-  <div class="swipe"><b>05/11</b> ÀS 17H</div>
+<section class="slide cover" id="f2-capa-reels">
+  <img class="logo" src="logo.png" alt="Drogarias Bem Popular"><svg class="hero" width="1080" height="660" viewBox="0 0 1080 660"><defs>
+  <filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#000" flood-opacity=".55"/></filter>
+  <linearGradient id="bag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3171f"/><stop offset="1" stop-color="#9c0c0d"/></linearGradient>
+  <linearGradient id="foil" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f4f4"/><stop offset=".5" stop-color="#c9ccd1"/><stop offset="1" stop-color="#eef0f2"/></linearGradient>
+  <linearGradient id="boxf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#232323"/><stop offset="1" stop-color="#0b0b0b"/></linearGradient>
+  <radialGradient id="glow"><stop offset="0" stop-color="#ffd200" stop-opacity=".35"/><stop offset="1" stop-color="#ffd200" stop-opacity="0"/></radialGradient>
+</defs><ellipse cx="540" cy="360" rx="420" ry="300" fill="url(#glow)"/><g transform="translate(140 120) rotate(30) scale(0.85)" filter="url(#sh)">
+  <rect x="-110" y="-42" width="220" height="84" rx="42" fill="#d3131b"/>
+  <path d="M0 -42 H-68 A42 42 0 0 0 -68 42 H0 Z" fill="#ffd200"/>
+  <rect x="-96" y="-30" width="180" height="16" rx="8" fill="#fff" opacity=".35"/>
+</g><g transform="translate(950 160) rotate(-25) scale(0.8)" filter="url(#sh)">
+  <rect x="-110" y="-42" width="220" height="84" rx="42" fill="#ffd200"/>
+  <path d="M0 -42 H-68 A42 42 0 0 0 -68 42 H0 Z" fill="#ffffff"/>
+  <rect x="-96" y="-30" width="180" height="16" rx="8" fill="#fff" opacity=".35"/>
+</g><g transform="translate(100 560) rotate(-15) scale(0.7)" filter="url(#sh)">
+  <rect x="-110" y="-42" width="220" height="84" rx="42" fill="#ffffff"/>
+  <path d="M0 -42 H-68 A42 42 0 0 0 -68 42 H0 Z" fill="#d3131b"/>
+  <rect x="-96" y="-30" width="180" height="16" rx="8" fill="#fff" opacity=".35"/>
+</g><g filter="url(#sh)"><circle cx="980" cy="520" r="30" fill="#ffd200"/><rect x="962.0" y="517" width="36.0" height="6" rx="3" fill="#000" opacity=".15"/></g><g filter="url(#sh)"><circle cx="190" cy="400" r="24" fill="#fff"/><rect x="175.6" y="397" width="28.799999999999997" height="6" rx="3" fill="#000" opacity=".15"/></g><g transform="translate(900 60) scale(0.8)" opacity="0.9"><rect x="-12" y="-36" width="24" height="72" rx="5" fill="#ffd200"/><rect x="-36" y="-12" width="72" height="24" rx="5" fill="#ffd200"/></g><g transform="translate(170 270) scale(0.6)" opacity="0.6"><rect x="-12" y="-36" width="24" height="72" rx="5" fill="#fff"/><rect x="-36" y="-12" width="72" height="24" rx="5" fill="#fff"/></g><g transform="translate(560 240) scale(1.0)" filter="url(#sh)">
+  <polygon points="0,0 70,-42.0 340,-42.0 270,0" fill="#3a3a3a"/>
+  <polygon points="270,0 340,-42.0 340,298.0 270,340" fill="#050505"/>
+  <rect x="0" y="0" width="270" height="340" fill="url(#boxf)"/>
+  <rect x="0" y="244.79999999999998" width="270" height="34.0" fill="#d3131b"/>
+  <g transform="translate(48.6 54.4)"><rect x="-9" y="-26" width="18" height="52" fill="#fff"/><rect x="-26" y="-9" width="52" height="18" fill="#fff"/></g>
+  <text x="135.0" y="217.6" text-anchor="middle" font-family="Montserrat" font-weight="900" font-size="170.0" fill="#ffd200">?</text>
+</g><g transform="translate(240 330) scale(1.0)" filter="url(#sh)">
+  <polygon points="0,0 60,-36.0 320,-36.0 260,0" fill="#3a3a3a"/>
+  <polygon points="260,0 320,-36.0 320,214.0 260,250" fill="#050505"/>
+  <rect x="0" y="0" width="260" height="250" fill="url(#boxf)"/>
+  <rect x="0" y="180.0" width="260" height="25.0" fill="#d3131b"/>
+  <g transform="translate(46.8 40.0)"><rect x="-9" y="-26" width="18" height="52" fill="#fff"/><rect x="-26" y="-9" width="52" height="18" fill="#fff"/></g>
+  <text x="130.0" y="160.0" text-anchor="middle" font-family="Montserrat" font-weight="900" font-size="125.0" fill="#ffd200">?</text>
+</g><g transform="translate(285 140) scale(1.0)" filter="url(#sh)">
+  <polygon points="0,0 50,-30.0 240,-30.0 190,0" fill="#3a3a3a"/>
+  <polygon points="190,0 240,-30.0 240,140.0 190,170" fill="#050505"/>
+  <rect x="0" y="0" width="190" height="170" fill="url(#boxf)"/>
+  <rect x="0" y="122.39999999999999" width="190" height="17.0" fill="#d3131b"/>
+  <g transform="translate(34.199999999999996 27.2)"><rect x="-9" y="-26" width="18" height="52" fill="#fff"/><rect x="-26" y="-9" width="52" height="18" fill="#fff"/></g>
+  <text x="95.0" y="108.8" text-anchor="middle" font-family="Montserrat" font-weight="900" font-size="85.0" fill="#ffd200">?</text>
+</g><g transform="rotate(9 540 360)" filter="url(#sh)">
+  <rect x="-200" y="314" width="1480" height="92" fill="#ffffff"/>
+  <rect x="-200" y="314" width="1480" height="9" fill="#0d0d0d"/><rect x="-200" y="397" width="1480" height="9" fill="#0d0d0d"/>
+  <text x="-160" y="374" font-family="Montserrat" font-weight="900" font-size="40" letter-spacing="1.5" fill="#0d0d0d">LACRADO • NÃO ABRIR • LACRADO • NÃO ABRIR • LACRADO • NÃO ABRIR • LACRADO • NÃO ABRIR • LACRADO • NÃO ABRIR • LACRADO • NÃO ABRIR</text>
+</g><g transform="rotate(-7 540 470)" filter="url(#sh)">
+  <rect x="-200" y="424" width="1480" height="92" fill="#ffd200"/>
+  <rect x="-200" y="424" width="1480" height="9" fill="#0d0d0d"/><rect x="-200" y="507" width="1480" height="9" fill="#0d0d0d"/>
+  <text x="-160" y="484" font-family="Montserrat" font-weight="900" font-size="40" letter-spacing="1.5" fill="#0d0d0d">PROIBIDO CONTAR • SEGREDO • PROIBIDO CONTAR • SEGREDO • PROIBIDO CONTAR • SEGREDO • PROIBIDO CONTAR • SEGREDO • PROIBIDO CONTAR • SEGREDO • PROIBIDO CONTAR • SEGREDO</text>
+</g></svg>
+  <div class="h xl one white">BLACK</div>
+  <div class="h" style="font-size:80px;margin-top:22px">Estamos <span class="box">proibidos</span></div>
+  <div class="s" style="margin-top:14px;font-size:56px">de contar até o dia <b style="color:var(--yellow);font-weight:800">05/11</b> 🤐</div>
 </section>
 
 <!-- ========== FIXADO 3 · Carrossel "Como vai funcionar" ========== -->
-<section class="slide" id="f3-01">
-  <div class="logo-space"></div>
-  <div class="tape t1"><span>CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO</span></div>
-  <div class="tape t2"><span>BLACK SECRETA • NÃO ABRIR • BLACK SECRETA • NÃO ABRIR • BLACK SECRETA</span></div>
-  <div class="h xl">DO ANO</div>
+<section class="slide cover" id="f3-01">
+  <img class="logo" src="logo.png" alt="Drogarias Bem Popular"><svg class="hero" width="1080" height="660" viewBox="0 0 1080 660"><defs>
+  <filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#000" flood-opacity=".55"/></filter>
+  <linearGradient id="bag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3171f"/><stop offset="1" stop-color="#9c0c0d"/></linearGradient>
+  <linearGradient id="foil" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f4f4"/><stop offset=".5" stop-color="#c9ccd1"/><stop offset="1" stop-color="#eef0f2"/></linearGradient>
+  <linearGradient id="boxf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#232323"/><stop offset="1" stop-color="#0b0b0b"/></linearGradient>
+  <radialGradient id="glow"><stop offset="0" stop-color="#ffd200" stop-opacity=".35"/><stop offset="1" stop-color="#ffd200" stop-opacity="0"/></radialGradient>
+</defs><ellipse cx="540" cy="360" rx="420" ry="300" fill="url(#glow)"/><g transform="translate(160 110) rotate(-35) scale(0.85)" filter="url(#sh)">
+  <rect x="-110" y="-42" width="220" height="84" rx="42" fill="#ffffff"/>
+  <path d="M0 -42 H-68 A42 42 0 0 0 -68 42 H0 Z" fill="#d3131b"/>
+  <rect x="-96" y="-30" width="180" height="16" rx="8" fill="#fff" opacity=".35"/>
+</g><g transform="translate(930 100) rotate(20) scale(0.8)" filter="url(#sh)">
+  <rect x="-110" y="-42" width="220" height="84" rx="42" fill="#d3131b"/>
+  <path d="M0 -42 H-68 A42 42 0 0 0 -68 42 H0 Z" fill="#ffd200"/>
+  <rect x="-96" y="-30" width="180" height="16" rx="8" fill="#fff" opacity=".35"/>
+</g><g transform="translate(960 560) rotate(-30) scale(0.75)" filter="url(#sh)">
+  <rect x="-110" y="-42" width="220" height="84" rx="42" fill="#ffd200"/>
+  <path d="M0 -42 H-68 A42 42 0 0 0 -68 42 H0 Z" fill="#ffffff"/>
+  <rect x="-96" y="-30" width="180" height="16" rx="8" fill="#fff" opacity=".35"/>
+</g><g transform="translate(130 560) rotate(25) scale(0.7)" filter="url(#sh)">
+  <rect x="-110" y="-42" width="220" height="84" rx="42" fill="#d3131b"/>
+  <path d="M0 -42 H-68 A42 42 0 0 0 -68 42 H0 Z" fill="#ffd200"/>
+  <rect x="-96" y="-30" width="180" height="16" rx="8" fill="#fff" opacity=".35"/>
+</g><g filter="url(#sh)"><circle cx="230" cy="330" r="28" fill="#fff"/><rect x="213.2" y="327" width="33.6" height="6" rx="3" fill="#000" opacity=".15"/></g><g filter="url(#sh)"><circle cx="880" cy="340" r="30" fill="#ffd200"/><rect x="862.0" y="337" width="36.0" height="6" rx="3" fill="#000" opacity=".15"/></g><g transform="translate(870 250) scale(0.6)" opacity="0.6"><rect x="-12" y="-36" width="24" height="72" rx="5" fill="#fff"/><rect x="-36" y="-12" width="72" height="24" rx="5" fill="#fff"/></g><g transform="translate(200 230) scale(0.7)" opacity="0.9"><rect x="-12" y="-36" width="24" height="72" rx="5" fill="#ffd200"/><rect x="-36" y="-12" width="72" height="24" rx="5" fill="#ffd200"/></g><g transform="translate(262 170) rotate(-7)" filter="url(#sh)">
+  <rect x="0" y="0" width="555" height="330" rx="36" fill="url(#foil)"/>
+  <rect x="14" y="14" width="527" height="302" rx="26" fill="none" stroke="#fff" stroke-width="4" opacity=".7"/>
+  <circle cx="90" cy="95" r="50" fill="#fff"/><circle cx="90" cy="95" r="50" fill="none" stroke="#aeb2b8" stroke-width="5"/>
+<text x="90" y="119" text-anchor="middle" font-family="Montserrat" font-weight="900" font-size="70" fill="#d3131b">?</text><circle cx="215" cy="95" r="50" fill="#fff"/><circle cx="215" cy="95" r="50" fill="none" stroke="#aeb2b8" stroke-width="5"/>
+<text x="215" y="119" text-anchor="middle" font-family="Montserrat" font-weight="900" font-size="70" fill="#d3131b">?</text><circle cx="340" cy="95" r="50" fill="#fff"/><circle cx="340" cy="95" r="50" fill="none" stroke="#aeb2b8" stroke-width="5"/>
+<text x="340" y="119" text-anchor="middle" font-family="Montserrat" font-weight="900" font-size="70" fill="#d3131b">?</text><circle cx="465" cy="95" r="50" fill="#fff"/><circle cx="465" cy="95" r="50" fill="none" stroke="#aeb2b8" stroke-width="5"/>
+<text x="465" y="119" text-anchor="middle" font-family="Montserrat" font-weight="900" font-size="70" fill="#d3131b">?</text><circle cx="90" cy="235" r="50" fill="#fff"/><circle cx="90" cy="235" r="50" fill="none" stroke="#aeb2b8" stroke-width="5"/>
+<text x="90" y="259" text-anchor="middle" font-family="Montserrat" font-weight="900" font-size="70" fill="#d3131b">?</text><circle cx="215" cy="235" r="50" fill="#fff"/><circle cx="215" cy="235" r="50" fill="none" stroke="#aeb2b8" stroke-width="5"/>
+<text x="215" y="259" text-anchor="middle" font-family="Montserrat" font-weight="900" font-size="70" fill="#d3131b">?</text><circle cx="340" cy="235" r="50" fill="#fff"/><circle cx="340" cy="235" r="50" fill="none" stroke="#aeb2b8" stroke-width="5"/>
+<text x="340" y="259" text-anchor="middle" font-family="Montserrat" font-weight="900" font-size="70" fill="#d3131b">?</text><circle cx="465" cy="235" r="50" fill="#fff"/><circle cx="465" cy="235" r="50" fill="none" stroke="#aeb2b8" stroke-width="5"/>
+<text x="465" y="259" text-anchor="middle" font-family="Montserrat" font-weight="900" font-size="70" fill="#d3131b">?</text>
+</g><g transform="rotate(-6 540 470)" filter="url(#sh)">
+  <rect x="-200" y="424" width="1480" height="92" fill="#ffd200"/>
+  <rect x="-200" y="424" width="1480" height="9" fill="#0d0d0d"/><rect x="-200" y="507" width="1480" height="9" fill="#0d0d0d"/>
+  <text x="-160" y="484" font-family="Montserrat" font-weight="900" font-size="40" letter-spacing="1.5" fill="#0d0d0d">CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO • CONFIDENCIAL • SEGREDO</text>
+</g><g transform="rotate(5 540 580)" filter="url(#sh)">
+  <rect x="-200" y="534" width="1480" height="92" fill="#ffffff"/>
+  <rect x="-200" y="534" width="1480" height="9" fill="#0d0d0d"/><rect x="-200" y="617" width="1480" height="9" fill="#0d0d0d"/>
+  <text x="-160" y="594" font-family="Montserrat" font-weight="900" font-size="40" letter-spacing="1.5" fill="#0d0d0d">BLACK SECRETA • NÃO ABRIR • BLACK SECRETA • NÃO ABRIR • BLACK SECRETA • NÃO ABRIR • BLACK SECRETA • NÃO ABRIR • BLACK SECRETA • NÃO ABRIR • BLACK SECRETA • NÃO ABRIR</text>
+</g></svg>
+  <div class="h xl one">DO ANO</div>
   <div class="s">tudo que você precisa saber<br>(sem estragar a surpresa)</div>
-  <div class="swipe"><b>ARRASTA</b> PARA O LADO</div>
+  <div class="chips"><div class="chip">DIA 05/11</div><div class="chip">⏰ 17H</div><div class="chip">🛒 COMPRA NA HORA</div></div>
 </section>
 
 <section class="slide center" id="f3-02">
