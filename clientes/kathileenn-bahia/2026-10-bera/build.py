@@ -52,7 +52,7 @@ boxes = [
     (69.70, 70.98, "teste da orelhinha", (540, 400)),  # acima da cabeça
     (74.42, 75.90, "internações na UTI"),
     (76.02, 80.42, "infecções ou vírus"),             # pedido da cliente: destaque até o fim de "neonatal"
-    (77.76, 80.42, "na fase congênita ou neonatal", (540, 1386)),   # continuação da mesma frase, logo abaixo
+    (77.76, 80.42, "na fase congênita ou neonatal", (540, 1380)),   # continuação da mesma frase, logo abaixo
     (89.34, 90.56, "me chama no direct"),
 ]
 # palavra grande branca (Poppins) acima da cabeça
@@ -217,7 +217,7 @@ zexpr = "1+" + "+".join(terms)
 
 # ---------- ffmpeg ----------
 names = sorted({n for n, _ in sfx})
-inputs = ["-i", SRC, "-loop", "1", "-t", str(END + 0.5), "-i", "logo_card.png"]
+inputs = ["-i", SRC, "-loop", "1", "-t", str(END + 0.5), "-i", "logo_card_seguro.png"]
 for n in names:
     inputs += ["-i", f"sfx/{n}.wav"]
 idx = {n: 2 + k for k, n in enumerate(names)}

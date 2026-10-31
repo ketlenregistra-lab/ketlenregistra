@@ -62,7 +62,8 @@
   - Janela picture-in-picture com imagem ilustrativa (foto do ouvido, pôster de filme) com
     etiqueta roxa embaixo.
   - Recorte da pessoa em quadro menor com bordas arredondadas sobre o fundo (camadas).
-- **Encerramento:** card com o logo **Amplitude Saúde** em fundo lilás claro.
+- **Encerramento:** card com o logo **Amplitude Saúde** em fundo lilás claro — usar
+  `logo_card_seguro.png` (cabe na guia do Instagram).
 
 ## Cor
 - Tratamento padrão no CapCut: **Ajustar + Bokeh + Sombra** (aplicados no vídeo todo).

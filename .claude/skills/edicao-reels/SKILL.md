@@ -29,6 +29,8 @@ perguntando só o que falta.
 - Legenda/caixas do peito ficam abaixo de y 1070, então usam margens **153/153** (centralizadas
   em x=540 e nunca passam de 927). Margens sempre iguais dos dois lados — margem desigual
   deixa o texto torto (fora do centro).
+- **Tudo** entra na guia, inclusive o card final do logo: usar `clientes/<cliente>/logo_card_seguro.png`
+  (logo reduzido para caber; o card original passava da margem direita).
 - Antes de entregar, rodar `scripts/confere_guia.py <duração>` na pasta do vídeo: renderiza só os
   textos (legendas.ass) a 10 quadros/s e lista qualquer pixel fora da guia. Tem que dar 0.
 
