@@ -61,7 +61,8 @@ boxes = [
     (108.32, 109.64, "agende sua avaliação", "peito", ROXO),
 ]
 big = [(30.54, 32.20, "Debaixo d'água")]          # Poppins branca grande
-mega = [(99.74, 101.40, "JUNTOS")]                # roxo gigante, digitando, no vazio de cima
+mega = [(74.14, 77.10, "IMPEDANCIOMETRIA"),       # pedido da cliente: nome do exame quando ela mostra o aparelho
+        (99.74, 101.40, "JUNTOS")]                # roxo gigante, digitando, no vazio de cima
 imagem_dela = (-1, -1)
 
 zooms = [
@@ -171,12 +172,13 @@ for t0, t1, txt, onde, cor in boxes:
     ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Box,,0,0,0,,{{{pos}\\1c{cor}{BORDA}\\fad(0,80){pop_in}}}{txt}")
 for t0, t1, txt in big:
     ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Big,,0,0,0,,{{\\an2\\pos(540,{PEITO})\\fad(0,80){pop_in}}}{txt}")
-LETRA = 0.11
 for t0, t1, txt in mega:
+    LETRA = min(0.11, 0.95 / len(txt))          # palavra longa digita mais rápido (acompanha o som de teclado)
+    fs = min(240, round(240 * 9.5 / len(txt)))   # palavra longa diminui para caber na grade
     for k in range(1, len(txt) + 1):
         a = t0 + (k - 1) * LETRA
         b = t0 + k * LETRA if k < len(txt) else t1
-        ev.append(f"Dialogue: 1,{ts(a)},{ts(b)},Mega,,0,0,0,,{{\\an5\\pos(540,{TOPO_Y + 20})}}{txt[:k]}{{\\alpha&HFF&}}{txt[k:]}")
+        ev.append(f"Dialogue: 1,{ts(a)},{ts(b)},Mega,,0,0,0,,{{\\an5\\pos(540,{TOPO_Y + 20})\\fs{fs}}}{txt[:k]}{{\\alpha&HFF&}}{txt[k:]}")
 
 TIT1_FS, TIT2_FS = 120, 140
 def styles():
@@ -259,7 +261,7 @@ zexpr = "1+" + "+".join(terms)
 
 # ---------- ffmpeg ----------
 names = sorted({n for n, _ in sfx})
-inputs = ["-i", SRC, "-loop", "1", "-t", str(END + 0.5), "-i", "../work/logo_card.png"]
+inputs = ["-i", SRC, "-loop", "1", "-t", str(END + 0.5), "-i", "../work/logo_card_seguro.png"]
 for n in names:
     inputs += ["-i", f"{SFX}/{n}.wav"]
 idx = {n: 2 + k for k, n in enumerate(names)}
