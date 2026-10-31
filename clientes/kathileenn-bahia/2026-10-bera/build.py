@@ -51,7 +51,8 @@ boxes = [
     (49.72, 51.64, "cansado e com fome"),
     (69.70, 70.98, "teste da orelhinha", (540, 400)),  # acima da cabeça
     (74.42, 75.90, "internações na UTI"),
-    (76.02, 77.70, "infecções ou vírus"),
+    (76.02, 80.42, "infecções ou vírus"),             # pedido da cliente: destaque até o fim de "neonatal"
+    (77.76, 80.42, "na fase congênita ou neonatal", (540, 1386)),   # continuação da mesma frase, logo abaixo
     (89.34, 90.56, "me chama no direct"),
 ]
 # palavra grande branca (Poppins) acima da cabeça
