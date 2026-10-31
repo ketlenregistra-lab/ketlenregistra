@@ -188,7 +188,8 @@ def pos_mega(onde, t0, t1):
     return f"\\an5\\pos(540,{TOPO_Y + 20})"
 def cor_mega(cor):
     # branca com sombra leve para ler em cima da blusa lilás
-    return f"\\1c{cor}\\shad3\\4c&H000000&\\4a&H70&" if cor else ""
+    # letras mais abertas e traço um pouco mais leve: palavra longa colada fica difícil de ler
+    return f"\\1c{cor}\\shad3\\4c&H000000&\\4a&H70&\\fnKB Poppins Bold\\fsp3\\fs118" if cor else ""
 for t0, t1, txt, *extra in mega:
     onde, cor = (extra + ["topo", None])[:2] if extra else ("topo", None)
     LETRA = min(0.11, 0.95 / len(txt))          # palavra longa digita mais rápido (acompanha o som de teclado)

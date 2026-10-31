@@ -50,7 +50,8 @@ perguntando só o que falta.
 - Se sobrar muito vazio em cima (ela pequena no quadro), aproximar um pouco o enquadramento
   (zoom base ~1.12 ancorado no meio) e encostar a legenda de cima logo acima da cabeça.
 - Texto digitando longo (ex.: IMPEDANCIOMETRIA) sobre fundo escuro: branco com sombra leve, na
-  altura do peito — roxo some em parede escura.
+  altura do peito — roxo some em parede escura. Palavra longa **não** leva letras juntinhas:
+  Poppins Bold com espaçamento aberto (`\fsp3`), tamanho ajustado para caber na guia.
 - Listas de 4 itens em cima: grade 2x2 (empilhar 4 caixas sobe demais).
 - Zoom ancorado no alto do quadro (`y=(ih-ih/zoom)*0.22`): assim a cabeça desce ao aproximar
   e o espaço de cima continua livre para os textos.
