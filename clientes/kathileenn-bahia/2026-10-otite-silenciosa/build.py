@@ -20,8 +20,12 @@ CAIXA = "&H50F2EEF0"     # fundo claro semitransparente das caixas
 LEG_TOPO = 480           # legenda branca: base no vazio acima da cabeça (mesa já é carregada)
 LEG_BAIXO = 1420         # quando a cabeça sobe (zoom/close): desce para abaixo do peito
 PEITO = 1360             # base das ênfases (caixas) na altura do peito; zona segura: x 88-992, y 261-1461
-CABECA_MIN = 500         # legenda em cima só se o topo da cabeça (com cabelo) estiver abaixo disso
-cabeca = json.load(open("cabeca.json")) if os.path.exists("cabeca.json") else []   # medido numa prévia com os mesmos zooms
+# enquadramento: ela um pouco mais perto (menos vazio em cima), pedido da Ketlen
+BASE_ZOOM = 1.12
+ANCORA = 0.50
+CABECA_MIN = 263 + 110 + 35   # legenda de 2 linhas em cima só cabe se a cabeça estiver abaixo disso
+CABECA_JSON = "cabeca_v2.json"   # medido numa prévia já com este enquadramento
+cabeca = json.load(open(CABECA_JSON)) if os.path.exists(CABECA_JSON) else []
 TOPO_Y = 400             # textos no vazio acima da cabeça
 AV = 0.0
 
@@ -61,7 +65,8 @@ boxes = [
     (108.32, 109.64, "agende sua avaliação", "peito", ROXO),
 ]
 big = [(30.54, 32.20, "Debaixo d'água")]          # Poppins branca grande
-mega = [(74.14, 77.10, "IMPEDANCIOMETRIA"),       # pedido da cliente: nome do exame quando ela mostra o aparelho
+# palavras digitando: (início, fim, texto[, onde, cor]); IMPEDANCIOMETRIA branca no peito (mais legível)
+mega = [(74.14, 77.10, "IMPEDANCIOMETRIA", "peito", "&H00FFFFFF"),   # pedido da cliente: nome do exame
         (99.74, 101.40, "JUNTOS")]                # roxo gigante, digitando, no vazio de cima
 imagem_dela = (-1, -1)
 
@@ -84,7 +89,7 @@ def novo_t(t):
     return t
 boxes = [(novo_t(t0), novo_t(t0) + (t1 - t0), *r) for t0, t1, *r in boxes]
 big = [(novo_t(t0), novo_t(t0) + (t1 - t0), x) for t0, t1, x in big]
-mega = [(novo_t(t0), novo_t(t0) + (t1 - t0), x) for t0, t1, x in mega]
+mega = [(novo_t(t0), novo_t(t0) + (t1 - t0), *r) for t0, t1, *r in mega]
 
 sfx = [("clique_caneta", 0.0), ("clique_caneta", 0.25)]   # as duas linhas do título
 for kind, t0, t1, z in zooms:
@@ -93,7 +98,7 @@ for b in boxes:
     sfx.append(("clique_caneta", b[0]))
 for t0, _, _ in big:
     sfx.append(("clique_caneta", t0))
-for t0, _, _ in mega:
+for t0, *_ in mega:
     sfx.append(("teclado", t0 - 0.075))
 sfx.sort(key=lambda x: x[1])
 teclas = [t for n, t in sfx if n == "teclado"]
@@ -106,7 +111,7 @@ for name, t in sfx:
 sfx = dedup
 
 # ---------- legenda corrida (frases, até 2 linhas, como no vídeo de referência) ----------
-replace = [b for b in boxes if b[3] == "peito"] + [(t0, t1) for t0, t1, _ in big + mega]
+replace = [b for b in boxes if b[3] == "peito"] + [(t0, t1) for t0, t1, *_ in big + mega]
 breaks = sorted({b[0] for b in replace} | {b[1] for b in replace} | {3.0})
 def in_box(t):
     return any(b[0] - 0.01 <= t < b[1] - 0.01 for b in replace)
@@ -150,6 +155,11 @@ for gi, g in enumerate(groups):
     if in_box(s):
         continue                                # palavra com ênfase aparece só uma vez (sem legenda repetida)
     y = LEG_BAIXO if embaixo else LEG_TOPO
+    if not embaixo:
+        # cola a legenda logo acima da cabeça (sem vazio sobrando em cima)
+        tops = [c for t, c in cabeca if s - 0.2 <= t <= e and c]
+        if tops:
+            y = int(min(640, max(263 + 110, min(tops) - 35)))
     linhas = quebra(txt)
     for k, ln in enumerate(linhas):
         ly = y - (len(linhas) - 1 - k) * 50   # linhas bem coladas, como na referência
@@ -172,13 +182,21 @@ for t0, t1, txt, onde, cor in boxes:
     ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Box,,0,0,0,,{{{pos}\\1c{cor}{BORDA}\\fad(0,80){pop_in}}}{txt}")
 for t0, t1, txt in big:
     ev.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},Big,,0,0,0,,{{\\an2\\pos(540,{PEITO})\\fad(0,80){pop_in}}}{txt}")
-for t0, t1, txt in mega:
+def pos_mega(onde, t0, t1):
+    if onde == "peito":
+        return f"\\an2\\pos(540,{PEITO})"
+    return f"\\an5\\pos(540,{TOPO_Y + 20})"
+def cor_mega(cor):
+    # branca com sombra leve para ler em cima da blusa lilás
+    return f"\\1c{cor}\\shad3\\4c&H000000&\\4a&H70&" if cor else ""
+for t0, t1, txt, *extra in mega:
+    onde, cor = (extra + ["topo", None])[:2] if extra else ("topo", None)
     LETRA = min(0.11, 0.95 / len(txt))          # palavra longa digita mais rápido (acompanha o som de teclado)
     fs = min(240, round(240 * 9.5 / len(txt)))   # palavra longa diminui para caber na grade
     for k in range(1, len(txt) + 1):
         a = t0 + (k - 1) * LETRA
         b = t0 + k * LETRA if k < len(txt) else t1
-        ev.append(f"Dialogue: 1,{ts(a)},{ts(b)},Mega,,0,0,0,,{{\\an5\\pos(540,{TOPO_Y + 20})\\fs{fs}}}{txt[:k]}{{\\alpha&HFF&}}{txt[k:]}")
+        ev.append(f"Dialogue: 1,{ts(a)},{ts(b)},Mega,,0,0,0,,{{{pos_mega(onde, t0, t1)}\\fs{fs}{cor_mega(cor)}}}{txt[:k]}{{\\alpha&HFF&}}{txt[k:]}")
 
 TIT1_FS, TIT2_FS = 120, 140
 def styles():
@@ -269,7 +287,7 @@ vol = {"swish_capcut": 0.45, "clique_caneta": 0.45, "teclado": 0.45}
 
 fc = [
     f"[0:v]trim=0:{DUR},setpts=PTS-STARTPTS,"
-    f"zoompan=z='{zexpr}':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)*0.22':d=1:s={W}x{H}:fps=30,"
+    f"zoompan=z='{BASE_ZOOM}*({zexpr})':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)*{ANCORA}':d=1:s={W}x{H}:fps=30,"
     f"ass=legendas.ass:fontsdir={FONTS},format=yuv420p,settb=1/30,setpts=N/TB/30[base]",
     f"[1:v]fps=30,scale={W}:{H},format=yuv420p,settb=1/30,setpts=N/TB/30[logo]",
     f"[base]tpad=stop_mode=clone:stop_duration=0.4[basep]",

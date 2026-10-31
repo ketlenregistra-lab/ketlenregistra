@@ -47,6 +47,10 @@ perguntando só o que falta.
   `blaze_face_short_range.tflite`) e o build escolhe a posição por frase.
 - Texto do vazio de cima fica **logo acima da cabeça** (não colado no limite de cima): a posição
   vem do topo da cabeça medido por `scripts/cabeca.py`, centro em no máximo y=560.
+- Se sobrar muito vazio em cima (ela pequena no quadro), aproximar um pouco o enquadramento
+  (zoom base ~1.12 ancorado no meio) e encostar a legenda de cima logo acima da cabeça.
+- Texto digitando longo (ex.: IMPEDANCIOMETRIA) sobre fundo escuro: branco com sombra leve, na
+  altura do peito — roxo some em parede escura.
 - Listas de 4 itens em cima: grade 2x2 (empilhar 4 caixas sobe demais).
 - Zoom ancorado no alto do quadro (`y=(ih-ih/zoom)*0.22`): assim a cabeça desce ao aproximar
   e o espaço de cima continua livre para os textos.
