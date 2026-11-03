@@ -15,9 +15,8 @@ Padrão tirado da edição da própria Ketlen (vídeo 2, "Vídeo editado") e usa
 | Elemento | Fonte | Cor | Onde |
 |---|---|---|---|
 | Legenda que acompanha a fala (1 palavra por vez) | Poppins Bold, ~44 px | branco | altura das mãos (y ≈ 1195) |
-| Título (monta palavra por palavra, com `ref_click`) | Inter SemiBold, letras bem juntas | branco | ao lado do rosto, com zoom no rosto |
-| 2ª linha do título | Playfair Display Regular | branco | logo abaixo do título |
-| Destaque "amarelinho" (escreve na tela, com `chalk`) | La Belle Aurore com traço engrossado | amarelo-creme `#F1E092` | altura das mãos; esconde a legenda branca enquanto aparece |
+| Título (monta palavra por palavra, com `ref_click`) | Inter SemiBold ~88 px, letras bem juntas; 2ª linha na mesma fonte, linhas coladas | branco | centralizado na altura do peito (y ≈ 930), nunca no rosto; some ~0,5 s depois da palavra |
+| Destaque "amarelinho" (escreve na tela, com `chalk`) | La Belle Aurore com traço engrossado | amarelo-creme `#F1E092` | altura das mãos; é escrita **enquanto ela fala a palavra** e some logo depois (~0,25 s) |
 
 A fonte original do destaque é a **MrSmith** do CapCut, que é paga e não está disponível para download aqui.
 A La Belle Aurore é a gratuita mais parecida. Se o arquivo .ttf/.otf da MrSmith for colocado no Drive,
@@ -26,7 +25,7 @@ ela passa a ser usada no lugar.
 ## Efeitos sonoros (pedido da Ketlen)
 - Legenda branca de baixo: **sem** efeito sonoro.
 - Título / palavra importante: zoom rápido no rosto + **`ref_click.wav`** (o clique tirado da edição dela).
-  O título fica **ao lado do rosto**, sem cobrir, e a legenda de baixo some enquanto ele aparece.
+  O título fica **no peito**, sem cobrir o rosto, e a legenda de baixo some enquanto ele aparece.
 - Letra amarela: às vezes o som de escrita (`chalk.wav`), baixinho.
 
 ## Final
