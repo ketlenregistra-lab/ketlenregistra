@@ -1,7 +1,8 @@
 # Laudiane — vídeos de novembro (edição para aprovação)
 
 Formato 1080x1920, 30fps, legendas dentro da grade de segurança do Instagram, nada sobre o rosto. Velocidade +7% (sutil).
-Fontes: Playfair Display (legendas/serifa) + Gaegu (manuscrita, parecida com a do “Acredite, tem jeito”).
+Fontes: Playfair Display (legendas/serifa) + Shadows Into Light Two (manuscrita, parecida com a do “Acredite, tem jeito”, com todos os acentos).
+Ícones: linha fina no tom creme (coração, cadeado, brilho, flor, broto) — sem emojis de teclado.
 
 ## Vídeo 1
 
