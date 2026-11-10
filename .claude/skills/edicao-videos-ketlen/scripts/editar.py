@@ -483,7 +483,7 @@ WrapStyle: 2
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Caixa,Inter SemiBold,{LEG_TAM},&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,0,0,7,0,0,0,1
 Style: Leg,Inter SemiBold,{LEG_TAM},&H00FFFFFF,&H00FFFFFF,&H00000000,&H90623A4A,0,0,0,0,100,100,{LEG_ESP},0,1,0,3,5,0,0,0,1
-Style: Destaque,AHintofSass,200,{DESTAQUE_COR},{DESTAQUE_COR},&H00000000,&HA0000000,0,0,0,0,100,100,6,0,1,0,2,5,80,80,0,1
+Style: Destaque,{p.get('fonte_destaque', 'AHintofSass')},200,{DESTAQUE_COR},{DESTAQUE_COR},&H00000000,&HA0000000,0,0,0,0,100,100,6,0,1,0,2,5,80,80,0,1
 Style: Quebrada,DejaVu Sans,150,&H00FFFFFF,&H00FFFFFF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,7,3,5,0,0,0,1
 Style: Rotulo,AHintofSass,{ROTULO_TAM},{DESTAQUE_COR},{DESTAQUE_COR},&H00000000,&H60000000,0,0,0,0,100,100,4,0,1,0,2,5,40,40,0,1
 
@@ -511,15 +511,18 @@ def audio_final(p, T, sfx, fim):
         ev.append(('click_mouse', p['titulo'][0], 0.8))
     for t in p.get('cliques', []):           # cliques avulsos: entrada/saída da gravação de tela já montada por ela
         ev.append(('click_mouse', t, 0.8))
-    for a, b, *_ in p.get('zooms', []):      # swoosh do CapCut dela: pico logo no início do zoom
-        ev.append(('swoosh', a - 0.05, 1.0))
+    for a, b, *_ in p.get('zooms', []):      # swoosh do CapCut dela (ou "swish", Dia 14): pico logo no início do zoom
+        ev.append((p.get('som_zoom', 'swoosh'), a - 0.05, 1.0))
+    for t in p.get('balanco_sons', []):
+        ev.append(('swish', t, 0.8))
     for a, d in p.get('fechar_abrir', []):   # transição "tela fechando" com clique (Dia 14, efeito sonoro)
         ev.append(('click_mouse', a, 0.9))
     for s in p.get('sobreposicoes', []):     # elementos com som próprio (ex.: card do corte automático)
         if s.get('som'):
             ev.append((s['som'], s['t0'], s.get('vol', 0.7)))
+    mudos = {tuple(x) for x in p.get('destaques_mudos', [])}   # destaque sem som nenhum (ex.: "efeito de zoom", Dia 14)
     for a, b, _ in dest(p):                  # destaque também é zoom in: swoosh
-        if (a, b) not in cima_(p):
+        if (a, b) not in cima_(p) and (a, b) not in mudos:
             ev.append(('swoosh', a - 0.05, 1.0))
     if p.get('fechamento', True):
         ev.append(('click_mouse', fim - TV_OFF, 0.9))     # clique quando a tela "desliga"
@@ -529,6 +532,8 @@ def audio_final(p, T, sfx, fim):
     sr = 48000; tec = wav16_st(os.path.join(sfx, 'teclado.wav'))
     trilha = np.zeros(int((fim + 4) * sr))
     for a, b, txt in dest(p) + [(a, bd, txt) for a, bd, _, txt, *_ in espalhados(p)]:
+        if (a, b) in mudos:
+            continue
         toks, tempos = digitacao(a, b, txt)
         n = int((tempos[-1] - a + 0.12) * sr)
         s = np.tile(tec, n // len(tec) + 1)[:n] * 0.8
@@ -612,6 +617,12 @@ def cmd_renderizar(a):
         f.append(f'[{pre}]split=2[pa{j}][pb{j}]'); cur_a = f'pa{j}'
         for q, (de, x) in enumerate(zip(trechos, xs)):
             fd_a = f'setpts=PTS-STARTPTS+{t0}/TB,fade=t=in:st={t0}:d=0.2:alpha=1,fade=t=out:st={t1 - 0.2:.2f}:d=0.2:alpha=1[ac{j}{q}]'
+            if c['arquivo'].lower().endswith('.mov'):   # clipe animado com transparência (gráfico do corte, Dia 14), posição em x/y 4K
+                inp += ['-i', c['arquivo']]
+                f.append(f'[{k}:v]format=rgba,scale=iw*{sc}:-2,setpts=PTS-STARTPTS+{t0}/TB[ac{j}{q}]')
+                f.append(f"[{cur_a}][ac{j}{q}]overlay={int(c.get('x', 0) * sc)}:{int(c.get('y', 0) * sc)}:eof_action=pass[ao{j}{q}]")
+                cur_a = f'ao{j}{q}'; k += 1
+                continue
             if c['arquivo'].lower().endswith('.png'):   # imagem com transparência (ex.: logo): quadrada, sem máscara
                 lw = int(c.get('largura', 700) * sc) // 2 * 2
                 inp += ['-loop', '1', '-t', str(t1 - t0 + 0.5), '-i', c['arquivo']]
@@ -630,7 +641,11 @@ def cmd_renderizar(a):
         f.append(f'[{k}:v]scale={W}:{H},format=gray,setpts=PTS-STARTPTS+{t0}/TB[mp{j}];[pb{j}]format=rgba[pr{j}];'
                  f'[pr{j}][mp{j}]alphamerge[pp{j}];[{cur_a}][pp{j}]overlay=0:0:enable=\'between(t,{t0},{t1})\':eof_action=pass,format=yuv420p[pre{j}]')
         pre = f'pre{j}'; k += 1
-    f.append(f"[{pre}]setpts=PTS-STARTPTS,zoompan=z='1+{ZOOM}*({zs})+{SUBIR}*({zd})':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)*(0.42+0.58*({zd}))':d=1:s={W}x{H}:fps={FPS},"
+    kb = p.get('balanco', [])                  # [[t, posição -1..1], ...]: o quadro desliza junto com o movimento dela
+    bal = '0'
+    for (ta, va), (tb, vb) in zip(kb, kb[1:]):
+        bal = f"if(between(it,{ta},{tb}),{va}+({vb}-({va}))*(it-{ta})/{tb - ta},{bal})"
+    f.append(f"[{pre}]setpts=PTS-STARTPTS,zoompan=z='1+{ZOOM}*({zs})+{SUBIR}*({zd})':x='(iw-iw/zoom)/2*(1+({bal}))':y='(ih-ih/zoom)*(0.42+0.58*({zd}))':d=1:s={W}x{H}:fps={FPS},"
              f"gblur=sigma={30 * sc:.0f}:enable='{blur}',"
              f"drawbox=x=0:y=0:w=iw:h=ih:color=black@0.35:t=fill:enable='{blur}',hue=s=0:enable='{gr}'[b0]")
     cur = 'b0'
