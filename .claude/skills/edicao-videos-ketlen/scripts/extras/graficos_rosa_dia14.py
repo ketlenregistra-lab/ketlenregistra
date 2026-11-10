@@ -244,9 +244,10 @@ SERIF = '/home/user/ketlenregistra/.claude/skills/edicao-videos-ketlen/assets/fo
 ITENS = ['corte automático', 'legenda palavra por palavra', 'palavra em destaque', 'efeito sonoro', 'zoom com intenção']
 
 
-def checklist(atual, dur):
+def checklist(atual, dur, esc=0.72, itens=None, titulo='roteiro.txt', marcas=None, nome=None):
     """Janela "roteiro.txt" estilo referência, com checklist em rosa: itens anteriores marcados, o atual se marca."""
-    W_, H_ = 1340, 150 + 118 * len(ITENS)
+    ITN = itens or ITENS
+    W_, H_ = 1340, 150 + 118 * len(ITN)
     fm = ImageFont.truetype(MONO, 40); fn = ImageFont.truetype(MONO, 46); fi = ImageFont.truetype(INTER_B, 66)
 
     def base(marca):
@@ -254,29 +255,39 @@ def checklist(atual, dur):
         d.rounded_rectangle([0, 0, W_ - 1, H_ - 1], 46, fill=(252, 247, 249, 228))
         for k, c in enumerate([(240, 110, 120), (246, 180, 90), (140, 200, 120)]):
             d.ellipse([42 + k * 50, 38, 74 + k * 50, 70], fill=c + (255,))
-        d.text((W_ // 2, 56), 'roteiro.txt', font=fm, fill=(150, 130, 140, 255), anchor='mm')
-        for i, it in enumerate(ITENS):
+        d.text((W_ // 2, 56), titulo, font=fm, fill=(150, 130, 140, 255), anchor='mm')
+        for i, it in enumerate(ITN):
             y = 150 + i * 118
-            if i == atual:
+            if marcas is not None and marca[i] < 0:
+                continue
+            if marcas is None and i == atual:
                 d.rounded_rectangle([28, y - 50, W_ - 28, y + 50], 26, fill=ROSA_CLARO + (255,))
             d.text((70, y), f'{i + 1:02d}', font=fn, fill=(160, 150, 155, 255), anchor='lm')
-            bx = 170; ok = i < atual or (i == atual and marca > 0)
+            bx = 170
+            if marcas is not None:
+                ok = marca[i] > 0; e = marca[i]
+            else:
+                ok = i < atual or (i == atual and marca > 0); e = marca if i == atual else 1.0
             if ok:
-                e = marca if i == atual else 1.0; r = int(30 * (0.7 + 0.3 * e))
+                r = int(30 * (0.7 + 0.3 * e))
                 d.rounded_rectangle([bx + 30 - r, y - r, bx + 30 + r, y + r], 14, fill=ROSA + (255,))
                 d.line([(bx + 15, y + 1), (bx + 26, y + 13), (bx + 46, y - 12)], fill=(255, 255, 255, 255), width=8, joint='curve')
             else:
                 d.rounded_rectangle([bx, y - 30, bx + 60, y + 30], 14, outline=(200, 185, 190, 255), width=4)
-            d.text((bx + 95, y), it, font=fi, fill=(45, 35, 40, 255) if i <= atual else (120, 110, 115, 255), anchor='lm')
+            d.text((bx + 95, y), it, font=fi, fill=(45, 35, 40, 255) if (marcas is not None or i <= atual) else (120, 110, 115, 255), anchor='lm')
         return im
     cache = {}
 
     def fr(t):
         if t > dur:
             return None
-        m = round(ease((t - 0.45) / 0.25), 2)
+        if marcas is None:
+            m = round(ease((t - 0.12) / 0.2), 2)
+        else:   # itens que aparecem um por um (contando nos dedos), cada um já marcado
+            m = tuple(-1 if t < tm else round(ease((t - tm) / 0.2), 2) for tm in marcas)
         if m not in cache:
-            cache[m] = sombra(base(m), 20, 70, (0, 12))[0]
+            b = sombra(base(m), 20, 70, (0, 12))[0]
+            cache[m] = b.resize((int(b.width * esc), int(b.height * esc)), Image.LANCZOS)
         im = cache[m]; e = pop(t / 0.35)
         if abs(e - 1) > 0.003:
             im2 = im.resize((max(1, int(im.width * e)), max(1, int(im.height * e))), Image.LANCZOS)
@@ -284,7 +295,8 @@ def checklist(atual, dur):
         a = min(1.0, t / 0.15) * (1.0 if t < dur - 0.3 else max(0.0, (dur - t) / 0.3))
         return com_alpha(im, a)
     pad = sombra(Image.new('RGBA', (W_, H_)), 20)[1]
-    return escrever(f'checklist{atual}', fr, int(dur * FPS), (W_ + 2 * pad, H_ + 2 * pad)), pad
+    tw, th = int((W_ + 2 * pad) * esc), int((H_ + 2 * pad) * esc)
+    return escrever(nome or f'checklist{atual}', fr, int(dur * FPS), (tw, th)), (tw, th)
 
 
 def card_img(arq, larg):
@@ -293,79 +305,145 @@ def card_img(arq, larg):
     return im
 
 
-# ---------------------------------------------------------------- linha do tempo (nova, depois dos cortes)
-sob = []; atras = []
+
+
+def claude_busca(dur, texto, t_dig):
+    """Barra de mensagem no estilo do Claude (bege, botão laranja), digitando o pedido."""
+    W_, H_ = 1560, 300
+    fi = ImageFont.truetype(INTER_SB, 74); fp = ImageFont.truetype(INTER_SB, 44)
+    ic = icone_sem_fundo(os.path.join(S, 'in', 'claude.jpg'), 96)
+
+    def base(n):
+        im = Image.new('RGBA', (W_, H_), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+        d.rounded_rectangle([0, 0, W_ - 1, H_ - 1], 60, fill=(250, 249, 245, 252), outline=(222, 214, 200, 255), width=4)
+        im.alpha_composite(ic, (48, 46))
+        d.text((170, 94), 'Claude', font=fp, fill=(120, 110, 100, 255), anchor='lm')
+        txt = texto[:n]
+        d.text((52, 205), txt if txt else 'Como posso ajudar?', font=fi, fill=(40, 35, 30, 255) if txt else (170, 160, 150, 255), anchor='lm')
+        if 0 < n < len(texto):
+            x = 52 + fi.getlength(txt) + 8; d.line([x, 165, x, 245], fill=(217, 119, 87, 255), width=6)
+        cx, cy = W_ - 110, 205
+        d.rounded_rectangle([cx - 56, cy - 56, cx + 56, cy + 56], 30, fill=(217, 119, 87, 255))
+        d.line([cx, cy + 26, cx, cy - 24], fill=(255, 255, 255, 255), width=10)
+        d.line([cx - 22, cy - 4, cx, cy - 26, cx + 22, cy - 4], fill=(255, 255, 255, 255), width=10, joint='curve')
+        return sombra(im, 20, 70, (0, 12))[0]
+    cache = {}
+
+    def fr(t):
+        if t > dur:
+            return None
+        n = int(len(texto) * max(0.0, min(1.0, (t - 0.35) / t_dig)))
+        if n not in cache:
+            cache[n] = base(n)
+        im = cache[n]; e = pop(t / 0.35)
+        if abs(e - 1) > 0.003:
+            im2 = im.resize((max(1, int(im.width * e)), max(1, int(im.height * e))), Image.LANCZOS)
+            c = Image.new('RGBA', im.size, (0, 0, 0, 0)); c.alpha_composite(im2, ((im.width - im2.width) // 2, (im.height - im2.height) // 2)); im = c
+        a = min(1.0, t / 0.15) * (1.0 if t < dur - 0.3 else max(0.0, (dur - t) / 0.3))
+        return com_alpha(im, a)
+    pad = sombra(Image.new('RGBA', (W_, H_)), 20)[1]
+    return escrever('claude_busca', fr, int(dur * FPS), (W_ + 2 * pad, H_ + 2 * pad)), pad
+
+
+def ts(t):
+    return f'{int(t // 3600)}:{int(t % 3600 // 60):02d}:{t % 60:05.2f}'
+
+
+def par(a, b, branco, rosa, y):
+    """Título em dois tons acima da cabeça: palavra branca grossa + palavra rosa serifada (estilo referência)."""
+    return [f'Dialogue: 6,{ts(a)},{ts(b)},Destaque,,0,0,0,,{{\\an5\\pos(1080,{y})\\fs230\\fscx50\\fscy50\\t(0,160,\\fscx104\\fscy104)\\t(160,260,\\fscx100\\fscy100)\\fad(0,200)}}{branco}',
+            f'Dialogue: 6,{ts(a + 0.25)},{ts(b)},Destaque,,0,0,0,,{{\\an5\\pos(1080,{y + 230})\\fnInstrument Serif\\i1\\fs360\\c&HA07FF5&\\bord3\\3c&HA07FF5&\\shad4\\4c&H50000000&\\fscx50\\fscy50\\t(0,160,\\fscx104\\fscy104)\\t(160,260,\\fscx100\\fscy100)\\fad(0,200)}}{rosa}']
+
+
+# ---------------------------------------------------------------- linha do tempo (3ª rodada: nada em cima da cabeça)
+sob = []; atras = []; cliques = []; extra = []; sem_leg = []
 n1 = t_de('número')[0]; n2 = t_de('número', n1 + 1)[0]; n3 = t_de('número', n2 + 1)[0]
 q4 = t_de('número', n3 + 1)[0]; n5 = t_de('número', q4 + 1)[0]; cuid = t_de('cuidado', n5 + 20)[0]
 com = t_de('comenta')[0]
+TOPO_Y = 560
+# checklists por trás dela (camada), em cima; no nº 3 não tem (o foco é "palavras em destaque")
 for j, a in enumerate([n1, n2, n3, q4, n5]):
-    arq, pad = checklist(j, 2.0 if j == 2 else 2.9)
-    sob.append({'arquivo': arq, 't0': round(a, 3), 'x': (2160 - 1340) // 2 - pad, 'y': 560 - pad, 'som': 'click_mouse', 'vol': 0.5})
+    if j == 2:
+        continue
+    dur = (t_de('corte', n1 + 1)[0] + 0.45 - a) if j == 0 else 2.6
+    arq, (tw, th) = checklist(j, dur)
+    atras.append({'arquivo': arq, 't0': round(a, 3), 't1': round(a + dur, 3), 'x': (2160 - tw) // 2, 'y': TOPO_Y - 30})
 
-# card do corte automático: POR TRÁS da cabeça dela, com clique
+# card do corte automático: atrás da cabeça, depois do checklist
 c0 = t_de('corte', n1 + 1)[0] + 0.5; c1 = n2 - 0.1
 arq, pad = card_corte(c1 - c0)
-atras.append({'arquivo': arq, 't0': round(c0, 3), 't1': round(c1, 3), 'x': (2160 - 1520) // 2 - pad, 'y': 790 - pad})
+atras.append({'arquivo': arq, 't0': round(c0, 3), 't1': round(c1, 3), 'x': (2160 - 1520) // 2 - pad, 'y': 600 - pad})
 
-# gancho: "todo" (amarelo) + "editado" (rosa serifada), acima da cabeça, como na referência
+# gancho: "todo" + "editado"
 ta = t_de('todo')[0]; tb = t_de('code')[1] + 0.2
-extra0 = [f'Dialogue: 6,{{a}},{{b}},Destaque,,0,0,0,,{{{{\\an5\\pos(1080,700)\\fs300\\fscx50\\fscy50\\t(0,160,\\fscx104\\fscy104)\\t(160,260,\\fscx100\\fscy100)\\fad(0,200)}}}}todo',
-          f'Dialogue: 6,{{a2}},{{b}},Destaque,,0,0,0,,{{{{\\an5\\pos(1080,930)\\fnInstrument Serif\\i1\\fs350\\c&HA07FF5&\\bord3\\3c&HA07FF5&\\shad4\\4c&H50000000&\\fscx50\\fscy50\\t(0,160,\\fscx104\\fscy104)\\t(160,260,\\fscx100\\fscy100)\\fad(0,200)}}}}editado']
-
-# filtros da cor (print do CapCut dela) em "menos a cor ... CapCut"
+extra += par(ta, tb, 'todo', 'editado', 640)
+# filtros da cor: em cima, atrás dela
 fa = t_de('menos')[0]; fb = n1 - 0.15
-arq, pad = animar_estatico('filtros_cor', card_img(os.path.join(S, 'in2', 'filtros_cor.png'), 1000), fb - fa)
-sob.append({'arquivo': arq, 't0': round(fa, 3), 'x': 580 - pad, 'y': 1720 - pad, 'som': 'click_mouse', 'vol': 0.7})
-# ícone do CapCut em "CapCut"
+arq, pad = animar_estatico('filtros_cor', card_img(os.path.join(S, 'in2', 'filtros_cor.png'), 820), fb - fa)
+atras.append({'arquivo': arq, 't0': round(fa, 3), 't1': round(fb, 3), 'x': (2160 - 820) // 2 - pad, 'y': 545 - pad})
+# ícone do CapCut onde ela mostra a mão
 cc = t_de('capcut')[0]
-arq, pad = flutuante('capcut', icone_sem_fundo(os.path.join(S, 'in', 'capcut.jpg'), 250), min(1.5, n1 - cc + 0.2))
-sob.append({'arquivo': arq, 't0': round(cc, 3), 'x': 1560 - pad, 'y': 1180 - pad, 'som': 'click_mouse', 'vol': 0.7})
+arq, pad = flutuante('capcut', icone_sem_fundo(os.path.join(S, 'in', 'capcut.jpg'), 250), min(1.1, n1 - cc + 0.2))
+sob.append({'arquivo': arq, 't0': round(cc, 3), 'x': 1560 - pad, 'y': 1800 - pad, 'som': 'click_mouse', 'vol': 0.7})
 
 # corações no "queridinho"
 qa = max(t_de('esse', q4)[0], t_de('sonoro', q4)[1] + 0.5); qb = t_de('queridinho')[1] + 0.9
 sob.append({'arquivo': coracoes(qb - qa), 't0': round(qa, 3), 'x': 230, 'y': 760})
 
-# robô no "cara de IA"
+# robô no "cara de IA" (ao lado do rosto)
 ra = t_de('cara', cuid)[0]
-arq, pad = flutuante('robo', emoji('🤖', 300), 2.6); sob.append({'arquivo': arq, 't0': round(ra, 3), 'x': 1530 - pad, 'y': 1150 - pad})
+arq, pad = flutuante('robo', emoji('🤖', 300), 2.6); sob.append({'arquivo': arq, 't0': round(ra, 3), 'x': 1560 - pad, 'y': 1150 - pad})
 
-# ícone do Claude quando ela fala "Claude" (com clique)
+# ícone do Claude quando ela fala "Claude" (ao lado do rosto, com clique) — menos no "Claude, edita pra mim" (lá entra a barra)
 ic = icone_sem_fundo(os.path.join(S, 'in', 'claude.jpg'), 250); ult = -9
+ce = t_de('edita', cuid)[0]
 for a, b, x in w:
-    if x.strip('.,?!').lower() in ('claude', 'cloud') and a - ult > 4:
+    if x.strip('.,?!').lower() in ('claude', 'cloud') and a - ult > 4 and not (ce - 1.0 < a < ce):
         arq, pad = flutuante(f'claude_{int(a)}', ic, 1.5)
-        sob.append({'arquivo': arq, 't0': round(a, 3), 'x': 1560 - pad, 'y': 1180 - pad, 'som': 'click_mouse', 'vol': 0.7}); ult = a
+        sob.append({'arquivo': arq, 't0': round(a, 3), 'x': 1580 - pad, 'y': 1180 - pad, 'som': 'click_mouse', 'vol': 0.7}); ult = a
 
-# pasta organizada dela (print do Drive) em "se você se organiza ... referência"
-oa = t_de('organiza')[0]; ob = t_de('referência')[1] + 0.6
-arq, pad = animar_estatico('pasta_drive', card_img(os.path.join(S, 'in2', 'cara_ia.png'), 1500), ob - oa)
-sob.append({'arquivo': arq, 't0': round(oa, 3), 'x': 330 - pad, 'y': 1900 - pad, 'som': 'click_mouse', 'vol': 0.7})
+# "Claude, edita pra mim": barra de mensagem do Claude na altura do peito
+ca = t_de('assim', ce - 1.5)[0]; cb = t_de('mim', ce)[1] + 1.0
+arq, pad = claude_busca(cb - ca, 'edita pra mim', t_de('mim', ce)[1] - ca - 0.35)
+sob.append({'arquivo': arq, 't0': round(ca, 3), 'x': (2160 - 1560) // 2 - pad, 'y': 1950 - pad, 'som': 'click_mouse', 'vol': 0.6})
+sem_leg.append([ca, cb])
 
-# presente
+# "não exagere nem em efeito, nem em filtros, nem em legenda": bloquinho atrás dela, um item por vez, com clique
+na = t_de('exagere', n5 + 15)[0]; nb = t_de('legenda', na)[1] + 1.0
+marcas = [t_de('efeito', na)[0], t_de('filtros', na)[0], t_de('legenda', na)[0]]
+arq, (tw, th) = checklist(0, nb - na, itens=['efeito', 'filtros', 'legenda'], titulo='não exagere.txt', marcas=[m - na for m in marcas], nome='nao_exagere')
+atras.append({'arquivo': arq, 't0': round(na, 3), 't1': round(nb, 3), 'x': (2160 - tw) // 2, 'y': TOPO_Y})
+cliques += [round(m, 3) for m in marcas]
+
+# pasta organizada (print do Drive): em cima, atrás dela, quando ela aponta pra cima
+oa = t_de('organiza')[0]; ob = t_de('referência')[0]
+arq, pad = animar_estatico('pasta_drive', card_img(os.path.join(S, 'in2', 'cara_ia.png'), 1300), ob - oa)
+atras.append({'arquivo': arq, 't0': round(oa, 3), 't1': round(ob, 3), 'x': (2160 - 1300) // 2 - pad, 'y': 620 - pad})
+# "dá referência": o vídeo de referência dela tocando atrás dela
+r0 = ob; r1 = t_de('cara', ob)[1]
+atras.append({'arquivo': os.path.join(S, 'in', 'ref_tipografia.mp4'), 't0': round(r0, 3), 't1': round(r1, 3), 'trechos': [1.0]})
+
+# presente (ao lado, na altura do peito)
 pa = t_de('presentinho')[0]
-arq, pad = flutuante('presente', emoji('🎁', 300), 2.0); sob.append({'arquivo': arq, 't0': round(pa, 3), 'x': 1520 - pad, 'y': 1850 - pad})
+arq, pad = flutuante('presente', emoji('🎁', 300), 2.0); sob.append({'arquivo': arq, 't0': round(pa, 3), 'x': 1540 - pad, 'y': 1850 - pad})
 
-# ---------------------------------------------------------------- legendas especiais (ASS, coordenadas 4K)
-def ts(t):
-    return f'{int(t // 3600)}:{int(t % 3600 // 60):02d}:{t % 60:05.2f}'
-
-extra = [extra0[0].format(a=ts(ta), b=ts(tb)), extra0[1].format(a2=ts(t_de('editado')[0]), b=ts(tb))]
-sem_leg = []
-# palavra por palavra: centralizada, na fonte nova amarela
+# ---------------------------------------------------------------- textos (ASS)
+# palavra por palavra perto da mão dela
 pp = [x for x in w if t_de('palavras', n2)[0] - 0.01 <= x[0] <= t_de('palavras', n2, 2)[1] + 0.01]
 for i, (a, b, x) in enumerate(pp):
     fimw = pp[i + 1][0] if i + 1 < len(pp) else b + 0.35
-    extra.append(f'Dialogue: 5,{ts(a)},{ts(fimw)},Destaque,,0,0,0,,{{\\an5\\pos(1080,2250)\\fs250\\fscx70\\fscy70\\t(0,90,\\fscx100\\fscy100)}}{x.strip(".,").lower()}')
+    extra.append(f'Dialogue: 5,{ts(a)},{ts(fimw)},Destaque,,0,0,0,,{{\\an5\\pos(900,2760)\\fs230\\fscx70\\fscy70\\t(0,90,\\fscx100\\fscy100)}}{x.strip(".,").lower()}')
 sem_leg.append([pp[0][0] - 0.05, pp[-1][1] + 0.35])
-# palavra grande acima da cabeça: rosa serifada
-ga = max(t_de('destaque', n3)[0] - 0.45, n3 + 2.0); gb = ga + 2.0
-extra.append(f'Dialogue: 6,{ts(ga)},{ts(gb)},Destaque,,0,0,0,,{{\\an5\\pos(1160,850)\\fnInstrument Serif\\i1\\fs430\\c&HA07FF5&\\bord3\\3c&HA07FF5&\\shad5\\4c&H50000000&'
-             f'\\fscx40\\fscy40\\t(0,180,\\fscx108\\fscy108)\\t(180,300,\\fscx100\\fscy100)\\fad(0,250)}}destaque')
-# "edita" entre aspas, rosa serifada
+# nº 3: "palavras em destaque" em cima (ela acena pra cima)
+p3 = t_de('palavras', n3)[0]
+extra += par(p3, p3 + 2.1, 'palavras em', 'destaque', 600)
+# "título chamativo" em cima (ela aponta pra cima)
+tt = t_de('título')[0]
+extra += par(tt, t_de('chamativo')[1] + 0.6, 'título', 'chamativo', 600)
+# "edita" rosa, um pouco acima da cabeça
 ea, eb = t_de('edita', com - 1); eb = ea + 1.4
-extra.append(f'Dialogue: 6,{ts(ea)},{ts(eb)},Destaque,,0,0,0,,{{\\an5\\pos(1080,2250)\\fnInstrument Serif\\i1\\fs420\\c&HA07FF5&\\bord3\\3c&HA07FF5&\\shad4\\4c&H50000000&'
+extra.append(f'Dialogue: 6,{ts(ea)},{ts(eb)},Destaque,,0,0,0,,{{\\an5\\pos(1080,920)\\fnInstrument Serif\\i1\\fs420\\c&HA07FF5&\\bord3\\3c&HA07FF5&\\shad4\\4c&H50000000&'
              f'\\fscx50\\fscy50\\t(0,160,\\fscx106\\fscy106)\\t(160,260,\\fscx100\\fscy100)\\fad(0,200)}}“edita”')
-sem_leg.append([ea - 0.05, eb])
 
 # ---------------------------------------------------------------- correções da transcrição
 cor = []
@@ -374,7 +452,7 @@ for a, b, x in w:
     if k.lower() == 'cloud': cor.append([a, x, 'Claude' + suf])
     if k.lower() == 'iá': cor.append([a, x, 'IA' + suf])
 
-# ---------------------------------------------------------------- destaques amarelos, zoom e balanço
+# ---------------------------------------------------------------- destaques (agora brancos), zoom e balanço
 dest = [[t_de('corte', n1)[0], t_de('automático', n1)[1] + 0.05, 'corte automático'],
         [t_de('legendas')[0], t_de('legendas')[1] + 0.1, 'legendas'],
         [t_de('efeito', q4)[0], t_de('sonoro', q4)[1] + 0.05, 'efeito sonoro'],
@@ -383,13 +461,12 @@ dest = [[t_de('corte', n1)[0], t_de('automático', n1)[1] + 0.05, 'corte automá
 z0 = t_de('zoom', n5)[1]
 mv = t_de('movimento', n5)[0]
 zoom = [[round(z0 - 0.1, 3), round(mv - 0.95, 3), 0.22], [round(mv - 0.85, 3), round(mv + 1.6, 3), 0.10]]
-bal = [[mv - 0.75, 0], [mv - 0.5, -1], [mv + 0.3, -1], [mv + 0.55, 1], [mv + 1.15, 1], [mv + 1.4, 0]]
+bal = [[mv - 0.75, 0], [mv - 0.5, 1], [mv + 0.3, 1], [mv + 0.55, -1], [mv + 1.15, -1], [mv + 1.4, 0]]   # segue ela: ela vai pra esquerda, o quadro vai junto
 trans = [[round(t_de('sonoro', q4)[1] + 0.06, 3), 0.42]]
 
 p = json.load(open(os.path.join(T, 'plano.json')))
 p.update({'sobreposicoes': sob, 'atras': atras, 'ass_extra': extra, 'sem_legenda': sem_leg, 'correcoes': cor, 'destaques': dest,
-          'destaques_mudos': [dest[3][:2]], 'zooms': zoom, 'som_zoom': 'swish', 'balanco': [[round(a, 3), v] for a, v in bal],
-          'balanco_sons': [round(mv - 0.75, 3), round(mv + 0.3, 3)], 'fechar_abrir': trans, 'fonte_destaque': 'Inter Display Black'})
+          'destaques_mudos': [dest[3][:2]], 'zooms': zoom, 'som_zoom': 'zoom_in', 'balanco': [[round(a, 3), v] for a, v in bal],
+          'balanco_sons': [], 'cliques': cliques, 'fechar_abrir': trans, 'fonte_destaque': 'Inter Display Black', 'cor_destaque': '&H00FFFFFF'})
 json.dump(p, open(os.path.join(T, 'plano.json'), 'w'), ensure_ascii=False, indent=1)
-print(json.dumps({k: p[k] for k in ('destaques', 'zooms', 'balanco', 'fechar_abrir', 'sem_legenda')}, ensure_ascii=False))
-print(len(sob), 'sobreposições', len(atras), 'atrás')
+print(len(sob), 'sobreposições', len(atras), 'atrás', 'cliques', cliques)

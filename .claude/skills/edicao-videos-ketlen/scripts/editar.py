@@ -483,7 +483,7 @@ WrapStyle: 2
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Caixa,Inter SemiBold,{LEG_TAM},&H00FFFFFF,&H00FFFFFF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,0,0,7,0,0,0,1
 Style: Leg,Inter SemiBold,{LEG_TAM},&H00FFFFFF,&H00FFFFFF,&H00000000,&H90623A4A,0,0,0,0,100,100,{LEG_ESP},0,1,0,3,5,0,0,0,1
-Style: Destaque,{p.get('fonte_destaque', 'AHintofSass')},200,{DESTAQUE_COR},{DESTAQUE_COR},&H00000000,&HA0000000,0,0,0,0,100,100,6,0,1,0,2,5,80,80,0,1
+Style: Destaque,{p.get('fonte_destaque', 'AHintofSass')},200,{p.get('cor_destaque', DESTAQUE_COR)},{p.get('cor_destaque', DESTAQUE_COR)},&H00000000,&HA0000000,0,0,0,0,100,100,6,0,1,0,2,5,80,80,0,1
 Style: Quebrada,DejaVu Sans,150,&H00FFFFFF,&H00FFFFFF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,7,3,5,0,0,0,1
 Style: Rotulo,AHintofSass,{ROTULO_TAM},{DESTAQUE_COR},{DESTAQUE_COR},&H00000000,&H60000000,0,0,0,0,100,100,4,0,1,0,2,5,40,40,0,1
 
@@ -511,8 +511,12 @@ def audio_final(p, T, sfx, fim):
         ev.append(('click_mouse', p['titulo'][0], 0.8))
     for t in p.get('cliques', []):           # cliques avulsos: entrada/saída da gravação de tela já montada por ela
         ev.append(('click_mouse', t, 0.8))
-    for a, b, *_ in p.get('zooms', []):      # swoosh do CapCut dela (ou "swish", Dia 14): pico logo no início do zoom
-        ev.append((p.get('som_zoom', 'swoosh'), a - 0.05, 1.0))
+    for a, b, *_ in p.get('zooms', []):      # swoosh do CapCut dela: pico logo no início do zoom
+        sz = p.get('som_zoom', 'swoosh')
+        if sz == 'zoom_in':                    # "puxando pra perto" (Dia 14): cresce e termina quando o zoom chega
+            ev.append(('zoom_in', a + 0.35 - 0.55, 1.0))
+        elif sz:
+            ev.append((sz, a - 0.05, 1.0))
     for t in p.get('balanco_sons', []):
         ev.append(('swish', t, 0.8))
     for a, d in p.get('fechar_abrir', []):   # transição "tela fechando" com clique (Dia 14, efeito sonoro)
