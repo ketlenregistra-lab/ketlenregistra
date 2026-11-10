@@ -402,6 +402,7 @@ def legendas(p, T, fontes):
                or (a, b) in {(d[0], d[1]) for d in p.get('destaques', []) if len(d) > 3 and d[3] == 'cima'}]
     if p.get('titulo_corpo') and p.get('titulo'):   # título no corpo (vídeo sobe): sem legenda branca nesse trecho
         janelas.append(tuple(p['titulo'][:2]))
+    janelas += [tuple(x) for x in p.get('sem_legenda', [])]   # ex.: palavra por palavra na mão, palavra grande (Dia 14)
     dentro = lambda t: any(x - 0.05 <= t < y for x, y in janelas)
     grupos, g = [], []
     for i, x in enumerate(w):
@@ -489,6 +490,7 @@ Style: Rotulo,AHintofSass,{ROTULO_TAM},{DESTAQUE_COR},{DESTAQUE_COR},&H00000000,
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
+    ev += p.get('ass_extra', [])               # linhas prontas (ex.: palavra por palavra na mão, "edita" em rosa)
     out = os.path.join(T, 'legendas.ass')
     open(out, 'w').write(cab + '\n'.join(ev) + '\n')
     return out
@@ -509,8 +511,13 @@ def audio_final(p, T, sfx, fim):
         ev.append(('click_mouse', p['titulo'][0], 0.8))
     for t in p.get('cliques', []):           # cliques avulsos: entrada/saída da gravação de tela já montada por ela
         ev.append(('click_mouse', t, 0.8))
-    for a, b in p.get('zooms', []):          # swoosh do CapCut dela: pico logo no início do zoom
+    for a, b, *_ in p.get('zooms', []):      # swoosh do CapCut dela: pico logo no início do zoom
         ev.append(('swoosh', a - 0.05, 1.0))
+    for a, d in p.get('fechar_abrir', []):   # transição "tela fechando" com clique (Dia 14, efeito sonoro)
+        ev.append(('click_mouse', a, 0.9))
+    for s in p.get('sobreposicoes', []):     # elementos com som próprio (ex.: card do corte automático)
+        if s.get('som'):
+            ev.append((s['som'], s['t0'], s.get('vol', 0.7)))
     for a, b, _ in dest(p):                  # destaque também é zoom in: swoosh
         if (a, b) not in cima_(p):
             ev.append(('swoosh', a - 0.05, 1.0))
@@ -587,7 +594,8 @@ def cmd_renderizar(a):
     aud = audio_final(p, T, sfx, fim)
     # 2) efeitos na linha do tempo
     inp = ['-i', base, '-i', aud]; f = []; k = 2
-    zs = '+'.join(f'clip((it-{z0})/0.2,0,1)*clip(({z1}-it)/0.15,0,1)' for z0, z1 in p.get('zooms', [])) or '0'
+    zs = '+'.join(f'{(z[2] / ZOOM if len(z) > 2 else 1):.3f}*clip((it-{z[0]})/0.35,0,1)*clip(({z[1]}-it)/0.3,0,1)'
+                  for z in p.get('zooms', [])) or '0'   # 3º campo opcional = intensidade (ex.: 0.2 = zoom no rosto)
     # durante os destaques amarelos o vídeo sobe e aproxima (ela fica no alto, a frase ocupa o corpo)
     zd = '+'.join(f'clip((it-{a})/0.25,0,1)*clip(({b}-it)/0.25,0,1)' for a, b in [(a, b) for a, b, _ in dest(p) if (a, b) not in cima_(p)]
                    + [(c['t0'], c['t1']) for c in p.get('camadas', []) if c.get('subir')]   # card no peito: ela sobe junto
@@ -678,16 +686,35 @@ def cmd_renderizar(a):
                  f'scale={cw}:{ch},pad={W}:{H}:{x0}:{y0}:black[ce{j}c];[{k}:v]fps={FPS},format=rgba[ce{j}m];'
                  f"[ce{j}c][ce{j}m]overlay=0:0:eof_action=pass[ce{j}d];[ce{j}a][ce{j}d]overlay=0:0:enable='between(t,{c0},{c1})':eof_action=pass[ce{j}]")
         cur = f'ce{j}'; k += 1
+    for j, o in enumerate(p.get('sobreposicoes', [])):   # elementos animados com transparência (gráficos, ícones, corações)
+        inp += ['-i', o['arquivo']]
+        f.append(f"[{k}:v]format=rgba,scale=iw*{sc}:-2,setpts=PTS-STARTPTS+{o['t0']}/TB[so{j}];"
+                 f"[{cur}][so{j}]overlay={int(o['x'] * sc)}:{int(o['y'] * sc)}:eof_action=pass[sv{j}]")
+        cur = f'sv{j}'; k += 1
     ig = p.get('instagram'); cauda = IG_CAUDA if ig else 0.8
     fecha = p.get('fechamento', True)          # false: termina com ela falando, sem "tela desligada" nem preto (Dia 10)
     if not fecha:
         cauda = 0
     # final "tela desligada" (TV antiga): a imagem achata numa linha brilhante, vira um pontinho e apaga
     t0 = fim - TV_OFF if fecha else fim
-    if not fecha:
-        f.append(f'[{cur}]format=yuv420p,ass={ass}:fontsdir={fontes},setpts=N/{FPS}/TB[vf]'); cur = 'vf'
+    fa = p.get('fechar_abrir', [])
+    if fa:   # "tela fechando": a imagem achata numa linha e reabre (transição de cena com clique)
+        f.append(f'[{cur}]format=yuv420p,ass={ass}:fontsdir={fontes},setpts=N/{FPS}/TB[fa0]'); cur = 'fa0'; ass_feito = True
+        for j, (a, d) in enumerate(fa):
+            hh = f"max(8,2*trunc({H}*pow(abs(1-2*t/{d}),2.2)/2))"
+            f.append(f'[{cur}]split=3[fx{j}a][fx{j}b][fx{j}c];[fx{j}a]trim=end={a:.3f},setpts=PTS-STARTPTS[fx{j}p];'
+                     f"[fx{j}b]trim=start={a:.3f}:end={a + d:.3f},setpts=PTS-STARTPTS,eq=brightness='0.35*(1-abs(1-2*t/{d}))':eval=frame,"
+                     f"scale=w={W}:h='{hh}':eval=frame,format=yuva420p[fx{j}s];color=black:s={W}x{H}:r={FPS}:d={d:.3f}[fx{j}k];"
+                     f"[fx{j}k][fx{j}s]overlay=x=0:y='(H-h)/2':eval=frame:eof_action=pass,setsar=1,format=yuv420p[fx{j}m];"
+                     f'[fx{j}c]trim=start={a + d:.3f},setpts=PTS-STARTPTS[fx{j}f];[fx{j}p][fx{j}m][fx{j}f]concat=n=3:v=1:a=0[fa{j + 1}]')
+            cur = f'fa{j + 1}'
     else:
-        f.append(f'[{cur}]format=yuv420p,ass={ass}:fontsdir={fontes},setpts=N/{FPS}/TB,split[tvm][tvt];'
+        ass_feito = False
+    pre_ass = '' if ass_feito else f'ass={ass}:fontsdir={fontes},'
+    if not fecha:
+        f.append(f'[{cur}]format=yuv420p,{pre_ass}setpts=N/{FPS}/TB[vf]'); cur = 'vf'
+    else:
+        f.append(f'[{cur}]format=yuv420p,{pre_ass}setpts=N/{FPS}/TB,split[tvm][tvt];'
                  f'[tvm]trim=end={t0:.3f},setpts=PTS-STARTPTS[tva];'
                  f"[tvt]trim=start={t0:.3f}:end={fim:.3f},setpts=PTS-STARTPTS,eq=brightness='min(0.45,t*1.6)':contrast=1.1:eval=frame,"
                  f"scale=w='if(lt(t,0.24),{W},max(8,2*trunc({W}*(1-(t-0.24)/0.16)/2)))':h='max(8,2*trunc({H}*pow(max(0,1-t/0.24),3)/2))':eval=frame,"
