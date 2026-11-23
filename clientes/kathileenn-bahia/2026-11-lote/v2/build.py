@@ -13,7 +13,7 @@ D, destaque, linhas = criar(words, cabeca, 1300)
 # CHUPETA no centro, digitando, com o som de teclado (baixinho)
 yc = acima_da_cabeca(cabeca, 4.96, 7.0, 150)
 e_chup, _ = ev_digitando(4.96, 7.00, "CHUPETA", 540, yc, ROXO, fs=150, cps=12)
-D.add(4.96, 7.00, lambda t1: e_chup, [("teclado", 4.96 - 0.075)])
+D.add(4.96, 7.00, lambda t1: e_chup, [("teclado_curto", 4.96 - 0.075)])   # só o teclado, sem o som extra do fim do arquivo
 
 destaque("ossos da face", 26.98, "notif", 74, texto="Ossos da face")
 destaque("arcadas dentárias", 28.80, "notif", 74, texto="Arcadas dentárias")

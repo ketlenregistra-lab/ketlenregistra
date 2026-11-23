@@ -123,14 +123,15 @@ perguntando só o que falta.
 - **Caixinha nunca quebra em duas linhas:** a fonte diminui até caber numa linha (`caber`).
 - Destaques e inicial maiúscula; frases de destaque sem caixinha em MAIÚSCULAS quando ela pedir.
 - **Sem animação de digitação** nas frases (ela achou ruim): aparecem inteiras com clique.
-  Exceção aprovada: palavra única tipo CHUPETA pode digitar, com o **teclado do CapCut** (`teclado.wav`)
-  bem baixinho — nunca o toque sintético por letra.
+  Exceção aprovada: palavra única tipo CHUPETA pode digitar, com o **teclado do CapCut** cortado (`teclado_curto.wav`,
+  só os 0,44s iniciais — o arquivo inteiro tem um segundo som no fim que ela ouviu sobreposto) bem baixinho — nunca o toque sintético por letra.
 - **Efeitos sonoros baixinhos, só de fundo** (VOL no motor): clique para texto; swish só no instante
   do zoom repentino; nada de som sem movimento na tela; `limpar_sfx` impede dois sons colados.
 - **Imagens de apoio pequenas, atrás da pessoa** (máscara), junto da cabeça de quem está ligado ao
   assunto (ex.: cotonete na cabeça da criança), só durante a frase.
-- **Final:** círculo fechando para a logomarca em fundo branco; ou "olho fechando" com som de
-  **riser** (`riser.wav`) quando termina numa cena (ex.: criança pulando na piscina).
+- **Final:** SEMPRE círculo fechando para a logomarca com nome em fundo branco (`card_logo_branco`).
+  Quando termina numa cena (ex.: criança pulando na piscina), deixar a cena acontecer inteira e só
+  então fechar — o "olho fechando" foi recusado; ela prefere o mesmo fechamento de todos.
 - **Vídeo HDR do iPhone:** NÃO converter a cor. Sai em HEVC 10-bit HLG (mesma cor do original, ela
   vê igual no iPhone); textos/cartões a ~82% para não ofuscar. Converter para SDR muda a cor e ela percebe.
 - Não cortar o finalzinho da fala; sem legenda em "e aí" de sobra no fim.

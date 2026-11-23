@@ -19,7 +19,7 @@ ROXO = "&H00BF227F"        # #7F22BF
 ROXO_RGB = (127, 34, 191)
 BRANCO = "&H00FFFFFF"
 CAIXA_CLARA = "&H10F4F0F2"
-VOL = {"swish_capcut": 0.14, "clique_caneta": 0.18, "tecla": 0.20, "teclado": 0.14, "fecha_tela": 0.30, "riser": 0.22}
+VOL = {"swish_capcut": 0.14, "clique_caneta": 0.18, "tecla": 0.20, "teclado": 0.14, "teclado_curto": 0.14, "fecha_tela": 0.30, "riser": 0.22}
 MANTER = {"R", "S", "X", "Z", "WhatsApp", "BERA", "PEATE", "UTI"}
 
 # ---------------------------------------------------------------- utilidades

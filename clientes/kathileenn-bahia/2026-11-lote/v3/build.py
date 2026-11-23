@@ -5,8 +5,7 @@ from destaque_helper import *
 
 FIX = {"Fotonete?": "Cotonete?", "Fotonete": "Cotonete", "sozinho.": "sozinha.", (77.06, "sabe"): "salva"}
 words = carregar_palavras("transcricao.json", FIX)
-DUR = 83.30            # inclui a menina pulando na piscina
-OLHO = 82.35           # a tela fecha como um olho quando ela pula
+DUR = 83.30            # inclui a menina pulando na piscina; o fechamento vem depois do pulo
 cabeca = json.load(open("cabeca.json"))
 LEG_Y = 1380
 D, destaque, linhas = criar(words, cabeca, 1310)
@@ -41,7 +40,7 @@ zooms = [("suave", 13.06, 15.95, 1.10), ("suave", 40.78, 47.40, 1.08),
          ("seco", 64.80, 66.60, 1.12), ("suave", 70.0, 76.5, 1.08)]
 sfx += [("swish_capcut", t0) for k, t0, t1, z in zooms if k == "seco"]   # som só junto do zoom
 
-ev.extend(ev_olho(OLHO, DUR))
+card_logo_branco("card_logo.png", os.path.join(AQUI, "..", "work", "logo_card_seguro.png"))
 build(dict(src="bruto.mov", dur=DUR, words=words, leg_font="KB Poppins SemiBold", leg_fs=70,
            leg_y=LEG_Y, eventos=ev, sem_legenda=ocupado, sfx=sfx, zooms=zooms, imagens=imagens,
-           fim="olho", olho_inicio=OLHO))
+           card="card_logo.png"))
