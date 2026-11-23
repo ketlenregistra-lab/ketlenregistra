@@ -66,7 +66,8 @@
   `logo_card_seguro.png` (cabe na guia do Instagram).
 
 ## Lote de novembro (vídeos 1–4)
-- Fim de todo vídeo: **tela fechando** (círculo) e **fundo roxo com o logo** (`card_final_roxo.png`).
+- Fim de todo vídeo: **tela fechando** (círculo) e **só a logomarca em fundo branco**
+  (`card_logo_branco.png`) — nada de fundo roxo nem cartãozinho.
 - Palavras curtas de destaque: letra branca em caixinha roxa (cartão de notificação), com clique.
 - Janeiro Branco: destaques em branco (sem roxo), exceto "cuidar da sua cabeça" (letra roxa, borda
   branca), e trilha suave bem baixinha.
