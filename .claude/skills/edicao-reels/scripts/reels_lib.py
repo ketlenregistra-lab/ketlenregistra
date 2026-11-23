@@ -19,7 +19,8 @@ ROXO = "&H00BF227F"        # #7F22BF
 ROXO_RGB = (127, 34, 191)
 BRANCO = "&H00FFFFFF"
 CAIXA_CLARA = "&H10F4F0F2"
-VOL = {"swish_capcut": 0.22, "clique_caneta": 0.28, "tecla": 0.30, "fecha_tela": 0.45}
+VOL = {"swish_capcut": 0.14, "clique_caneta": 0.18, "tecla": 0.20, "teclado": 0.14, "fecha_tela": 0.30, "riser": 0.22}
+MANTER = {"R", "S", "X", "Z", "WhatsApp", "BERA", "PEATE", "UTI"}
 
 # ---------------------------------------------------------------- utilidades
 def ts(t):
@@ -167,6 +168,45 @@ def ev_linhas(t_linhas, t1, linhas, x, y0, dy, estilo=BRANCO, fs=90, fontes=None
         tam = fs[k] if isinstance(fs, list) else fs
         evs.append(f"Dialogue: 1,{ts(t)},{ts(t1)},{st},,0,0,0,,{{\\an5\\pos({x},{y0 + k * dy}){tags}\\fs{tam}{f}{POP if pops else ''}}}{ln}")
     return evs
+
+# ---------------------------------------------------------------- destaques inteiros (revisão 3)
+FADE = "\\fad(150,100)"
+
+def largura_texto(txt, fs, fonte="KBPoppinsBold.ttf", esp=-2):
+    from PIL import ImageFont
+    f = ImageFont.truetype(os.path.join(FONTS, fonte), max(8, round(fs / 1.4)))
+    return f.getlength(txt) + esp * (len(txt) - 1)
+
+def caber(txt, fs, y, caixa=True, fonte="KBPoppinsBold.ttf"):
+    """Diminui a fonte até caber numa linha só dentro da guia (caixinha nunca quebra em duas)."""
+    lim = (927 - 540) * 2 if y + fs / 2 > 1070 else (994 - 540) * 2
+    lim -= 60 if caixa else 20
+    while fs > 40 and largura_texto(txt, fs, fonte) > lim:
+        fs -= 2
+    return fs
+
+def ev_inteiro(t0, t1, txt, x, y, estilo=ROXO, fs=100, fonte=None, layer=1):
+    """O destaque aparece de uma vez (fade-in curto), numa linha só."""
+    st, tags = cor_tags(estilo)
+    fs = caber(txt, fs, y, st == "Box", (fonte or "KB Poppins Bold").replace(" ", "") + ".ttf")
+    f = f"\\fn{fonte}" if fonte else ""
+    return f"Dialogue: {layer},{ts(t0)},{ts(t1)},{st},,0,0,0,,{{\\an5\\pos({x},{y}){tags}\\fs{fs}{f}{FADE}}}{txt}"
+
+class Destaques:
+    """Junta os destaques e garante que um nunca fica por cima do outro: cada um sai quando o
+    próximo entra. Cada item: (t0, t1, função(t1) -> eventos, sons)."""
+    def __init__(self):
+        self.itens = []
+    def add(self, t0, t1, fazer, sons=()):
+        self.itens.append([t0, t1, fazer, list(sons)])
+    def render(self):
+        self.itens.sort(key=lambda x: x[0])
+        evs, ocupado, sfx = [], [], []
+        for i, (t0, t1, fazer, sons) in enumerate(self.itens):
+            if i + 1 < len(self.itens):
+                t1 = min(t1, self.itens[i + 1][0] - 0.04)
+            evs.extend(fazer(t1)); ocupado.append((t0, t1)); sfx.extend(sons)
+        return evs, ocupado, sfx
 
 # ---------------------------------------------------------------- linhas pontilhadas (desenho no rosto)
 def tracejado(pontos, dash=14, gap=10, larg=4):
@@ -419,7 +459,12 @@ def build(cfg):
         nxt = groups[gi + 1][0][1] if gi + 1 < len(groups) else DUR
         fim = min(nxt, g[-1][2] + 0.5)
         y = leg_y(g[0][1]) if callable(leg_y) else leg_y
-        toks = [limpa(x[0]) for x in g]
+        toks = []
+        for x in g:
+            tk = limpa(x[0])
+            if not (x[1] == words[0][1] or tk in MANTER or (tk.isupper() and len(tk) > 1)):
+                tk = tk.lower()
+            toks.append(tk)
         for k, (t, s, e) in enumerate(g):
             a = s
             b = g[k + 1][1] if k + 1 < len(g) else fim
@@ -429,7 +474,15 @@ def build(cfg):
             resto = " ".join(toks[k + 1:])
             inv = "{\\alpha&HFF&} " + resto if resto else ""
             ev.append(f"Dialogue: 0,{ts(a)},{ts(b)},Leg,,0,0,0,,{{\\an2\\pos(540,{y})}}{vis}{inv}")
-    open("legendas.ass", "w").write(ass_doc(ev, leg_font, leg_fs))
+    doc = ass_doc(ev, leg_font, leg_fs)
+    if hdr(cfg["src"]):
+        # em HDR, branco 100% vira luz de destaque (ofusca): textos no "branco de referência" (~75%)
+        import re
+        def esc(m):
+            a, b, g, r = m.group(1), *[int(m.group(i), 16) for i in (2, 3, 4)]
+            return "&H%s%02X%02X%02X" % (a, round(b * 0.82), round(g * 0.82), round(r * 0.82))
+        doc = re.sub(r"&H([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})", esc, doc)
+    open("legendas.ass", "w").write(doc)
 
     # ----- zoom
     R = 0.35
@@ -443,8 +496,8 @@ def build(cfg):
             v = f"clip(({t1}-it)/{R},0,1)"
             terms.append(f"{a}*min({u}*{u}*(3-2*{u}),{v}*{v}*(3-2*{v}))")
     zexpr = "1+" + ("+".join(terms) if terms else "0")
-    cor = ("zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=hable:desat=0,"
-           "zscale=t=bt709:m=bt709:r=tv,format=yuv420p," if hdr(cfg["src"]) else "")
+    HDR = hdr(cfg["src"])
+    cor = ""     # nunca mexe na cor: vídeo HDR continua HDR (HLG), igual ao que ela vê no iPhone
     base_vf = (f"{cor}trim=0:{DUR},setpts=PTS-STARTPTS,"
                f"zoompan=z='{zexpr}':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)*0.22':d=1:s={W}x{H}:fps=30")
 
@@ -454,7 +507,7 @@ def build(cfg):
     idx = 1
     # imagens atrás da pessoa: precisam de máscara
     atras = [im for im in cfg.get("imagens", []) if len(im) > 5 and im[5] == "atras"]
-    if atras:
+    if atras and "--so-legenda" not in sys.argv:
         inputs += ["-i", mascara_pessoa(cfg["src"], [(im[0], im[1]) for im in atras], "mascara.mkv", base_vf, DUR)]
         mask_idx = idx; idx += 1
         fc.append(f"[{mask_idx}:v]format=gray,split={len(atras)}" + "".join(f"[mk{j}]" for j in range(len(atras))))
@@ -479,14 +532,15 @@ def build(cfg):
     if fim == "logo":
         END = 2.5 + 0.7
         inputs += ["-loop", "1", "-t", "3.5", "-i", cfg["card"]]
-        fc.append(f"[{idx}:v]fps=30,scale={W}:{H},format=yuv420p,settb=1/30,setpts=N/TB/30[card]")
+        lut = "lutrgb=r=val*0.75:g=val*0.75:b=val*0.75," if HDR else ""
+        fc.append(f"[{idx}:v]fps=30,scale={W}:{H},{lut}format=yuv420p,settb=1/30,setpts=N/TB/30[card]")
         fc.append("[base]tpad=stop_mode=clone:stop_duration=0.7[basep]")
         fc.append(f"[basep][card]xfade=transition=circleclose:duration=0.7:offset={DUR}[v]")
         idx += 1
     else:   # "olho": a tela vai fechando devagar, como pálpebras (desenhado no ASS), sem card
         END = 0.5
         fc.append("[base]tpad=stop_mode=clone:stop_duration=0.5[v]")
-        sfx.append(("fecha_tela", cfg["olho_inicio"]))
+        sfx.append(("riser", cfg["olho_inicio"] - 0.15))
 
     # ----- áudio
     sfx = limpar_sfx(sfx)
@@ -514,8 +568,11 @@ def build(cfg):
 
     cmd = ["ffmpeg", "-y", "-v", "error", *inputs, "-filter_complex", ";".join(fc),
            "-map", "[v]", "-map", "[a]", "-t", str(DUR + END),
-           "-c:v", "libx264", "-preset", preset, "-crf", crf, "-profile:v", "high", "-pix_fmt", "yuv420p",
-           "-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709",
+           *(["-c:v", "libx265", "-preset", "medium", "-crf", str(int(crf) + 1), "-pix_fmt", "yuv420p10le", "-tag:v", "hvc1",
+               "-x265-params", "colorprim=bt2020:transfer=arib-std-b67:colormatrix=bt2020nc:log-level=error",
+               "-color_primaries", "bt2020", "-color_trc", "arib-std-b67", "-colorspace", "bt2020nc"] if HDR else
+             ["-c:v", "libx264", "-preset", preset, "-crf", crf, "-profile:v", "high", "-pix_fmt", "yuv420p",
+              "-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709"]),
            "-r", "30", "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-movflags", "+faststart", out]
     print(f"{len(groups)} grupos de legenda, {len(sfx)} efeitos ({sum(1 for n, _ in sfx if n != 'tecla')} fora o teclado)")
     if "--so-legenda" not in sys.argv:

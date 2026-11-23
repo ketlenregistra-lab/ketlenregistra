@@ -112,25 +112,28 @@ perguntando só o que falta.
 - Redução de 4K para 1080 com scaler `lanczos`.
 - Nome do arquivo: `<cliente>_<tema>_<AAAA-MM-DD>.mp4`.
 
-## Regras que a Ketlen reforçou no lote de novembro
-- **Nada aparece antes da fala:** legenda e destaques surgem palavra por palavra no tempo da voz
-  (`ev_fala`, `tempos`). Legenda corrida também (as palavras ainda não ditas ficam invisíveis).
-- **Maiúsculas:** manter as da fala (início de frase, nomes); destaques sempre com inicial maiúscula.
-- **Destaques por cima da cabeça** quando houver espaço: logo acima do cabelo (`acima_da_cabeca` com
-  o topo medido por `cabeca.py`), nem colado no limite de cima, nem em cima da cabeça.
-- **Frases digitando (teclado):** em MAIÚSCULAS, Poppins, sem caixinha; cada letra com um toque de
-  tecla (`tecla.wav`) bem baixinho — nunca swish junto.
-- **Efeitos sonoros de fundo:** volumes baixos (VOL no motor) e `limpar_sfx` impede dois sons colados.
-  O swish acompanha exatamente o início do zoom.
-- **Duas linhas de destaque bem próximas** (dy ≈ 1 tamanho de fonte); fina + grossa quando ela pedir.
-- **Imagens de apoio pequenas e como camada atrás da pessoa** (`"atras"`: máscara de recorte da
-  pessoa com o segmentador MediaPipe `selfie.tflite`), só durante a frase que fala delas.
-- **Final:** tela fechando em círculo para **só a logomarca em fundo branco** (`card_logo_branco`).
-  Variação "olho": a tela fecha devagar como pálpebras (`ev_olho`) com som de fechar — usada quando
-  o vídeo termina numa cena (ex.: criança pulando na piscina).
-- **Vídeo HDR do iPhone** (HLG/Dolby Vision): converter para cor normal (zscale + tonemap hable, npl
-  100), senão fica acinzentado e parece que a cor foi mexida. O motor detecta sozinho.
-- Não cortar o finalzinho da fala: usar o vídeo até o fim quando ela fala até o último quadro.
+## Regras que a Ketlen reforçou no lote de novembro (revisão 3 — valem daqui pra frente)
+- **Legenda corrida:** palavras surgem no tempo da fala; **maiúscula só na primeira palavra do vídeo**
+  (o resto minúsculo, exceto siglas/letras como R, S, X, Z, WhatsApp).
+- **Destaques aparecem INTEIROS, de uma vez** (fade-in curto), quando ela começa a falar a frase —
+  nunca palavra por palavra (parece repetido: "Dica" e depois "Dica importante").
+  Duas linhas: cada linha entra inteira quando ela começa aquela linha. Linhas bem juntinhas.
+- **Um destaque nunca fica por cima de outro:** `Destaques` corta cada um quando o próximo entra;
+  cada destaque some ~0,4 s depois que ela termina a frase.
+- **Caixinha nunca quebra em duas linhas:** a fonte diminui até caber numa linha (`caber`).
+- Destaques e inicial maiúscula; frases de destaque sem caixinha em MAIÚSCULAS quando ela pedir.
+- **Sem animação de digitação** nas frases (ela achou ruim): aparecem inteiras com clique.
+  Exceção aprovada: palavra única tipo CHUPETA pode digitar, com o **teclado do CapCut** (`teclado.wav`)
+  bem baixinho — nunca o toque sintético por letra.
+- **Efeitos sonoros baixinhos, só de fundo** (VOL no motor): clique para texto; swish só no instante
+  do zoom repentino; nada de som sem movimento na tela; `limpar_sfx` impede dois sons colados.
+- **Imagens de apoio pequenas, atrás da pessoa** (máscara), junto da cabeça de quem está ligado ao
+  assunto (ex.: cotonete na cabeça da criança), só durante a frase.
+- **Final:** círculo fechando para a logomarca em fundo branco; ou "olho fechando" com som de
+  **riser** (`riser.wav`) quando termina numa cena (ex.: criança pulando na piscina).
+- **Vídeo HDR do iPhone:** NÃO converter a cor. Sai em HEVC 10-bit HLG (mesma cor do original, ela
+  vê igual no iPhone); textos/cartões a ~82% para não ofuscar. Converter para SDR muda a cor e ela percebe.
+- Não cortar o finalzinho da fala; sem legenda em "e aí" de sobra no fim.
 
 ## Motor genérico (lote de novembro)
 - `scripts/reels_lib.py`: cada vídeo vira um `build.py` curto que lista legenda, ênfases, zooms,
