@@ -65,6 +65,13 @@
 - **Encerramento:** card com o logo **Amplitude Saúde** em fundo lilás claro — usar
   `logo_card_seguro.png` (cabe na guia do Instagram).
 
+## Lote de novembro (vídeos 1–4)
+- Fim de todo vídeo: **tela fechando** (círculo) e **fundo roxo com o logo** (`card_final_roxo.png`).
+- Palavras curtas de destaque: letra branca em caixinha roxa (cartão de notificação), com clique.
+- Janeiro Branco: destaques em branco (sem roxo), exceto "cuidar da sua cabeça" (letra roxa, borda
+  branca), e trilha suave bem baixinha.
+- Imagens de apoio (cotonete, tampão, desenhos) pequenas no vazio de cima, sem cobrir o rosto.
+
 ## Cor
 - Tratamento padrão no CapCut: **Ajustar + Bokeh + Sombra** (aplicados no vídeo todo).
   A Ketlen avisa quando o vídeo vier sem tratamento.

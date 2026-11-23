@@ -112,6 +112,21 @@ perguntando só o que falta.
 - Redução de 4K para 1080 com scaler `lanczos`.
 - Nome do arquivo: `<cliente>_<tema>_<AAAA-MM-DD>.mp4`.
 
+## Motor genérico (lote de novembro)
+- `scripts/reels_lib.py`: cada vídeo vira um `build.py` curto que lista legenda, ênfases, zooms,
+  imagens, efeitos e música; `build(cfg)` monta tudo. Já traz:
+  - `ev_box(..., "notif")`: letra branca em caixinha roxa (cartão de notificação) para palavras curtas;
+    `"claro"`: letra roxa com borda/caixa branca.
+  - `ev_big`: palavra grande (Poppins Bold) roxa ou branca; `ev_typing`: frase digitando + som de teclado.
+  - `ev_linhas_rosto`: linhas pontilhadas roxas no rosto (ossos da face/arcadas), acompanhando o rosto
+    com o detector (`rosto.py`).
+  - imagens/colagens pequenas no vazio de cima (`preparar_imagem` com cantos arredondados) e desenho
+    em tela cheia (só a voz dela por cima).
+  - `trilha_suave`: trilha de fundo sintetizada; volume ~0.018 deixa a música ~14 dB abaixo da voz.
+  - Encerramento "tela fechando": transição circleclose para o card roxo com o logo (`card_final`).
+- Legenda: **Montserrat Light** quando ela pedir "a fininha"; **Poppins SemiBold** quando pedir a
+  "mais grossinha".
+
 ## Referência pronta
 - Primeiro vídeo aprovado: `clientes/kathileenn-bahia/2026-10-bera/build.py` — monta legenda (ASS),
   zooms (zoompan), efeitos sonoros e card final num comando só. Copiar como ponto de partida para
